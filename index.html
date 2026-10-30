@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>spare.jo - Find, Compare & Source Every Spare Part in Jordan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b1329',
+                        cardBg: '#131e38',
+                        accentBlue: '#2563eb'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Force single screen view without scrolling */
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Default Dark Theme Styles */
+        body.dark {
+            background-color: #0b1329;
+            color: #ffffff;
+        }
+        body.dark header, body.dark footer {
+            background-color: #070d1f;
+            border-color: rgba(30, 58, 138, 0.4);
+        }
+        body.dark .custom-card {
+            background-color: #131e38;
+            border-color: rgba(30, 58, 138, 0.3);
+        }
+        body.dark .custom-input {
+            background-color: #0b1329;
+            border-color: rgba(30, 58, 138, 0.6);
+            color: #ffffff;
+        }
+        /* Header Action Buttons in Dark Theme */
+        body.dark .header-action-btn {
+            background-color: rgba(30, 58, 138, 0.4);
+            border-color: rgba(59, 130, 246, 0.5);
+            color: #93c5fd;
+        }
+        body.dark .header-action-btn:hover {
+            background-color: rgba(30, 58, 138, 0.7);
+            color: #ffffff;
+        }
+
+        /* Light Theme Styles */
+        body.light {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        body.light header, body.light footer {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+        }
+        body.light .custom-card {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        body.light .custom-card h3, body.light .custom-card div, body.light h1, body.light span:not(.text-blue-500):not(.text-blue-400) {
+            color: #0f172a;
+        }
+        body.light .custom-input {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+        body.light .text-gray-400, body.light .text-gray-300 {
+            color: #475569 !important;
+        }
+        body.light nav a {
+            color: #334155 !important;
+        }
+        body.light nav a:hover {
+            color: #2563eb !important;
+        }
+        /* Header Action Buttons in Light Theme (High Contrast & Clear) */
+        body.light .header-action-btn {
+            background-color: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+        body.light .header-action-btn:hover {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body class="dark flex flex-col h-screen justify-between select-none" id="app-body">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b px-6 py-2 flex items-center justify-between shrink-0 transition-colors duration-300">
+        <!-- Logo & Home Button Group -->
+        <div class="flex items-center space-x-3">
+            <!-- Home Button matching clear theme-adaptive styles -->
+            <button aria-label="Home" class="header-action-btn w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
+                <i class="fa-solid fa-house"></i>
+            </button>
+            <div class="flex items-center space-x-3 cursor-pointer">
+                <div>
+                    <span class="text-lg font-black tracking-tight">spare<span class="text-blue-500">.jo</span></span>
+                    <span class="block text-[8px] text-gray-400 tracking-wider uppercase font-semibold">Jordan Auto Network</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Nav Links -->
+        <nav class="hidden md:flex items-center space-x-6 text-xs font-medium text-gray-300">
+            <a href="#" class="transition">For Garages (B2B)</a>
+            <a href="#" class="transition">Sell on spare.jo</a>
+            <a href="#" class="transition">Track Order</a>
+        </nav>
+
+        <!-- Right Header Actions (Profile, Theme Switcher & Language Switcher) -->
+        <div class="flex items-center space-x-2">
+            <!-- Theme Toggle Button -->
+            <button onclick="toggleTheme()" aria-label="Toggle Theme" class="header-action-btn w-8 h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
+                <i id="theme-icon" class="fa-solid fa-moon"></i>
+            </button>
+
+            <!-- User Profile -->
+            <button aria-label="User Profile" class="header-action-btn w-8 h-8 rounded-full border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
+                <i class="fa-regular fa-user"></i>
+            </button>
+
+            <!-- Language Switcher -->
+            <button class="header-action-btn px-2.5 py-1 rounded-lg border text-[11px] font-semibold transition cursor-pointer shadow-sm">
+                العربية
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area (Optimized to fit single screen) -->
+    <main class="flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-1.5 pt-0.5">
+        
+        <!-- Enlarged & Shifted Upward Logo Graphic / Image Container -->
+        <div class="flex flex-col items-center justify-center text-center -mb-2">
+            <div class="w-28 h-28 md:w-32 md:h-32 rounded-2xl shadow-2xl border-2 border-blue-500/50 bg-[#131e38] flex flex-col items-center justify-center p-2 text-blue-400 relative overflow-hidden group">
+                <!-- If you want to use your local image file, place it in the same folder and update the src below -->
+                <img src="Spare.jo_3.jpg" alt="spare.jo Logo" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
+                <div id="fallback-logo" class="absolute inset-0 flex-col items-center justify-center bg-[#131e38] text-center p-2" style="display:none;">
+                    <i class="fa-solid fa-gears text-4xl text-blue-500 mb-1 animate-pulse"></i>
+                    <span class="text-xs font-black tracking-tight text-white">spare<span class="text-blue-500">.jo</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Title Section -->
+        <div class="text-center space-y-0.5">
+            <h1 class="text-lg md:text-xl font-extrabold tracking-tight">
+                FIND • COMPARE • SOURCE EVERY SPARE PART IN JORDAN
+            </h1>
+            <p class="text-[11px] text-gray-400 font-light">
+                The B2B, B2C & C2C Marketplace for Workshops, Importers, and Drivers.
+            </p>
+        </div>
+
+        <!-- Search & Verify Engine Box -->
+        <div class="custom-card border rounded-xl p-2.5 shadow-xl max-w-5xl mx-auto w-full space-y-1.5 transition-colors duration-300">
+            <div class="flex justify-between items-center border-b border-blue-900/50 pb-1 text-[11px] font-semibold text-gray-300">
+                <span class="text-blue-400 border-b-2 border-blue-500 pb-1 -mb-1">Search by VIN (رقم الهيكل)</span>
+                <span class="hover:text-blue-500 cursor-pointer transition">Search by Vehicle Type</span>
+                <span class="hover:text-blue-500 cursor-pointer transition">Manual Part #</span>
+            </div>
+
+            <!-- Search input & CTA -->
+            <div class="flex flex-col sm:flex-row items-center gap-2 pt-0.5">
+                <div class="relative flex-1 w-full">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-barcode text-xs"></i>
+                    </span>
+                    <input type="text" placeholder="Enter 17-digit VIN (Chassis Number) / أدخل رقم الهيكل..." class="custom-input w-full pl-9 pr-4 py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
+                </div>
+                <button class="w-full sm:w-auto px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Find Exact Match</span>
+                </button>
+            </div>
+
+            <!-- Quick helper links -->
+            <div class="flex flex-wrap items-center justify-between text-[10px] text-gray-400">
+                <span class="hover:underline cursor-pointer text-blue-400"><i class="fa-solid fa-camera mr-1"></i> Upload Photo of Car License (إثبات الملكية/الدفتر) to Autofill</span>
+                <span>Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling</span>
+            </div>
+        </div>
+
+        <!-- 3 Marketplace Tier Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 max-w-5xl mx-auto w-full">
+            <div class="custom-card border p-2 rounded-xl flex items-center space-x-3 hover:border-blue-500/50 transition-colors duration-300">
+                <div class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+                <div>
+                    <h3 class="text-[11px] font-bold">WORKSHOPS & B2B</h3>
+                    <p class="text-[10px] text-gray-400">Manage & Source With Ease ($15/Mo)</p>
+                </div>
+            </div>
+
+            <div class="custom-card border p-2 rounded-xl flex items-center space-x-3 hover:border-blue-500/50 transition-colors duration-300">
+                <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <div>
+                    <h3 class="text-[11px] font-bold">BUY & COMPARE</h3>
+                    <p class="text-[10px] text-gray-400">Compare Real-time Prices & Delivery</p>
+                </div>
+            </div>
+
+            <div class="custom-card border p-2 rounded-xl flex items-center space-x-3 hover:border-blue-500/50 transition-colors duration-300">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-recycle"></i>
+                </div>
+                <div>
+                    <h3 class="text-[11px] font-bold">C2C & SCRAP</h3>
+                    <p class="text-[10px] text-gray-400">Trade Used/Salvaged Parts Directly</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 30 Top Requested Car Parts Categories Grid -->
+        <div class="max-w-5xl mx-auto w-full space-y-1">
+            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Popular Category Grid</h3>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center">
+                <!-- 1 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🛑</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Brake Pads</div>
+                </div>
+                <!-- 2 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔋</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Hybrid Battery</div>
+                </div>
+                <!-- 3 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">⚙️</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Clutch & Gear</div>
+                </div>
+                <!-- 4 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🛞</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Shock Absorbers</div>
+                </div>
+                <!-- 5 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">💡</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Headlights</div>
+                </div>
+                <!-- 6 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🌡️</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Radiator & Cooling</div>
+                </div>
+                <!-- 7 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">⚡</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Spark Plugs</div>
+                </div>
+                <!-- 8 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🚗</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Bumpers & Grilles</div>
+                </div>
+                <!-- 9 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🛢️</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Oil & Air Filters</div>
+                </div>
+                <!-- 10 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔄</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Alternators</div>
+                </div>
+                <!-- 11 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔧</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Timing Belts</div>
+                </div>
+                <!-- 12 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">💧</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Water Pumps</div>
+                </div>
+                <!-- 13 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔌</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Ignition Coils</div>
+                </div>
+                <!-- 14 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🌀</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Control Arms</div>
+                </div>
+                <!-- 15 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🪞</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Side Mirrors</div>
+                </div>
+                <!-- 16 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🌬️</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">AC Compressors</div>
+                </div>
+                <!-- 17 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🛡️</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Windshields</div>
+                </div>
+                <!-- 18 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">⛽</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Fuel Pumps</div>
+                </div>
+                <!-- 19 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔩</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Wheel Bearings</div>
+                </div>
+                <!-- 20 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🧰</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Gaskets & Seals</div>
+                </div>
+                <!-- 21 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🛞</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Brake Rotors</div>
+                </div>
+                <!-- 22 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔗</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">CV Joints</div>
+                </div>
+                <!-- 23 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">💨</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Oxygen Sensors</div>
+                </div>
+                <!-- 24 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🏎️</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Turbochargers</div>
+                </div>
+                <!-- 25 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🛜</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">ABS Sensors</div>
+                </div>
+                <!-- 26 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🚪</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Fenders & Doors</div>
+                </div>
+                <!-- 27 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🕹️</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Steering Racks</div>
+                </div>
+                <!-- 28 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔋</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Starter Motors</div>
+                </div>
+                <!-- 29 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                    <span class="text-base mb-0.5">🔘</span>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Thermostats</div>
+                </div>
+                <!-- 30 -->
+                <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center bg-blue-600/10 border-blue-500/50">
+                    <span class="text-base mb-0.5">📦</span>
+                    <div class="text-[10px] font-bold text-blue-400 leading-tight truncate w-full">All Parts (30+)</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Status Bar (Inline Date & Time) -->
+    <footer class="border-t py-2 px-6 text-center text-[11px] text-gray-400 shrink-0 flex justify-between items-center transition-colors duration-300">
+        <div>© 2026 spare.jo — All Rights Reserved.</div>
+        
+        <!-- Inline Live Date & Time Section -->
+        <div class="flex items-center space-x-2 text-xs font-semibold">
+            <span id="header-date">Friday, Oct 30, 2026</span>
+            <span class="text-blue-500 font-medium" id="header-time">1:57 PM</span>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Switcher Function
+        function toggleTheme() {
+            const body = document.getElementById('app-body');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+
+        // Live Date and Time Updater script
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+            
+            document.getElementById('header-date').innerText = now.toLocaleDateString('en-US', dateOptions);
+            document.getElementById('header-time').innerText = now.toLocaleTimeString('en-US', timeOptions);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+    </script>
+</body>
+</html>
