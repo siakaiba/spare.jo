@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V2.6</title>
+    <title>Spare.jo - Find & Compare V2.8</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_3.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -113,26 +113,26 @@
     <!-- Top Navigation Header -->
     <header class="border-b px-4 md:px-6 py-2 flex items-center justify-between shrink-0 transition-colors duration-300">
         <!-- Logo & Home Button Group -->
-        <div class="flex items-center space-x-2 md:space-x-3">
+        <div class="flex items-center space-x-2 md:space-x-3 rtl:space-x-reverse">
             <button aria-label="Home" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
                 <i class="fa-solid fa-house"></i>
             </button>
-            <div class="flex items-center space-x-3 cursor-pointer">
+            <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer">
                 <div>
                     <span class="text-base md:text-lg font-black tracking-tight">spare<span class="text-blue-500">.jo</span></span>
-                    <span class="block text-[7px] md:text-[8px] text-gray-400 tracking-wider uppercase font-semibold">Jordan Auto Ecosystem</span>
+                    <span id="txt-eco" class="block text-[7px] md:text-[8px] text-gray-400 tracking-wider uppercase font-semibold" data-en="Jordan Auto Ecosystem" data-ar="نظام قطاع السيارات في الأردن">Jordan Auto Ecosystem</span>
                 </div>
             </div>
         </div>
 
         <!-- Center Nav Links -->
-        <nav class="hidden md:flex items-center space-x-6 text-xs font-medium text-gray-300">
-            <a href="#" class="transition">About Spare.jo</a>
-            <a href="#" class="transition">Compare Parts</a>
+        <nav class="hidden md:flex items-center space-x-6 rtl:space-x-reverse text-xs font-medium text-gray-300">
+            <a href="#" class="transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
+            <a href="#" class="transition" data-en="Compare Parts" data-ar="مقارنة القطع">Compare Parts</a>
         </nav>
 
         <!-- Right Header Actions (Profile, Theme Switcher & Language Switcher) -->
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-2 rtl:space-x-reverse">
             <!-- Theme Toggle Button -->
             <button onclick="toggleTheme()" aria-label="Toggle Theme" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
                 <i id="theme-icon" class="fa-solid fa-moon"></i>
@@ -144,7 +144,7 @@
             </button>
 
             <!-- Language Switcher -->
-            <button class="header-action-btn px-2.5 py-1.5 md:py-1 rounded-lg border text-[11px] font-semibold transition cursor-pointer shadow-sm">
+            <button id="lang-btn" onclick="toggleLanguage()" class="header-action-btn px-2.5 py-1.5 md:py-1 rounded-lg border text-[11px] font-semibold transition cursor-pointer shadow-sm">
                 English
             </button>
         </div>
@@ -169,11 +169,11 @@
 
         <!-- Hero Title Section -->
         <div class="text-center space-y-1 md:space-y-0.5">
-            <h1 class="text-base md:text-xl font-extrabold tracking-tight px-2 leading-snug">
-                FIND • COMPARE<br>
-                <span class="text-blue-400">SOURCE EVERY SPARE PART IN JORDAN</span>
+            <h1 id="hero-title" class="text-base md:text-xl font-extrabold tracking-tight px-2 leading-snug">
+                <span data-en="FIND • COMPARE" data-ar="ابحث • قارن">FIND • COMPARE</span><br>
+                <span class="text-blue-400" data-en="SOURCE EVERY SPARE PART IN JORDAN" data-ar="وفر كل قطعة غيار في الأردن">SOURCE EVERY SPARE PART IN JORDAN</span>
             </h1>
-            <p class="text-[11px] text-gray-400 font-light">
+            <p id="hero-subtitle" class="text-[11px] text-gray-400 font-light" data-en="The B2B, B2C & C2C Marketplace for Workshops, Importers, and Drivers." data-ar="منصة B2B، B2C و C2C للورشات، المستوردين، والسائقين.">
                 The B2B, B2C & C2C Marketplace for Workshops, Importers, and Drivers.
             </p>
         </div>
@@ -181,187 +181,188 @@
         <!-- Search & Verify Engine Box -->
         <div class="custom-card border rounded-xl p-3 md:p-2.5 shadow-xl max-w-5xl mx-auto w-full space-y-2 md:space-y-1.5 transition-colors duration-300">
             <div class="flex flex-wrap justify-between items-center border-b border-blue-900/50 pb-1.5 md:pb-1 text-[10px] md:text-[11px] font-semibold text-gray-300 gap-2">
-                <span class="text-blue-400 border-b-2 border-blue-500 pb-1 -mb-1.5">Search by VIN</span>
-                <span class="hover:text-blue-500 cursor-pointer transition">Search by Vehicle Make / Model</span>
-                <span class="hover:text-blue-500 cursor-pointer transition">Search by Part Serial Number</span>
+                <span class="text-blue-400 border-b-2 border-blue-500 pb-1 -mb-1.5" data-en="Search by VIN" data-ar="البحث برقم الهيكل (VIN)">Search by VIN</span>
+                <span class="hover:text-blue-500 cursor-pointer transition" data-en="Search by Vehicle Make / Model" data-ar="البحث حسب صانع / طراز المركبة">Search by Vehicle Make / Model</span>
+                <span class="hover:text-blue-500 cursor-pointer transition" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
             </div>
 
             <!-- Search input & CTA -->
             <div class="flex flex-col sm:flex-row items-center gap-2 pt-0.5">
                 <div class="relative flex-1 w-full">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
                         <i class="fa-solid fa-barcode text-xs"></i>
                     </span>
-                    <input type="text" placeholder="Enter 17-digit VIN (Chassis Number)" class="custom-input w-full pl-9 pr-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
+                    <input id="search-input" type="text" placeholder="Enter 17-digit VIN (Chassis Number)" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
                 </div>
-                <button class="w-full sm:w-auto px-5 py-2.5 md:py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2">
+                <button class="w-full sm:w-auto px-5 py-2.5 md:py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 rtl:space-x-reverse">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <span>Find Related Parts</span>
+                    <span data-en="Find Related Parts" data-ar="ابحث عن القطع المرتبطة">Find Related Parts</span>
                 </button>
             </div>
 
             <!-- Quick helper links -->
             <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between text-[10px] text-gray-400 gap-1">
-                <span class="hover:underline cursor-pointer text-blue-400"><i class="fa-solid fa-camera mr-1"></i> Upload / Take Photo of Chassis Number to Autofill</span>
-                <span>Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling</span>
+                <span class="hover:underline cursor-pointer text-blue-400">
+                    <i class="fa-solid fa-camera mr-1 rtl:ml-1 rtl:mr-0"></i> 
+                    <span data-en="Upload / Take Photo of Chassis Number to Autofill" data-ar="رفع أو التقاط صورة لرقم الهيكل للتعبئة التلقائية">Upload / Take Photo of Chassis Number to Autofill</span>
+                </span>
+                <span data-en="Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling" data-ar="بحث سريع: بطانات الفرامل، مضخات الشرارة، الفلاتر، تبريد السيارات الكهربائية">Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling</span>
             </div>
         </div>
 
-       
-
         <!-- 30 Top Requested Car Parts Categories Grid -->
         <div class="max-w-5xl mx-auto w-full space-y-1 pb-2 md:pb-0">
-            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Popular Category Grid</h3>
-            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center max-h-40 md:max-h-none overflow-y-auto md:overflow-visible pr-1 md:pr-0">
+            <h3 id="txt-grid-title" class="text-[11px] font-bold text-gray-400 uppercase tracking-wider" data-en="Popular Category Grid" data-ar="شبكة الفئات الشائعة">Popular Category Grid</h3>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center max-h-40 md:max-h-none overflow-y-auto md:overflow-visible pe-1 md:pr-0">
                 <!-- 1 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🛑</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Brake Pads</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Brake Pads" data-ar="بطانات الفرامل">Brake Pads</div>
                 </div>
                 <!-- 2 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔋</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Hybrid Battery</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Hybrid Battery" data-ar="بطارية هجينة">Hybrid Battery</div>
                 </div>
                 <!-- 3 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">⚙️</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Clutch & Gear</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Clutch & Gear" data-ar="الكلتش وناقل الحركة">Clutch & Gear</div>
                 </div>
                 <!-- 4 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🛞</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Shock Absorbers</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Shock Absorbers" data-ar="مساعدين (الممتصات)">Shock Absorbers</div>
                 </div>
                 <!-- 5 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">💡</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Headlights</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Headlights" data-ar="الأضواء الأمامية">Headlights</div>
                 </div>
                 <!-- 6 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🌡️</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Radiator & Cooling</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Radiator & Cooling" data-ar="الراديتر والتبريد">Radiator & Cooling</div>
                 </div>
                 <!-- 7 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">⚡</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Spark Plugs</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Spark Plugs" data-ar="شمعات الإشعال (بواجي)">Spark Plugs</div>
                 </div>
                 <!-- 8 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🚗</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Bumpers & Grilles</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Bumpers & Grilles" data-ar="الصمامات والشبكات">Bumpers & Grilles</div>
                 </div>
                 <!-- 9 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🛢️</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Oil & Air Filters</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Oil & Air Filters" data-ar="فلاتر الزيت والهواء">Oil & Air Filters</div>
                 </div>
                 <!-- 10 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔄</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Alternators</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Alternators" data-ar="الدينامو (المولدات)">Alternators</div>
                 </div>
                 <!-- 11 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔧</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Timing Belts</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Timing Belts" data-ar="قشاط التوقيت">Timing Belts</div>
                 </div>
                 <!-- 12 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">💧</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Water Pumps</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Water Pumps" data-ar="مضخات المياه">Water Pumps</div>
                 </div>
                 <!-- 13 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔌</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Ignition Coils</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Ignition Coils" data-ar="بكرات الإشعال (كويلات)">Ignition Coils</div>
                 </div>
                 <!-- 14 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🌀</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Control Arms</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Control Arms" data-ar="أذرع التحكم (المقصات)">Control Arms</div>
                 </div>
                 <!-- 15 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🪞</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Side Mirrors</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Side Mirrors" data-ar="المرايا الجانبية">Side Mirrors</div>
                 </div>
                 <!-- 16 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🌬️</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">AC Compressors</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="AC Compressors" data-ar="كمبرسور المكيف">AC Compressors</div>
                 </div>
                 <!-- 17 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🛡️</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Windshields</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Windshields" data-ar="الزجاج الأمامي">Windshields</div>
                 </div>
                 <!-- 18 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">⛽</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Fuel Pumps</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Fuel Pumps" data-ar="مضخات الوقود">Fuel Pumps</div>
                 </div>
                 <!-- 19 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔩</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Wheel Bearings</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Wheel Bearings" data-ar="رمان بلي العجلات">Wheel Bearings</div>
                 </div>
                 <!-- 20 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🧰</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Gaskets & Seals</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Gaskets & Seals" data-ar="الكاسات والصوف (جوانات)">Gaskets & Seals</div>
                 </div>
                 <!-- 21 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🛞</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Brake Rotors</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Brake Rotors" data-ar="ديسكات الفرامل">Brake Rotors</div>
                 </div>
                 <!-- 22 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔗</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">CV Joints</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="CV Joints" data-ar="عقرب العكس (الرأس)">CV Joints</div>
                 </div>
                 <!-- 23 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">💨</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Oxygen Sensors</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Oxygen Sensors" data-ar="حساسات الأكسجين">Oxygen Sensors</div>
                 </div>
                 <!-- 24 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🏎️</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Turbochargers</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Turbochargers" data-ar="التوربو">Turbochargers</div>
                 </div>
                 <!-- 25 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🛜</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">ABS Sensors</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="ABS Sensors" data-ar="حساسات ABS">ABS Sensors</div>
                 </div>
                 <!-- 26 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🚪</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Fenders & Doors</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Fenders & Doors" data-ar="الأبواب والرفارف">Fenders & Doors</div>
                 </div>
                 <!-- 27 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🕹️</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Steering Racks</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Steering Racks" data-ar="علبة الديركشن (الستيرينج)">Steering Racks</div>
                 </div>
                 <!-- 28 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔋</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Starter Motors</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Starter Motors" data-ar="سلف التشغيل (المارش)">Starter Motors</div>
                 </div>
                 <!-- 29 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">🔘</span>
-                    <div class="text-[10px] font-semibold leading-tight truncate w-full">Thermostats</div>
+                    <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Thermostats" data-ar="بلف الحرارة (الثيرموستات)">Thermostats</div>
                 </div>
                 <!-- 30 -->
                 <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center bg-blue-600/10 border-blue-500/50">
                     <span class="text-base mb-0.5">📦</span>
-                    <div class="text-[10px] font-bold text-blue-400 leading-tight truncate w-full">All Parts (30+)</div>
+                    <div class="text-[10px] font-bold text-blue-400 leading-tight truncate w-full" data-en="All Parts (30+)" data-ar="جميع القطع (30+)">All Parts (30+)</div>
                 </div>
             </div>
         </div>
@@ -370,16 +371,18 @@
 
     <!-- Footer Status Bar (Inline Date & Time) -->
     <footer class="border-t py-2 px-4 md:px-6 text-center text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col sm:flex-row justify-between items-center transition-colors duration-300 gap-1">
-        <div>© 2026 Spare.jo — All Rights Reserved.</div>
+        <div data-en="© 2026 Spare.jo — All Rights Reserved." data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة.">© 2026 Spare.jo — All Rights Reserved.</div>
         
         <!-- Inline Live Date & Time Section -->
-        <div class="flex items-center space-x-2 text-xs font-semibold">
+        <div class="flex items-center space-x-2 rtl:space-x-reverse text-xs font-semibold">
             <span id="header-date">Friday, Oct 30, 2026</span>
             <span class="text-blue-500 font-medium" id="header-time">2:54 PM</span>
         </div>
     </footer>
 
     <script>
+        let currentLang = 'en';
+
         // Theme Switcher Function
         function toggleTheme() {
             const body = document.getElementById('app-body');
@@ -398,14 +401,43 @@
             }
         }
 
+        // Language Switcher Function
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            const htmlTag = document.documentElement;
+            const langBtn = document.getElementById('lang-btn');
+            const searchInput = document.getElementById('search-input');
+
+            if (currentLang === 'ar') {
+                htmlTag.setAttribute('dir', 'rtl');
+                htmlTag.setAttribute('lang', 'ar');
+                langBtn.innerText = 'العربية';
+                searchInput.placeholder = 'أدخل رقم الهيكل (17 خانة)...';
+            } else {
+                htmlTag.setAttribute('dir', 'ltr');
+                htmlTag.setAttribute('lang', 'en');
+                langBtn.innerText = 'English';
+                searchInput.placeholder = 'Enter 17-digit VIN (Chassis Number)';
+            }
+
+            // Translate elements with data-en and data-ar attributes
+            document.querySelectorAll('[data-en]').forEach(el => {
+                const translation = el.getAttribute(`data-${currentLang}`);
+                if (translation) {
+                    el.innerText = translation;
+                }
+            });
+        }
+
         // Live Date and Time Updater script
         function updateDateTime() {
             const now = new Date();
+            const locale = currentLang === 'ar' ? 'ar-JO' : 'en-US';
             const dateOptions = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
             const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
             
-            document.getElementById('header-date').innerText = now.toLocaleDateString('en-US', dateOptions);
-            document.getElementById('header-time').innerText = now.toLocaleTimeString('en-US', timeOptions);
+            document.getElementById('header-date').innerText = now.toLocaleDateString(locale, dateOptions);
+            document.getElementById('header-time').innerText = now.toLocaleTimeString(locale, timeOptions);
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
