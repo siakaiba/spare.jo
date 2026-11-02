@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V4.8</title>
+    <title>Spare.jo - Find & Compare V5.2</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -171,8 +171,8 @@
 
         <!-- Right Section: Date & Time -->
         <div class="w-full md:w-auto flex items-center justify-center md:justify-end space-x-1.5 rtl:space-x-reverse font-semibold text-center">
-            <span id="header-date">Saturday, Oct 31, 2026</span>
-            <span class="text-blue-500 font-medium" id="header-time">1:04 PM</span>
+            <span id="header-date">Tuesday, Nov 3, 2026</span>
+            <span class="text-blue-500 font-medium" id="header-time">12:24 AM</span>
         </div>
     </footer>
 
@@ -330,14 +330,10 @@
                                 For auto spare parts importers, wholesalers, workshops, dealers, and fleet providers.
                             </p>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-2 justify-center">
-                            <button onclick="alert('Proceeding to Company Sign In')" class="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-right-to-bracket text-[10px]"></i>
+                        <div class="flex justify-center">
+                            <button onclick="alert('Proceeding to Company Sign In')" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                                <i class="fa-solid fa-right-to-bracket text-xs"></i>
                                 <span data-en="Sign In" data-ar="تسجيل الدخول">Sign In</span>
-                            </button>
-                            <button onclick="alert('Proceeding to Create Company Account')" class="flex-1 py-2 px-3 custom-card border hover:border-blue-500 text-blue-400 text-xs font-semibold rounded-xl shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-user-plus text-[10px]"></i>
-                                <span data-en="Create Account" data-ar="إنشاء حساب">Create Account</span>
                             </button>
                         </div>
                     </div>
@@ -353,24 +349,26 @@
                                 For individual car owners, DIY enthusiasts, and retail drivers looking for parts.
                             </p>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-2 justify-center">
-                            <button onclick="alert('Proceeding to Customer Sign In')" class="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-right-to-bracket text-[10px]"></i>
+                        <div class="flex justify-center">
+                            <button onclick="alert('Proceeding to Customer Sign In')" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                                <i class="fa-solid fa-right-to-bracket text-xs"></i>
                                 <span data-en="Sign In" data-ar="تسجيل الدخول">Sign In</span>
-                            </button>
-                            <button onclick="alert('Proceeding to Create Customer Account')" class="flex-1 py-2 px-3 custom-card border hover:border-blue-500 text-blue-400 text-xs font-semibold rounded-xl shadow-md transition cursor-pointer flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-user-plus text-[10px]"></i>
-                                <span data-en="Create Account" data-ar="إنشاء حساب">Create Account</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Back to Marketplace Button -->
-                <button onclick="showHomeView()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer mt-2">
-                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
-                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
-                </button>
+                <!-- Action Buttons Container (Stacked rows: Create Account row above Back to Marketplace row) -->
+                <div class="flex flex-col items-center gap-2 w-full max-w-md mt-2">
+                    <button onclick="alert('Proceeding to Create New Account')" class="w-full px-6 py-2.5 custom-card border hover:border-blue-500 text-blue-400 hover:text-white text-xs font-semibold rounded-xl shadow-lg transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                        <i class="fa-solid fa-id-card text-xs"></i>
+                        <span data-en="Create Account" data-ar="إنشاء حساب">Create Account</span>
+                    </button>
+                    <button onclick="showHomeView()" class="w-full px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                        <i class="fa-solid fa-arrow-left rtl:rotate-180 text-xs"></i>
+                        <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
+                    </button>
+                </div>
             </div>
         `;
 
@@ -383,13 +381,13 @@
                     About Spare.jo
                 </h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300">
-                    <p data-en="Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners." data-ar="Spare.jo هو النظام البيئي الرقمي الرائد للسيارات في الأردن، حيث يربط بين المستوردين بنظام B2B، تجار الجملة، الورشات المحلية، ومالكي السيارات الأفراد.">
+                    <p data-en="Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners." data-ar="Spare.jo هو النظام البيئي الرقمي الرائد لقطع السيارات في الأردن، حيث يربط بين المستوردين بنظام B2B، تجار الجملة، الورشات المحلية، ومالكي السيارات الأفراد.">
                         Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners.
                     </p>
                     <p data-en="Designed to streamline the sourcing and comparison of genuine, OEM, and aftermarket car parts, the platform leverages advanced VIN-matching and a robust digital marketplace framework." data-ar="مصمم لتسهيل عملية توريد ومقارنة قطع غيار السيارات الأصلية، التابعة للشركة المصنعة (OEM)، والبديلة، وتستفيد المنصة من مطابقة أرقام الهيكل (VIN) المتقدمة وإطار عمل متين للسوق الرقمي.">
                         Designed to streamline the sourcing and comparison of genuine, OEM, and aftermarket car parts, the platform leverages advanced VIN-matching and a robust digital marketplace framework.
                     </p>
-                    <p data-en="By connecting key industry players—from major spare parts distributors to individual drivers and fleet operators—Spare.jo ensures transparent pricing, rapid availability, and a frictionless procurement experience across the Jordanian automotive market." data-ar="من خلال ربط اللاعبين الرئيسيين في الصناعة — بدءاً من موزعي قطع الغيار الكبار وصولاً إلى السائقين الأفراد ومشغلي الأساطيل — يضمن Spare.jo تسعيرة شفافة، توفراً سريعاً، وخبرة شراء خالية من الاحتكاك في سوق السيارات الأردني.">
+                    <p data-en="By connecting key industry players—from major spare parts distributors to individual drivers and fleet operators—Spare.jo ensures transparent pricing, rapid availability, and a frictionless procurement experience across the Jordanian automotive market." data-ar="من خلال ربط اللاعبين الرئيسيين في الصناعة — بدءاً من موزعي قطع الغيار الكبار وصولاً إلى السائقين الأفراد ومشغلي الأساطيل — يضمن Spare.jo تسعيرة شفافة، توفراً سريعاً، وخبرة شراء خالية من الاحتكاك في سوق قطع السيارات الأردني.">
                         By connecting key industry players—from major spare parts distributors to individual drivers and fleet operators—Spare.jo ensures transparent pricing, rapid availability, and a frictionless procurement experience across the Jordanian automotive market.
                     </p>
                 </div>
@@ -409,7 +407,7 @@
                     Privacy and Cookies Policy
                 </h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 2, 2026 | Last Updated: November 2, 2026" data-ar="تاريخ السريان: 2 نوفمبر 2026 | آخر تحديث: 2 نوفمبر 2026">Effective Date: November 2, 2026 | Last Updated: November 2, 2026</p>
+                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 3, 2026 | Last Updated: November 3, 2026" data-ar="تاريخ السريان: 3 نوفمبر 2026 | آخر تحديث: 3 نوفمبر 2026">Effective Date: November 3, 2026 | Last Updated: November 3, 2026</p>
                     
                     <h3 class="font-bold text-white mt-3" data-en="1. Introduction" data-ar="1. المقدمة">1. Introduction</h3>
                     <p data-en="Welcome to Spare.jo ('we,' 'our,' or 'us'). We are committed to protecting your personal information and your right to privacy. This Privacy and Cookies Policy explains how we collect, use, disclose, and safeguard your information when you visit our platform." data-ar="مرحباً بك في Spare.jo ('نحن' أو 'لنا'). نحن ملتزمون بحماية معلوماتك الشخصية وحقك في الخصوصية. توضح سياسة الخصوصية وملفات تعريف الارتباط هذه كيف نجمع ونستخدم ونكشف ونحمي معلوماتك عندما تزور منصتنا.">
@@ -452,7 +450,7 @@
                     Terms and Conditions
                 </h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 2, 2026 | Last Updated: November 2, 2026" data-ar="تاريخ السريان: 2 نوفمبر 2026 | آخر تحديث: 2 نوفمبر 2026">Effective Date: November 2, 2026 | Last Updated: November 2, 2026</p>
+                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 3, 2026 | Last Updated: November 3, 2026" data-ar="تاريخ السريان: 3 نوفمبر 2026 | آخر تحديث: 3 نوفمبر 2026">Effective Date: November 3, 2026 | Last Updated: November 3, 2026</p>
                     
                     <h3 class="font-bold text-white mt-3" data-en="1. Acceptance of Terms" data-ar="1. القبول بالشروط">1. Acceptance of Terms</h3>
                     <p data-en="By accessing, browsing, or using Spare.jo, you agree to comply with and be bound by these Terms and Conditions. If you do not agree to these terms, please refrain from using the platform." data-ar="من خلال الوصول إلى Spare.jo أو تصفحه أو استخدامه، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على هذه الشروط، يرجى الامتناع عن استخدام المنصة.">
@@ -460,7 +458,7 @@
                     </p>
 
                     <h3 class="font-bold text-white mt-3" data-en="2. Marketplace Ecosystem & Accounts" data-ar="2. نظام السوق والحسابات">2. Marketplace Ecosystem & Accounts</h3>
-                    <p data-en="Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security." data-ar="تعمل منصة Spare.jo كحساء رقمي B2B، B2C و C2C يربط بين مستوردي قطع الغيار، تجار الجملة، الورشات المحلية، مزودي الأساطيل، ومالكي السيارات. يمكن للمستخدمين التسجيل كحساب شركة أو عميل وهم مسؤولون عن أمان الحساب.">
+                    <p data-en="Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security." data-ar="تعمل منصة Spare.jo كمنصة رقمية B2B، B2C و C2C تربط بين مستوردي قطع الغيار، تجار الجملة، الورشات المحلية، مزودي الأساطيل، ومالكي السيارات. يمكن للمستخدمين التسجيل كحساب شركة أو عميل وهم مسؤولون عن أمان الحساب.">
                         Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security.
                     </p>
 
@@ -470,7 +468,7 @@
                     </p>
 
                     <h3 class="font-bold text-white mt-3" data-en="4. Limitation of Liability" data-ar="4. حدود المسؤولية">4. Limitation of Liability</h3>
-                    <p data-en="Spare.jo acts as a technology platform facilitating connections within the automotive ecosystem. To the maximum extent permitted by Jordanian law, Spare.jo shall not be held liable for mechanical damages or installation errors." data-ar="تعمل Spare.jo كمنصة تكنولوجية تسهل الاتصالات داخل نظام السيارات البيئي. إلى أقصى حد يسمح به القانون الأردني، لن تتحمل Spare.jo المسؤولية عن الأضرار الميكانيكية أو أخطاء التركيب.">
+                    <p data-en="Spare.jo acts as a technology platform facilitating connections within the automotive ecosystem. To the maximum extent permitted by Jordanian law, Spare.jo shall not be held liable for mechanical damages or installation errors." data-ar="تعمل Spare.jo كمنصة تكنولوجية تسهل الاتصالات داخل نظام قطع السيارات البيئي. إلى أقصى حد يسمح به القانون الأردني، لن تتحمل Spare.jo المسؤولية عن الأضرار الميكانيكية أو أخطاء التركيب.">
                         Spare.jo acts as a technology platform facilitating connections within the automotive ecosystem. To the maximum extent permitted by Jordanian law, Spare.jo shall not be held liable for mechanical damages or installation errors.
                     </p>
                 </div>
