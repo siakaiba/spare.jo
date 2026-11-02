@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V4.3</title>
+    <title>Spare.jo - Find & Compare V4.5</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -142,7 +142,7 @@
             <div class="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer" onclick="showHomeView()">
                 <div>
                     <span class="text-base md:text-lg font-black tracking-tight">Spare<span class="text-blue-500">.jo</span></span>
-                    <span id="txt-eco" class="block text-[7px] md:text-[8px] text-gray-400 tracking-wider uppercase font-semibold" data-en="Jordan Auto Parts Ecosystem" data-ar="نظام قطع السيارات في الأردن">Jordan Auto Parts Ecosystem</span>
+                    <span id="txt-eco" class="block text-[7px] md:text-[8px] text-gray-400 tracking-wider uppercase font-semibold" data-en="Jordan Auto Parts Ecosystem" data-ar="نظام قطاع السيارات في الأردن">Jordan Auto Parts Ecosystem</span>
                 </div>
             </div>
         </div>
@@ -205,6 +205,8 @@
                 <a href="#" onclick="showTermsView(); return false;" class="text-blue-400 hover:underline transition" data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</a>
                 <span class="text-gray-600">|</span>
                 <a href="#" onclick="showSupportView(); return false;" class="text-blue-400 hover:underline transition" data-en="Support" data-ar="الدعم والمساعدة">Support</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" onclick="showContactView(); return false;" class="text-blue-400 hover:underline transition" data-en="Contact Us" data-ar="اتصل بنا">Contact Us</a>
             </div>
             <div class="flex items-center space-x-1.5 rtl:space-x-reverse">
                 <span class="hidden md:inline text-gray-600">|</span>
@@ -216,7 +218,7 @@
 
     <script>
         let currentLang = 'en';
-        let currentView = 'home'; // 'home', 'account-selection', 'about', 'privacy', 'terms', or 'support'
+        let currentView = 'home'; // 'home', 'account-selection', 'about', 'privacy', 'terms', 'support', or 'contact'
 
         // Templates for views
         const homeViewHTML = `
@@ -529,6 +531,120 @@
             </div>
         `;
 
+        const contactViewHTML = `
+            <div class="flex flex-col items-center justify-center text-center max-w-6xl mx-auto w-full space-y-4 py-4">
+                <div class="flex flex-col items-center justify-center text-center">
+                    <h1 class="text-lg md:text-2xl font-extrabold tracking-tight" data-en="Contact Us" data-ar="اتصل بنا">
+                        Contact Us
+                    </h1>
+                    <p class="text-xs text-gray-400 font-light mt-1" data-en="Connect with Spare.jo across our official channels, support, and headquarters" data-ar="تواصل مع Spare.jo عبر قنواتنا الرسمية، الدعم، والمقر الرئيسي">
+                        Connect with Spare.jo across our official channels, support, and headquarters
+                    </p>
+                </div>
+
+                <!-- Profile-style cards grid for 6 Contact & Location Boxes -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-5xl">
+                    
+                    <!-- 1. Headquarters Box -->
+                    <a href="https://maps.google.com/?q=Amman,Jordan" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <h3 class="text-xs font-bold mb-1" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</h3>
+                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Amman, Jordan — Visit our primary operations base." data-ar="عمان، الأردن — زيارة قاعدة العمليات الرئيسية.">
+                            Amman, Jordan — Visit our primary operations base.
+                        </p>
+                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
+                            <span data-en="View on Map" data-ar="عرض على الخريطة">View on Map</span>
+                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                        </div>
+                    </a>
+
+                    <!-- 2. WhatsApp Box -->
+                    <a href="https://wa.me/962795115122?text=Hello%20Spare.jo,%20I%20would%20like%20to%20inquire%20about%20spare%20parts." target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <h3 class="text-xs font-bold mb-1" data-en="WhatsApp Chat" data-ar="محادثة واتساب">WhatsApp Chat</h3>
+                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Instant inquiry & part matching support (+962 7 9511 5122)." data-ar="استفسار فوري ودعم مطابقة القطع.">
+                            Instant inquiry & part matching support (+962 7 9511 5122).
+                        </p>
+                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
+                            <span data-en="Chat Now" data-ar="تحدث الآن">Chat Now</span>
+                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                        </div>
+                    </a>
+
+                    <!-- 3. LinkedIn Box -->
+                    <a href="https://linkedin.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                        </div>
+                        <h3 class="text-xs font-bold mb-1" data-en="LinkedIn" data-ar="لينكد إن">LinkedIn</h3>
+                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Connect with our B2B ecosystem and professional updates." data-ar="تواصل مع نظامنا البيئي المهني.">
+                            Connect with our B2B ecosystem and professional updates.
+                        </p>
+                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
+                            <span data-en="Visit Page" data-ar="زيارة الصفحة">Visit Page</span>
+                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                        </div>
+                    </a>
+
+                    <!-- 4. Facebook Box -->
+                    <a href="https://facebook.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </div>
+                        <h3 class="text-xs font-bold mb-1" data-en="Facebook" data-ar="فيسبوك">Facebook</h3>
+                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Follow community discussions, news, and promotions." data-ar="تابع مناقشات المجتمع والأخبار والعروض.">
+                            Follow community discussions, news, and promotions.
+                        </p>
+                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
+                            <span data-en="Follow Us" data-ar="تابعنا">Follow Us</span>
+                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                        </div>
+                    </a>
+
+                    <!-- 5. Instagram Box -->
+                    <a href="https://instagram.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="fa-brands fa-instagram"></i>
+                        </div>
+                        <h3 class="text-xs font-bold mb-1" data-en="Instagram" data-ar="انستغرام">Instagram</h3>
+                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Browse auto parts showcases and visual highlights." data-ar="تصفح عروض قطع الغيار واللقطات المرئية.">
+                            Browse auto parts showcases and visual highlights.
+                        </p>
+                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
+                            <span data-en="View Photos" data-ar="عرض الصور">View Photos</span>
+                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                        </div>
+                    </a>
+
+                    <!-- 6. Twitter Box -->
+                    <a href="https://twitter.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                            <i class="fa-brands fa-twitter"></i>
+                        </div>
+                        <h3 class="text-xs font-bold mb-1" data-en="Twitter / X" data-ar="تويتر / X">Twitter / X</h3>
+                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Get real-time announcements and ecosystem updates." data-ar="احصل على الإعلانات الفورية وتحديثات النظام.">
+                            Get real-time announcements and ecosystem updates.
+                        </p>
+                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
+                            <span data-en="Read Tweets" data-ar="قراءة التغريدات">Read Tweets</span>
+                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
+                        </div>
+                    </a>
+
+                </div>
+
+                <!-- Back to Marketplace Button -->
+                <button onclick="showHomeView()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
+                </button>
+            </div>
+        `;
+
         function showHomeView() {
             currentView = 'home';
             document.getElementById('main-content').innerHTML = homeViewHTML;
@@ -567,6 +683,13 @@
         function showSupportView() {
             currentView = 'support';
             document.getElementById('main-content').innerHTML = supportViewHTML;
+            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            applyTranslations();
+        }
+
+        function showContactView() {
+            currentView = 'contact';
+            document.getElementById('main-content').innerHTML = contactViewHTML;
             document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
             applyTranslations();
         }
