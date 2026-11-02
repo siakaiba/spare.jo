@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V4.1</title>
+    <title>Spare.jo - Find & Compare V4.2</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -195,13 +195,15 @@
             </a>
         </div>
 
-        <!-- Right Section: About, Privacy, Terms, Date & Time -->
+        <!-- Right Section: About, Privacy, Terms, Support, Date & Time -->
         <div class="flex items-center space-x-2 rtl:space-x-reverse text-[11px] font-semibold">
             <a href="#" onclick="showAboutView(); return false;" class="text-blue-400 hover:underline transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
             <span class="text-gray-600">|</span>
             <a href="#" onclick="showPrivacyView(); return false;" class="text-blue-400 hover:underline transition" data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</a>
             <span class="text-gray-600">|</span>
             <a href="#" onclick="showTermsView(); return false;" class="text-blue-400 hover:underline transition" data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</a>
+            <span class="text-gray-600">|</span>
+            <a href="#" onclick="showSupportView(); return false;" class="text-blue-400 hover:underline transition" data-en="Support" data-ar="الدعم والمساعدة">Support</a>
             <span class="text-gray-600">|</span>
             <span id="header-date">Saturday, Oct 31, 2026</span>
             <span class="text-blue-500 font-medium" id="header-time">1:04 PM</span>
@@ -210,7 +212,7 @@
 
     <script>
         let currentLang = 'en';
-        let currentView = 'home'; // 'home', 'account-selection', 'about', 'privacy', or 'terms'
+        let currentView = 'home'; // 'home', 'account-selection', 'about', 'privacy', 'terms', or 'support'
 
         // Templates for views
         const homeViewHTML = `
@@ -489,6 +491,40 @@
             </div>
         `;
 
+        const supportViewHTML = `
+            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
+                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="How Can We Help You? (Support)" data-ar="كيف يمكننا مساعدتك؟ (الدعم)">
+                    How Can We Help You? (Support)
+                </h1>
+                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-4 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
+                    <h3 class="font-bold text-white" data-en="1. Quick Assistance & Direct Support Channels" data-ar="1. المساعدة السريعة وقنوات الدعم المباشر">1. Quick Assistance & Direct Support Channels</h3>
+                    <p data-en="Instant WhatsApp Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team instantly via WhatsApp at +962 7 9511 5122. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time)." data-ar="دعم واتساب الفوري: هل لديك استفسار عاجل حول قطعة غيار، حالة الطلب، أو مطابقة رقم الهيكل؟ تواصل معنا فوراً عبر واتساب على الرقم 962795115122+. ساعات العمل: السبت – الخميس، 9:00 صباحاً – 8:00 مساءً (بتوقيت الأردن).">
+                        Instant WhatsApp Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team instantly via WhatsApp at +962 7 9511 5122. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time).
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="2. Frequently Asked Questions (FAQ)" data-ar="2. الأسئلة الشائعة">2. Frequently Asked Questions (FAQ)</h3>
+                    <p data-en="• How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts." data-ar="• كيف أبحث عن قطعة برقم الهيكل؟ أدخل رقم الهيكل (VIN) المكون من 17 خانة في مربع البحث بالصفحة الرئيسية لتصفية القطع الأصلية والبديلة المتوافقة تلقائياً.">
+                        • How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts.
+                    </p>
+                    <p data-en="• What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops. Customer Accounts are for retail car owners and DIY enthusiasts." data-ar="• ما الفرق بين حساب الشركة وحساب العميل؟ حسابات الشركات مخصصة لمستوردي B2B، تجار الجملة، والورشات المهنية. حسابات العملاء مخصصة لمالكي السيارات الأفراد.">
+                        • What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops. Customer Accounts are for retail car owners and DIY enthusiasts.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="3. Reporting an Issue or Part Mismatch" data-ar="3. الإبلاغ عن مشكلة أو عدم تطابق القطع">3. Reporting an Issue or Part Mismatch</h3>
+                    <p data-en="If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp with your order reference number." data-ar="إذا استلمت قطعة خاطئة أو واجهت مشكلة تقنية: التقط صورة واضحة لملصق القطعة أو لوحة رقم الهيكل، وأرسل التفاصيل مباشرة إلى فريق الدعم عبر واتساب مع رقم مرجع الطلب.">
+                        If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp with your order reference number.
+                    </p>
+                </div>
+                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
+                </button>
+            </div>
+        `;
+
         function showHomeView() {
             currentView = 'home';
             document.getElementById('main-content').innerHTML = homeViewHTML;
@@ -520,6 +556,13 @@
         function showTermsView() {
             currentView = 'terms';
             document.getElementById('main-content').innerHTML = termsViewHTML;
+            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            applyTranslations();
+        }
+
+        function showSupportView() {
+            currentView = 'support';
+            document.getElementById('main-content').innerHTML = supportViewHTML;
             document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
             applyTranslations();
         }
