@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V3.8</title>
+    <title>Spare.jo - Find & Compare V4.1</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -147,12 +147,6 @@
             </div>
         </div>
 
-        <!-- Center Nav Links -->
-        <nav class="hidden md:flex items-center space-x-6 rtl:space-x-reverse text-xs font-medium text-gray-300">
-            <a href="#" onclick="showHomeView(); return false;" class="transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
-            <a href="#" onclick="showHomeView(); return false;" class="transition" data-en="Compare Parts" data-ar="مقارنة القطع">Compare Parts</a>
-        </nav>
-
         <!-- Right Header Actions (Profile, Theme Switcher & Language Switcher) -->
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
             <!-- Theme Toggle Button -->
@@ -174,15 +168,15 @@
 
     <!-- Main Content Area (Dynamic View Container) -->
     <main id="main-content" class="flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0">
-        <!-- Default Content loaded via JS (Home View) -->
+        <!-- Default Content loaded via JS -->
     </main>
 
-    <!-- Footer Status Bar -->
+    <!-- Footer Bar -->
     <footer class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col sm:flex-row justify-between items-center transition-colors duration-300 gap-2">
         <!-- Left Footer Copyright -->
         <div data-en="© 2026 Spare.jo — All Rights Reserved." data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة.">© 2026 Spare.jo — All Rights Reserved.</div>
         
-        <!-- Center Social Media Buttons -->
+        <!-- Center Social Media Section -->
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
             <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
                 <i class="fa-brands fa-linkedin-in"></i>
@@ -196,14 +190,19 @@
             <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
                 <i class="fa-brands fa-twitter"></i>
             </a>
-            <!-- WhatsApp Chat Direct Link -->
             <a href="https://wa.me/962795115122?text=Hello%20Spare.jo,%20I%20would%20like%20to%20inquire%20about%20spare%20parts." target="_blank" aria-label="WhatsApp" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
                 <i class="fa-brands fa-whatsapp"></i>
             </a>
         </div>
 
-        <!-- Right Inline Live Date & Time Section -->
-        <div class="flex items-center space-x-2 rtl:space-x-reverse text-xs font-semibold">
+        <!-- Right Section: About, Privacy, Terms, Date & Time -->
+        <div class="flex items-center space-x-2 rtl:space-x-reverse text-[11px] font-semibold">
+            <a href="#" onclick="showAboutView(); return false;" class="text-blue-400 hover:underline transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
+            <span class="text-gray-600">|</span>
+            <a href="#" onclick="showPrivacyView(); return false;" class="text-blue-400 hover:underline transition" data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</a>
+            <span class="text-gray-600">|</span>
+            <a href="#" onclick="showTermsView(); return false;" class="text-blue-400 hover:underline transition" data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</a>
+            <span class="text-gray-600">|</span>
             <span id="header-date">Saturday, Oct 31, 2026</span>
             <span class="text-blue-500 font-medium" id="header-time">1:04 PM</span>
         </div>
@@ -211,9 +210,9 @@
 
     <script>
         let currentLang = 'en';
-        let currentView = 'home'; // 'home' or 'account-selection'
+        let currentView = 'home'; // 'home', 'account-selection', 'about', 'privacy', or 'terms'
 
-        // Templates for Home and Account Selection views
+        // Templates for views
         const homeViewHTML = `
             <!-- Enlarged & Shifted Upward Logo Graphic / Image Container -->
             <div class="flex flex-col items-center justify-center text-center -mt-2 md:-mt-6 mb-1 md:-mb-1">
@@ -342,7 +341,6 @@
 
         const accountSelectionViewHTML = `
             <div class="flex flex-col items-center justify-center text-center max-w-5xl mx-auto w-full space-y-6 py-4">
-                <!-- Select Your Account Type Header (Logo removed) -->
                 <div class="flex flex-col items-center justify-center text-center">
                     <h1 class="text-lg md:text-2xl font-extrabold tracking-tight" data-en="Select Your Account Type" data-ar="اختر نوع حسابك">
                         Select Your Account Type
@@ -352,10 +350,7 @@
                     </p>
                 </div>
 
-                <!-- 2 Selection Boxes Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-                    
-                    <!-- Company Account Box -->
                     <div onclick="alert('Proceeding to Company Login / Registration')" class="custom-card border hover:border-blue-500 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group">
                         <div class="w-14 h-14 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
                             <i class="fa-solid fa-building"></i>
@@ -370,7 +365,6 @@
                         </div>
                     </div>
 
-                    <!-- Customer Account Box -->
                     <div onclick="alert('Proceeding to Customer Login / Registration')" class="custom-card border hover:border-blue-500 p-6 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group">
                         <div class="w-14 h-14 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
                             <i class="fa-solid fa-user-tag"></i>
@@ -384,15 +378,120 @@
                             <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
                         </div>
                     </div>
-
                 </div>
+            </div>
+        `;
+
+        const aboutViewHTML = `
+            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
+                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
+                    <i class="fa-solid fa-circle-info"></i>
+                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="About Spare.jo" data-ar="عن Spare.jo">
+                    About Spare.jo
+                </h1>
+                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300">
+                    <p data-en="Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners." data-ar="Spare.jo هو النظام البيئي الرقمي الرائد للسيارات في الأردن، حيث يربط بين المستوردين بنظام B2B، تجار الجملة، الورشات المحلية، ومالكي السيارات الأفراد.">
+                        Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners.
+                    </p>
+                    <p data-en="Designed to streamline the sourcing and comparison of genuine, OEM, and aftermarket car parts, the platform leverages advanced VIN-matching and a robust digital marketplace framework." data-ar="مصمم لتسهيل عملية توريد ومقارنة قطع غيار السيارات الأصلية، التابعة للشركة المصنعة (OEM)، والبديلة، وتستفيد المنصة من مطابقة أرقام الهيكل (VIN) المتقدمة وإطار عمل متين للسوق الرقمي.">
+                        Designed to streamline the sourcing and comparison of genuine, OEM, and aftermarket car parts, the platform leverages advanced VIN-matching and a robust digital marketplace framework.
+                    </p>
+                    <p data-en="By connecting key industry players—from major spare parts distributors to individual drivers and fleet operators—Spare.jo ensures transparent pricing, rapid availability, and a frictionless procurement experience across the Jordanian automotive market." data-ar="من خلال ربط اللاعبين الرئيسيين في الصناعة — بدءاً من موزعي قطع الغيار الكبار وصولاً إلى السائقين الأفراد ومشغلي الأساطيل — يضمن Spare.jo تسعيرة شفافة، توفراً سريعاً، وخبرة شراء خالية من الاحتكاك في سوق السيارات الأردني.">
+                        By connecting key industry players—from major spare parts distributors to individual drivers and fleet operators—Spare.jo ensures transparent pricing, rapid availability, and a frictionless procurement experience across the Jordanian automotive market.
+                    </p>
+                </div>
+                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
+                </button>
+            </div>
+        `;
+
+        const privacyViewHTML = `
+            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
+                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Privacy and Cookies Policy" data-ar="سياسة الخصوصية وملفات تعريف الارتباط">
+                    Privacy and Cookies Policy
+                </h1>
+                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
+                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 2, 2026 | Last Updated: November 2, 2026" data-ar="تاريخ السريان: 2 نوفمبر 2026 | آخر تحديث: 2 نوفمبر 2026">Effective Date: November 2, 2026 | Last Updated: November 2, 2026</p>
+                    
+                    <h3 class="font-bold text-white mt-3" data-en="1. Introduction" data-ar="1. المقدمة">1. Introduction</h3>
+                    <p data-en="Welcome to Spare.jo ('we,' 'our,' or 'us'). We are committed to protecting your personal information and your right to privacy. This Privacy and Cookies Policy explains how we collect, use, disclose, and safeguard your information when you visit our platform." data-ar="مرحباً بك في Spare.jo ('نحن' أو 'لنا'). نحن ملتزمون بحماية معلوماتك الشخصية وحقك في الخصوصية. توضح سياسة الخصوصية وملفات تعريف الارتباط هذه كيف نجمع ونستخدم ونكشف ونحمي معلوماتك عندما تزور منصتنا.">
+                        Welcome to Spare.jo ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy and Cookies Policy explains how we collect, use, disclose, and safeguard your information when you visit our platform.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="2. Information We Collect" data-ar="2. المعلومات التي نجمعها">2. Information We Collect</h3>
+                    <p data-en="We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials." data-ar="نجمع المعلومات الشخصية التي تقدمها طوعاً عند التسجيل، بما في ذلك المعرفات الشخصية (الاسم الكامل، البريد الإلكتروني، رقم الهاتف/واتساب)، بيانات السيارات والمعاملات (أرقام الهيكل - VIN، الصانع، الطراز، السنة، أرقام القطع)، وبيانات الحساب.">
+                        We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="3. How We Use Your Information" data-ar="3. كيفية استخدام معلوماتك">3. How We Use Your Information</h3>
+                    <p data-en="We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp support), and Platform Security." data-ar="نستخدم معلوماتك لعمليات السوق (تسهيل المعاملات، مطابقة أرقام الهيكل، ربط المشترين بالورشات والمستوردين)، الاتصالات (تحديثات الطلبات، دعم واتساب)، وأمان المنصة.">
+                        We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp support), and Platform Security.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="4. Cookies and Tracking Technologies" data-ar="4. ملفات تعريف الارتباط وتقنيات التتبع">4. Cookies and Tracking Technologies</h3>
+                    <p data-en="We use Essential Cookies (for session security, dark/light mode, and language preferences) and Analytics Cookies to understand platform interaction. You can manage or disable cookies via your browser settings." data-ar="نستخدم ملفات تعريف الارتباط الأساسية (لأمان الجلسة، وضع الظلام/الإضاءة، وتفضيلات اللغة) وملفات تعريف الارتباط التحليلية. يمكنك إدارة أو تعطيل ملفات تعريف الارتباط عبر إعدادات متصفحك.">
+                        We use Essential Cookies (for session security, dark/light mode, and language preferences) and Analytics Cookies to understand platform interaction. You can manage or disable cookies via your browser settings.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="5. Contact Us" data-ar="5. اتصل بنا">5. Contact Us</h3>
+                    <p data-en="If you have questions about this policy or wish to exercise your privacy rights, contact us directly through our official WhatsApp support channel." data-ar="إذا كان لديك أسئلة حول هذه السياسة أو رغبت في ممارسة حقوق الخصوصية الخاصة بك، اتصل بنا مباشرة عبر قناة دعم واتساب الرسمية الخاصة بنا.">
+                        If you have questions about this policy or wish to exercise your privacy rights, contact us directly through our official WhatsApp support channel.
+                    </p>
+                </div>
+                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
+                </button>
+            </div>
+        `;
+
+        const termsViewHTML = `
+            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
+                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
+                    <i class="fa-solid fa-file-contract"></i>
+                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Terms and Conditions" data-ar="الشروط والأحكام">
+                    Terms and Conditions
+                </h1>
+                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
+                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 2, 2026 | Last Updated: November 2, 2026" data-ar="تاريخ السريان: 2 نوفمبر 2026 | آخر تحديث: 2 نوفمبر 2026">Effective Date: November 2, 2026 | Last Updated: November 2, 2026</p>
+                    
+                    <h3 class="font-bold text-white mt-3" data-en="1. Acceptance of Terms" data-ar="1. القبول بالشروط">1. Acceptance of Terms</h3>
+                    <p data-en="By accessing, browsing, or using Spare.jo, you agree to comply with and be bound by these Terms and Conditions. If you do not agree to these terms, please refrain from using the platform." data-ar="من خلال الوصول إلى Spare.jo أو تصفحه أو استخدامه، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على هذه الشروط، يرجى الامتناع عن استخدام المنصة.">
+                        By accessing, browsing, or using Spare.jo, you agree to comply with and be bound by these Terms and Conditions. If you do not agree to these terms, please refrain from using the platform.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="2. Marketplace Ecosystem & Accounts" data-ar="2. نظام السوق والحسابات">2. Marketplace Ecosystem & Accounts</h3>
+                    <p data-en="Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security." data-ar="تعمل منصة Spare.jo كحساء رقمي B2B، B2C و C2C يربط بين مستوردي قطع الغيار، تجار الجملة، الورشات المحلية، مزودي الأساطيل، ومالكي السيارات. يمكن للمستخدمين التسجيل كحساب شركة أو عميل وهم مسؤولون عن أمان الحساب.">
+                        Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="3. VIN Matching & Sourcing Accuracy" data-ar="3. مطابقة الهيكل ودقة التوريد">3. VIN Matching & Sourcing Accuracy</h3>
+                    <p data-en="The platform utilizes VIN-matching and serial number search tools. Users and professional mechanics are ultimately responsible for verifying part compatibility, dimensions, and specifications prior to purchase or installation." data-ar="تستخدم المنصة أدوات مطابقة أرقام الهيكل (VIN) والبحث عن الأرقام التسلسلية. يتحمل المستخدمون والميكانيكيون المهنيون المسؤولية النهائية عن التحقق من توافق القطع والأبعاد والمواصفات قبل الشراء أو التركيب.">
+                        The platform utilizes VIN-matching and serial number search tools. Users and professional mechanics are ultimately responsible for verifying part compatibility, dimensions, and specifications prior to purchase or installation.
+                    </p>
+
+                    <h3 class="font-bold text-white mt-3" data-en="4. Limitation of Liability" data-ar="4. حدود المسؤولية">4. Limitation of Liability</h3>
+                    <p data-en="Spare.jo acts as a technology platform facilitating connections within the automotive ecosystem. To the maximum extent permitted by Jordanian law, Spare.jo shall not be held liable for mechanical damages or installation errors." data-ar="تعمل Spare.jo كمنصة تكنولوجية تسهل الاتصالات داخل نظام السيارات البيئي. إلى أقصى حد يسمح به القانون الأردني، لن تتحمل Spare.jo المسؤولية عن الأضرار الميكانيكية أو أخطاء التركيب.">
+                        Spare.jo acts as a technology platform facilitating connections within the automotive ecosystem. To the maximum extent permitted by Jordanian law, Spare.jo shall not be held liable for mechanical damages or installation errors.
+                    </p>
+                </div>
+                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
+                </button>
             </div>
         `;
 
         function showHomeView() {
             currentView = 'home';
             document.getElementById('main-content').innerHTML = homeViewHTML;
-            // Update profile button active state styling
             document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
             applyTranslations();
         }
@@ -400,8 +499,28 @@
         function showAccountSelectionView() {
             currentView = 'account-selection';
             document.getElementById('main-content').innerHTML = accountSelectionViewHTML;
-            // Highlight profile button active state
             document.getElementById('profile-btn').classList.add('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            applyTranslations();
+        }
+
+        function showAboutView() {
+            currentView = 'about';
+            document.getElementById('main-content').innerHTML = aboutViewHTML;
+            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            applyTranslations();
+        }
+
+        function showPrivacyView() {
+            currentView = 'privacy';
+            document.getElementById('main-content').innerHTML = privacyViewHTML;
+            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            applyTranslations();
+        }
+
+        function showTermsView() {
+            currentView = 'terms';
+            document.getElementById('main-content').innerHTML = termsViewHTML;
+            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
             applyTranslations();
         }
 
@@ -448,7 +567,6 @@
                 searchInput.placeholder = currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)';
             }
 
-            // Translate elements with data-en and data-ar attributes
             document.querySelectorAll('[data-en]').forEach(el => {
                 const translation = el.getAttribute(`data-${currentLang}`);
                 if (translation) {
