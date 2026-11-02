@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V4.2</title>
+    <title>Spare.jo - Find & Compare V4.1</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -172,7 +172,7 @@
     </main>
 
     <!-- Footer Bar -->
-    <footer class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col sm:flex-row justify-between items-center transition-colors duration-300 gap-2">
+    <footer class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col md:flex-row justify-between items-center transition-colors duration-300 gap-2">
         <!-- Left Footer Copyright -->
         <div data-en="© 2026 Spare.jo — All Rights Reserved." data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة.">© 2026 Spare.jo — All Rights Reserved.</div>
         
@@ -195,18 +195,22 @@
             </a>
         </div>
 
-        <!-- Right Section: About, Privacy, Terms, Support, Date & Time -->
-        <div class="flex items-center space-x-2 rtl:space-x-reverse text-[11px] font-semibold">
-            <a href="#" onclick="showAboutView(); return false;" class="text-blue-400 hover:underline transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
-            <span class="text-gray-600">|</span>
-            <a href="#" onclick="showPrivacyView(); return false;" class="text-blue-400 hover:underline transition" data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</a>
-            <span class="text-gray-600">|</span>
-            <a href="#" onclick="showTermsView(); return false;" class="text-blue-400 hover:underline transition" data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</a>
-            <span class="text-gray-600">|</span>
-            <a href="#" onclick="showSupportView(); return false;" class="text-blue-400 hover:underline transition" data-en="Support" data-ar="الدعم والمساعدة">Support</a>
-            <span class="text-gray-600">|</span>
-            <span id="header-date">Saturday, Oct 31, 2026</span>
-            <span class="text-blue-500 font-medium" id="header-time">1:04 PM</span>
+        <!-- Right Section: Links (Row) + Date & Time (Stacked on mobile via flex-col md:flex-row) -->
+        <div class="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 rtl:space-x-reverse text-[11px] font-semibold text-center">
+            <div class="flex items-center space-x-2 rtl:space-x-reverse flex-wrap justify-center">
+                <a href="#" onclick="showAboutView(); return false;" class="text-blue-400 hover:underline transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" onclick="showPrivacyView(); return false;" class="text-blue-400 hover:underline transition" data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" onclick="showTermsView(); return false;" class="text-blue-400 hover:underline transition" data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" onclick="showSupportView(); return false;" class="text-blue-400 hover:underline transition" data-en="Support" data-ar="الدعم والمساعدة">Support</a>
+            </div>
+            <div class="flex items-center space-x-1.5 rtl:space-x-reverse">
+                <span class="hidden md:inline text-gray-600">|</span>
+                <span id="header-date">Saturday, Oct 31, 2026</span>
+                <span class="text-blue-500 font-medium" id="header-time">1:04 PM</span>
+            </div>
         </div>
     </footer>
 
