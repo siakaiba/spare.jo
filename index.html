@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V5.2</title>
+    <title>Spare.jo - Find & Compare V5.4</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -172,13 +172,14 @@
         <!-- Right Section: Date & Time -->
         <div class="w-full md:w-auto flex items-center justify-center md:justify-end space-x-1.5 rtl:space-x-reverse font-semibold text-center">
             <span id="header-date">Tuesday, Nov 3, 2026</span>
-            <span class="text-blue-500 font-medium" id="header-time">12:24 AM</span>
+            <span class="text-blue-500 font-medium" id="header-time">12:37 AM</span>
         </div>
     </footer>
 
     <script>
         let currentLang = 'en';
         let currentView = 'home'; // 'home', 'account-selection', 'about', 'privacy', 'terms', 'support', 'sitemap', or 'contact'
+        let isGridVisible = false; // Hidden by default
 
         // Templates for views
         const homeViewHTML = `
@@ -239,10 +240,15 @@
                 </div>
             </div>
 
-            <!-- 30 Top Requested Car Parts Categories Grid -->
+            <!-- 30 Top Requested Car Parts Categories Grid with Toggle on Title -->
             <div class="max-w-5xl mx-auto w-full space-y-1 pb-2 md:pb-0">
-                <h3 id="txt-grid-title" class="text-[11px] font-bold text-gray-400 uppercase tracking-wider" data-en="Popular Category Grid" data-ar="شبكة الفئات الشائعة">Popular Category Grid</h3>
-                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center max-h-40 md:max-h-none overflow-y-auto md:overflow-visible pe-1 md:pr-0">
+                <div onclick="toggleCategoryGrid()" class="flex items-center justify-between cursor-pointer group py-0.5">
+                    <h3 id="txt-grid-title" class="text-[11px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse">
+                        <span data-en="Popular Category Grid" data-ar="شبكة الفئات الشائعة">Popular Category Grid</span>
+                        <i id="grid-toggle-icon" class="fa-solid ${isGridVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-blue-400 text-[10px] transition-transform duration-300"></i>
+                    </h3>
+                </div>
+                <div id="categories-grid-container" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center max-h-40 md:max-h-none overflow-y-auto md:overflow-visible pe-1 md:pr-0 transition-all duration-300 ${isGridVisible ? 'flex' : 'hidden'}">
                     <!-- 1 -->
                     <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🛑</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Brake Pads" data-ar="بطانات الفرامل">Brake Pads</div></div>
                     <!-- 2 -->
@@ -358,7 +364,7 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons Container (Stacked rows: Create Account row above Back to Marketplace row) -->
+                <!-- Action Buttons Container -->
                 <div class="flex flex-col items-center gap-2 w-full max-w-md mt-2">
                     <button onclick="alert('Proceeding to Create New Account')" class="w-full px-6 py-2.5 custom-card border hover:border-blue-500 text-blue-400 hover:text-white text-xs font-semibold rounded-xl shadow-lg transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
                         <i class="fa-solid fa-id-card text-xs"></i>
@@ -721,6 +727,25 @@
             document.getElementById('main-content').innerHTML = contactViewHTML;
             document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
             applyTranslations();
+        }
+
+        // Toggle Category Grid Function
+        function toggleCategoryGrid() {
+            isGridVisible = !isGridVisible;
+            const gridContainer = document.getElementById('categories-grid-container');
+            const toggleIcon = document.getElementById('grid-toggle-icon');
+
+            if (isGridVisible) {
+                gridContainer.classList.remove('hidden');
+                gridContainer.classList.add('flex');
+                toggleIcon.classList.remove('fa-chevron-down');
+                toggleIcon.classList.add('fa-chevron-up');
+            } else {
+                gridContainer.classList.remove('flex');
+                gridContainer.classList.add('hidden');
+                toggleIcon.classList.remove('fa-chevron-up');
+                toggleIcon.classList.add('fa-chevron-down');
+            }
         }
 
         // Theme Switcher Function
