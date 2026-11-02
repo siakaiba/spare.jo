@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V3.5</title>
+    <title>Spare.jo - Find & Compare V3.8</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -64,6 +64,17 @@
             background-color: rgba(30, 58, 138, 0.7);
             color: #ffffff;
         }
+        /* Footer Social Media Icon Buttons in Dark Theme */
+        body.dark .social-btn {
+            background-color: rgba(30, 58, 138, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+        body.dark .social-btn:hover {
+            background-color: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
 
         /* Light Theme Styles */
         body.light {
@@ -105,6 +116,17 @@
         body.light .header-action-btn:hover {
             background-color: #dbeafe;
             color: #1e40af;
+        }
+        /* Footer Social Media Icon Buttons in Light Theme */
+        body.light .social-btn {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+        }
+        body.light .social-btn:hover {
+            background-color: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
         }
     </style>
 </head>
@@ -156,10 +178,31 @@
     </main>
 
     <!-- Footer Status Bar -->
-    <footer class="border-t py-2 px-4 md:px-6 text-center text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col sm:flex-row justify-between items-center transition-colors duration-300 gap-1">
+    <footer class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col sm:flex-row justify-between items-center transition-colors duration-300 gap-2">
+        <!-- Left Footer Copyright -->
         <div data-en="© 2026 Spare.jo — All Rights Reserved." data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة.">© 2026 Spare.jo — All Rights Reserved.</div>
         
-        <!-- Inline Live Date & Time Section -->
+        <!-- Center Social Media Buttons -->
+        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+            <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
+                <i class="fa-brands fa-linkedin-in"></i>
+            </a>
+            <a href="https://facebook.com" target="_blank" aria-label="Facebook" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
+                <i class="fa-brands fa-facebook-f"></i>
+            </a>
+            <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://twitter.com" target="_blank" aria-label="Twitter" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
+                <i class="fa-brands fa-twitter"></i>
+            </a>
+            <!-- WhatsApp Chat Direct Link -->
+            <a href="https://wa.me/962795115122?text=Hello%20Spare.jo,%20I%20would%20like%20to%20inquire%20about%20spare%20parts." target="_blank" aria-label="WhatsApp" class="social-btn w-7 h-7 rounded-lg flex items-center justify-center text-xs transition shadow-sm">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+        </div>
+
+        <!-- Right Inline Live Date & Time Section -->
         <div class="flex items-center space-x-2 rtl:space-x-reverse text-xs font-semibold">
             <span id="header-date">Saturday, Oct 31, 2026</span>
             <span class="text-blue-500 font-medium" id="header-time">1:04 PM</span>
