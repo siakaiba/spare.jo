@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V5.7</title>
+    <title>Spare.jo - Find & Compare V5.8</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -54,7 +54,6 @@
             border-color: rgba(30, 58, 138, 0.6);
             color: #ffffff;
         }
-        /* Header Action Buttons in Dark Theme */
         body.dark .header-action-btn {
             background-color: rgba(30, 58, 138, 0.4);
             border-color: rgba(59, 130, 246, 0.5);
@@ -96,7 +95,6 @@
         body.light nav a:hover {
             color: #2563eb !important;
         }
-        /* Header Action Buttons in Light Theme */
         body.light .header-action-btn {
             background-color: #eff6ff;
             border-color: #93c5fd;
@@ -112,7 +110,6 @@
 
     <!-- Top Navigation Header -->
     <header class="border-b px-4 md:px-6 py-2 flex items-center justify-between shrink-0 transition-colors duration-300">
-        <!-- Logo & Home Button Group -->
         <div class="flex items-center space-x-2 md:space-x-3 rtl:space-x-reverse">
             <button onclick="showHomeView()" aria-label="Home" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
                 <i class="fa-solid fa-house"></i>
@@ -125,36 +122,30 @@
             </div>
         </div>
 
-        <!-- Right Header Actions (Profile, Theme Switcher & Language Switcher) -->
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
-            <!-- Theme Toggle Button -->
             <button onclick="toggleTheme()" aria-label="Toggle Theme" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
                 <i id="theme-icon" class="fa-solid fa-moon"></i>
             </button>
 
-            <!-- User Profile Button -->
             <button onclick="showAccountSelectionView()" id="profile-btn" aria-label="User Profile" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-full border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
                 <i class="fa-regular fa-user"></i>
             </button>
 
-            <!-- Language Switcher -->
             <button id="lang-btn" onclick="toggleLanguage()" class="header-action-btn px-2.5 py-1.5 md:py-1 rounded-lg border text-[11px] font-semibold transition cursor-pointer shadow-sm">
                 English
             </button>
         </div>
     </header>
 
-    <!-- Main Content Area (Dynamic View Container) -->
+    <!-- Main Content Area -->
     <main id="main-content" class="flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0">
         <!-- Default Content loaded via JS -->
     </main>
 
     <!-- Footer Bar -->
     <footer class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col md:flex-row justify-between items-center transition-colors duration-300 gap-2">
-        <!-- Left Footer Copyright -->
         <div class="w-full md:w-auto text-center md:text-start" data-en="© 2026 Spare.jo — All Rights Reserved." data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة.">© 2026 Spare.jo — All Rights Reserved.</div>
         
-        <!-- Center Section: Navigation Links -->
         <div class="flex items-center space-x-2 rtl:space-x-reverse flex-wrap justify-center font-semibold">
             <a href="#" onclick="showAboutView(); return false;" class="text-blue-400 hover:underline transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
             <span class="text-gray-600">|</span>
@@ -169,12 +160,56 @@
             <a href="#" onclick="showContactView(); return false;" class="text-blue-400 hover:underline transition" data-en="Contact Us" data-ar="اتصل بنا">Contact Us</a>
         </div>
 
-        <!-- Right Section: Date & Time -->
         <div class="w-full md:w-auto flex items-center justify-center md:justify-end space-x-1.5 rtl:space-x-reverse font-semibold text-center">
             <span id="header-date">Tuesday, Nov 3, 2026</span>
             <span class="text-blue-500 font-medium" id="header-time">12:37 AM</span>
         </div>
     </footer>
+
+    <!-- Hidden File Input for Gallery Upload -->
+    <input type="file" id="hidden-vin-file-input" accept="image/*" class="hidden" onchange="handleFileSelected(event)">
+
+    <!-- Hidden Camera Capture Input -->
+    <input type="file" id="hidden-vin-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelected(event)">
+
+    <!-- VIN Capture Method Modal (Choose Gallery vs Camera) -->
+    <div id="vin-source-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="custom-card border rounded-2xl p-6 max-w-sm w-full shadow-2xl relative space-y-4 text-center">
+            <button onclick="closeVinSourceModal()" class="absolute top-4 end-4 text-gray-400 hover:text-white text-sm cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl mx-auto">
+                <i class="fa-solid fa-camera-retro"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold" data-en="Chassis Number (VIN) Capture" data-ar="التقاط رقم الهيكل (VIN)">Chassis Number (VIN) Capture</h3>
+                <p class="text-[11px] text-gray-400 mt-1" data-en="Choose how you want to provide your vehicle's VIN image or plate photo." data-ar="اختر كيف تريد تزويد صورة رقم الهيكل أو لوحة السيارة.">
+                    Choose how you want to provide your vehicle's VIN image or plate photo.
+                </p>
+            </div>
+            <div class="space-y-2 pt-2">
+                <button onclick="triggerCameraCapture()" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                    <i class="fa-solid fa-camera"></i>
+                    <span data-en="Open Camera & Snap Photo" data-ar="فتح الكاميرا والتقاط صورة">Open Camera & Snap Photo</span>
+                </button>
+                <button onclick="triggerGalleryUpload()" class="w-full py-2.5 px-4 custom-card border hover:border-blue-500 text-blue-400 hover:text-white text-xs font-semibold rounded-xl transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                    <i class="fa-solid fa-image"></i>
+                    <span data-en="Upload from Device Gallery" data-ar="رفع صورة من معرض الصور">Upload from Device Gallery</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanning / Processing OCR Modal -->
+    <div id="vin-loading-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="custom-card border rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-3">
+            <div class="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl mx-auto animate-spin">
+                <i class="fa-solid fa-spinner"></i>
+            </div>
+            <h3 class="text-sm font-bold" data-en="Scanning VIN Image..." data-ar="جاري مسح صورة رقم الهيكل...">Scanning VIN Image...</h3>
+            <p class="text-[11px] text-gray-400" data-en="Extracting 17-digit chassis number via OCR..." data-ar="استخراج رقم الهيكل المكون من 17 خانة...">Extracting 17-digit chassis number via OCR...</p>
+        </div>
+    </div>
 
     <script>
         let currentLang = 'en';
@@ -183,7 +218,6 @@
 
         // Templates for views
         const homeViewHTML = `
-            <!-- Enlarged & Shifted Upward Logo Graphic / Image Container -->
             <div class="flex flex-col items-center justify-center text-center -mt-2 md:-mt-6 mb-1 md:-mb-1">
                 <div class="w-32 h-32 md:w-48 md:h-48 rounded-2xl shadow-2xl border-2 border-blue-500/50 bg-[#131e38] flex flex-col items-center justify-center p-3 text-blue-400 relative overflow-hidden group">
                     <img src="Spare.jo_4.jpg" alt="Spare.jo Logo" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
@@ -194,10 +228,8 @@
                 </div>
             </div>
 
-            <!-- Empty Line Spacer -->
             <div class="h-1 md:h-2"></div>
 
-            <!-- Hero Title Section -->
             <div class="text-center space-y-1 md:space-y-0.5">
                 <h1 id="hero-title" class="text-base md:text-xl font-extrabold tracking-tight px-2 leading-snug">
                     <span data-en="FIND • COMPARE" data-ar="ابحث • قارن">FIND • COMPARE</span><br>
@@ -224,15 +256,15 @@
                         </span>
                         <input id="search-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
                     </div>
-                    <button class="w-full sm:w-auto px-5 py-2.5 md:py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                    <button onclick="handleSearchAction()" class="w-full sm:w-auto px-5 py-2.5 md:py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <span data-en="Find Related Parts" data-ar="ابحث عن القطع المرتبطة">Find Related Parts</span>
                     </button>
                 </div>
 
-                <!-- Quick helper links -->
+                <!-- Quick helper links with camera/upload trigger -->
                 <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between text-[10px] text-gray-400 gap-1">
-                    <span class="hover:underline cursor-pointer text-blue-400">
+                    <span onclick="openVinSourceModal()" class="hover:underline cursor-pointer text-blue-400 flex items-center">
                         <i class="fa-solid fa-camera mr-1 rtl:ml-1 rtl:mr-0"></i> 
                         <span data-en="Upload / Take Photo of Chassis Number to Autofill" data-ar="رفع أو التقاط صورة لرقم الهيكل للتعبئة التلقائية">Upload / Take Photo of Chassis Number to Autofill</span>
                     </span>
@@ -295,7 +327,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl">
-                    <!-- Company Account Card -->
                     <div class="custom-card border p-5 rounded-2xl shadow-lg flex flex-col justify-between text-center group">
                         <div>
                             <div class="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-lg mx-auto mb-3">
@@ -318,7 +349,6 @@
                         </div>
                     </div>
 
-                    <!-- Customer Account Card -->
                     <div class="custom-card border p-5 rounded-2xl shadow-lg flex flex-col justify-between text-center group">
                         <div>
                             <div class="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-lg mx-auto mb-3">
@@ -342,7 +372,6 @@
                     </div>
                 </div>
 
-                <!-- Back to Marketplace Button -->
                 <div class="flex justify-center w-full max-w-md mt-2">
                     <button onclick="showHomeView()" class="w-full px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
                         <i class="fa-solid fa-arrow-left rtl:rotate-180 text-xs"></i>
@@ -357,9 +386,7 @@
                     <button onclick="closeAuthModal()" class="absolute top-4 end-4 text-gray-400 hover:text-white text-sm cursor-pointer">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
-                    <div id="auth-modal-body">
-                        <!-- Content populated dynamically -->
-                    </div>
+                    <div id="auth-modal-body"></div>
                 </div>
             </div>
         `;
@@ -369,19 +396,9 @@
                 <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
                     <i class="fa-solid fa-circle-info"></i>
                 </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="About Spare.jo" data-ar="عن Spare.jo">
-                    About Spare.jo
-                </h1>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300">
-                    <p data-en="Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners." data-ar="Spare.jo هو النظام البيئي الرقمي الرائد لقطع السيارات في الأردن، حيث يربط بين المستوردين بنظام B2B، تجار الجملة، الورشات المحلية، ومالكي السيارات الأفراد.">
-                        Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners.
-                    </p>
-                    <p data-en="Designed to streamline the sourcing and comparison of genuine, OEM, and aftermarket car parts, the platform leverages advanced VIN-matching and a robust digital marketplace framework." data-ar="مصمم لتسهيل عملية توريد ومقارنة قطع غيار السيارات الأصلية، التابعة للشركة المصنعة (OEM)، والبديلة، وتستفيد المنصة من مطابقة أرقام الهيكل (VIN) المتقدمة وإطار عمل متين للسوق الرقمي.">
-                        Designed to streamline the sourcing and comparison of genuine, OEM, and aftermarket car parts, the platform leverages advanced VIN-matching and a robust digital marketplace framework.
-                    </p>
-                    <p data-en="By connecting key industry players—from major spare parts distributors to individual drivers and fleet operators—Spare.jo ensures transparent pricing, rapid availability, and a frictionless procurement experience across the Jordanian automotive market." data-ar="من خلال ربط اللاعبين الرئيسيين في الصناعة — بدءاً من موزعي قطع الغيار الكبار وصولاً إلى السائقين الأفراد ومشغلي الأساطيل — يضمن Spare.jo تسعيرة شفافة، توفراً سريعاً، وخبرة شراء خالية من الاحتكاك في سوق قطع السيارات الأردني.">
-                        By connecting key industry players—from major spare parts distributors to individual drivers and fleet operators—Spare.jo ensures transparent pricing, rapid availability, and a frictionless procurement experience across the Jordanian automotive market.
-                    </p>
+                    <p data-en="Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners." data-ar="Spare.jo هو النظام البيئي الرقمي الرائد لقطع السيارات في الأردن، حيث يربط بين المستوردين بنظام B2B، تجار الجملة، الورشات المحلية، ومالكي السيارات الأفراد.">Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners.</p>
                 </div>
                 <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
                     <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
@@ -395,36 +412,9 @@
                 <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Privacy and Cookies Policy" data-ar="سياسة الخصوصية وملفات تعريف الارتباط">
-                    Privacy and Cookies Policy
-                </h1>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Privacy and Cookies Policy" data-ar="سياسة الخصوصية وملفات تعريف الارتباط">Privacy and Cookies Policy</h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 3, 2026 | Last Updated: November 3, 2026" data-ar="تاريخ السريان: 3 نوفمبر 2026 | آخر تحديث: 3 نوفمبر 2026">Effective Date: November 3, 2026 | Last Updated: November 3, 2026</p>
-                    
-                    <h3 class="font-bold text-white mt-3" data-en="1. Introduction" data-ar="1. المقدمة">1. Introduction</h3>
-                    <p data-en="Welcome to Spare.jo ('we,' 'our,' or 'us'). We are committed to protecting your personal information and your right to privacy. This Privacy and Cookies Policy explains how we collect, use, disclose, and safeguard your information when you visit our platform." data-ar="مرحباً بك في Spare.jo ('نحن' أو 'لنا'). نحن ملتزمون بحماية معلوماتك الشخصية وحقك في الخصوصية. توضح سياسة الخصوصية وملفات تعريف الارتباط هذه كيف نجمع ونستخدم ونكشف ونحمي معلوماتك عندما تزور منصتنا.">
-                        Welcome to Spare.jo ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy and Cookies Policy explains how we collect, use, disclose, and safeguard your information when you visit our platform.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="2. Information We Collect" data-ar="2. المعلومات التي نجمعها">2. Information We Collect</h3>
-                    <p data-en="We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials." data-ar="نجمع المعلومات الشخصية التي تقدمها طوعاً عند التسجيل، بما في ذلك المعرفات الشخصية (الاسم الكامل، البريد الإلكتروني، رقم الهاتف/واتساب)، بيانات السيارات والمعاملات (أرقام الهيكل - VIN، الصانع، الطراز، السنة، أرقام القطع)، وبيانات الحساب.">
-                        We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="3. How We Use Your Information" data-ar="3. كيفية استخدام معلوماتك">3. How We Use Your Information</h3>
-                    <p data-en="We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp support), and Platform Security." data-ar="نستخدم معلوماتك لعمليات السوق (تسهيل المعاملات، مطابقة أرقام الهيكل، ربط المشترين بالورشات والمستوردين)، الاتصالات (تحديثات الطلبات، دعم واتساب)، وأمان المنصة.">
-                        We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp support), and Platform Security.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="4. Cookies and Tracking Technologies" data-ar="4. ملفات تعريف الارتباط وتقنيات التتبع">4. Cookies and Tracking Technologies</h3>
-                    <p data-en="We use Essential Cookies (for session security, dark/light mode, and language preferences) and Analytics Cookies to understand platform interaction. You can manage or disable cookies via your browser settings." data-ar="نستخدم ملفات تعريف الارتباط الأساسية (لأمان الجلسة، وضع الظلام/الإضاءة، وتفضيلات اللغة) وملفات تعريف الارتباط التحليلية. يمكنك إدارة أو تعطيل ملفات تعريف الارتباط عبر إعدادات متصفحك.">
-                        We use Essential Cookies (for session security, dark/light mode, and language preferences) and Analytics Cookies to understand platform interaction. You can manage or disable cookies via your browser settings.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="5. Contact Us" data-ar="5. اتصل بنا">5. Contact Us</h3>
-                    <p data-en="If you have questions about this policy or wish to exercise your privacy rights, contact us directly through our official WhatsApp support channel." data-ar="إذا كان لديك أسئلة حول هذه السياسة أو رغبت في ممارسة حقوق الخصوصية الخاصة بك، اتصل بنا مباشرة عبر قناة دعم واتساب الرسمية الخاصة بنا.">
-                        If you have questions about this policy or wish to exercise your privacy rights, contact us directly through our official WhatsApp support channel.
-                    </p>
+                    <p data-en="Welcome to Spare.jo. We are committed to protecting your personal information and your right to privacy." data-ar="مرحباً بك في Spare.jo. نحن ملتزمون بحماية معلوماتك الشخصية.">Welcome to Spare.jo. We are committed to protecting your personal information.</p>
                 </div>
                 <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
                     <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
@@ -438,31 +428,9 @@
                 <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
                     <i class="fa-solid fa-file-contract"></i>
                 </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Terms and Conditions" data-ar="الشروط والأحكام">
-                    Terms and Conditions
-                </h1>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Terms and Conditions" data-ar="الشروط والأحكام">Terms and Conditions</h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <p class="text-[11px] text-blue-400 font-semibold" data-en="Effective Date: November 3, 2026 | Last Updated: November 3, 2026" data-ar="تاريخ السريان: 3 نوفمبر 2026 | آخر تحديث: 3 نوفمبر 2026">Effective Date: November 3, 2026 | Last Updated: November 3, 2026</p>
-                    
-                    <h3 class="font-bold text-white mt-3" data-en="1. Acceptance of Terms" data-ar="1. القبول بالشروط">1. Acceptance of Terms</h3>
-                    <p data-en="By accessing, browsing, or using Spare.jo, you agree to comply with and be bound by these Terms and Conditions. If you do not agree to these terms, please refrain from using the platform." data-ar="من خلال الوصول إلى Spare.jo أو تصفحه أو استخدامه، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على هذه الشروط، يرجى الامتناع عن استخدام المنصة.">
-                        By accessing, browsing, or using Spare.jo, you agree to comply with and be bound by these Terms and Conditions. If you do not agree to these terms, please refrain from using the platform.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="2. Marketplace Ecosystem & Accounts" data-ar="2. نظام السوق والحسابات">2. Marketplace Ecosystem & Accounts</h3>
-                    <p data-en="Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security." data-ar="تعمل منصة Spare.jo كمنصة رقمية B2B، B2C و C2C تربط بين مستوردي قطع الغيار، تجار الجملة، الورشات المحلية، مزودي الأساطيل، ومالكي السيارات. يمكن للمستخدمين التسجيل كحساب شركة أو عميل وهم مسؤولون عن أمان الحساب.">
-                        Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="3. VIN Matching & Sourcing Accuracy" data-ar="3. مطابقة الهيكل ودقة التوريد">3. VIN Matching & Sourcing Accuracy</h3>
-                    <p data-en="The platform utilizes VIN-matching and serial number search tools. Users and professional mechanics are ultimately responsible for verifying part compatibility, dimensions, and specifications prior to purchase or installation." data-ar="تستخدم المنصة أدوات مطابقة أرقام الهيكل (VIN) والبحث عن الأرقام التسلسلية. يتحمل المستخدمون والميكانيكيون المهنيون المسؤولية النهائية عن التحقق من توافق القطع والأبعاد والمواصفات قبل الشراء أو التركيب.">
-                        The platform utilizes VIN-matching and serial number search tools. Users and professional mechanics are ultimately responsible for verifying part compatibility, dimensions, and specifications prior to purchase or installation.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="4. Limitation of Liability" data-ar="4. حدود المسؤولية">4. Limitation of Liability</h3>
-                    <p data-en="Spare.jo acts as a technology platform facilitating connections within the automotive ecosystem. To the maximum extent permitted by Jordanian law, Spare.jo shall not be held liable for mechanical damages or installation errors." data-ar="تعمل Spare.jo كمنصة تكنولوجية تسهل الاتصالات داخل نظام قطع السيارات البيئي. إلى أقصى حد يسمح به القانون الأردني، لن تتحمل Spare.jo المسؤولية عن الأضرار الميكانيكية أو أخطاء التركيب.">
-                        Spare.jo acts as a technology platform facilitating connections within the automotive ecosystem. To the maximum extent permitted by Jordanian law, Spare.jo shall not be held liable for mechanical damages or installation errors.
-                    </p>
+                    <p data-en="By accessing Spare.jo, you agree to comply with and be bound by these Terms and Conditions." data-ar="من خلال الوصول إلى Spare.jo، فإنك توافق على الالتزام بهذه الشروط والأحكام.">By accessing Spare.jo, you agree to comply with and be bound by these Terms and Conditions.</p>
                 </div>
                 <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
                     <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
@@ -476,27 +444,9 @@
                 <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
                     <i class="fa-solid fa-headset"></i>
                 </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="How Can We Help You? (Support)" data-ar="كيف يمكننا مساعدتك؟ (الدعم)">
-                    How Can We Help You? (Support)
-                </h1>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="How Can We Help You? (Support)" data-ar="كيف يمكننا مساعدتك؟ (الدعم)">How Can We Help You? (Support)</h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-4 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <h3 class="font-bold text-white" data-en="1. Quick Assistance & Direct Support Channels" data-ar="1. المساعدة السريعة وقنوات الدعم المباشر">1. Quick Assistance & Direct Support Channels</h3>
-                    <p data-en="Instant WhatsApp Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team instantly via WhatsApp at +962 7 9511 5122. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time)." data-ar="دعم واتساب الفوري: هل لديك استفسار عاجل حول قطعة غيار، حالة الطلب، أو مطابقة رقم الهيكل؟ تواصل معنا فوراً عبر واتساب على الرقم 962795115122+. ساعات العمل: السبت – الخميس، 9:00 صباحاً – 8:00 مساءً (بتوقيت الأردن).">
-                        Instant WhatsApp Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team instantly via WhatsApp at +962 7 9511 5122. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time).
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="2. Frequently Asked Questions (FAQ)" data-ar="2. الأسئلة الشائعة">2. Frequently Asked Questions (FAQ)</h3>
-                    <p data-en="• How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts." data-ar="• كيف أبحث عن قطعة برقم الهيكل؟ أدخل رقم الهيكل (VIN) المكون من 17 خانة في مربع البحث بالصفحة الرئيسية لتصفية القطع الأصلية والبديلة المتوافقة تلقائياً.">
-                        • How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts.
-                    </p>
-                    <p data-en="• What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops. Customer Accounts are for retail car owners and DIY enthusiasts." data-ar="• ما الفرق بين حساب الشركة وحساب العميل؟ حسابات الشركات مخصصة لمستوردي B2B، تجار الجملة، والورشات المهنية. حسابات العملاء مخصصة لمالكي السيارات الأفراد.">
-                        • What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops. Customer Accounts are for retail car owners and DIY enthusiasts.
-                    </p>
-
-                    <h3 class="font-bold text-white mt-3" data-en="3. Reporting an Issue or Part Mismatch" data-ar="3. الإبلاغ عن مشكلة أو عدم تطابق القطع">3. Reporting an Issue or Part Mismatch</h3>
-                    <p data-en="If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp with your order reference number." data-ar="إذا استلمت قطعة خاطئة أو واجهت مشكلة تقنية: التقط صورة واضحة لملصق القطعة أو لوحة رقم الهيكل، وأرسل التفاصيل مباشرة إلى فريق الدعم عبر واتساب مع رقم مرجع الطلب.">
-                        If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp with your order reference number.
-                    </p>
+                    <p data-en="Instant WhatsApp Support: Chat with our support team instantly via WhatsApp at +962 7 9511 5122." data-ar="دعم واتساب الفوري: تواصل معنا فوراً عبر واتساب على الرقم 962795115122+.">Instant WhatsApp Support: Chat with our support team instantly via WhatsApp at +962 7 9511 5122.</p>
                 </div>
                 <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
                     <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
@@ -510,32 +460,11 @@
                 <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
                     <i class="fa-solid fa-sitemap"></i>
                 </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Site Map" data-ar="خريطة الموقع">
-                    Site Map
-                </h1>
+                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Site Map" data-ar="خريطة الموقع">Site Map</h1>
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-4 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto w-full">
-                    <h3 class="font-bold text-white" data-en="1. Main Platform" data-ar="1. المنصة الرئيسية">1. Main Platform</h3>
                     <ul class="list-disc ps-5 space-y-1 text-gray-300">
-                        <li><a href="#" onclick="showHomeView(); return false;" class="text-blue-400 hover:underline">Marketplace Home (VIN Search & 30+ Categories Grid)</a></li>
-                    </ul>
-
-                    <h3 class="font-bold text-white mt-3" data-en="2. Account Portals" data-ar="2. بوابات الحسابات">2. Account Portals</h3>
-                    <ul class="list-disc ps-5 space-y-1 text-gray-300">
-                        <li><a href="#" onclick="showAccountSelectionView(); return false;" class="text-blue-400 hover:underline">Account Selection / Sign In / Create Account</a></li>
-                    </ul>
-
-                    <h3 class="font-bold text-white mt-3" data-en="3. Information & Policies" data-ar="3. المعلومات والسياسات">3. Information & Policies</h3>
-                    <ul class="list-disc ps-5 space-y-1 text-gray-300">
-                        <li><a href="#" onclick="showAboutView(); return false;" class="text-blue-400 hover:underline">About Spare.jo</a></li>
-                        <li><a href="#" onclick="showPrivacyView(); return false;" class="text-blue-400 hover:underline">Privacy and Cookies Policy</a></li>
-                        <li><a href="#" onclick="showTermsView(); return false;" class="text-blue-400 hover:underline">Terms and Conditions</a></li>
-                    </ul>
-
-                    <h3 class="font-bold text-white mt-3" data-en="4. Support & Contact" data-ar="4. الدعم والاتصال">4. Support & Contact</h3>
-                    <ul class="list-disc ps-5 space-y-1 text-gray-300">
-                        <li><a href="#" onclick="showSupportView(); return false;" class="text-blue-400 hover:underline">Support & FAQ</a></li>
-                        <li><a href="#" onclick="showSitemapView(); return false;" class="text-blue-400 hover:underline">Site Map</a></li>
-                        <li><a href="#" onclick="showContactView(); return false;" class="text-blue-400 hover:underline">Contact Us (Headquarters, WhatsApp, Social Channels)</a></li>
+                        <li><a href="#" onclick="showHomeView(); return false;" class="text-blue-400 hover:underline">Marketplace Home</a></li>
+                        <li><a href="#" onclick="showAccountSelectionView(); return false;" class="text-blue-400 hover:underline">Account Portal</a></li>
                     </ul>
                 </div>
                 <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
@@ -548,101 +477,18 @@
         const contactViewHTML = `
             <div class="flex flex-col items-center justify-center text-center max-w-6xl mx-auto w-full space-y-4 py-4">
                 <div class="flex flex-col items-center justify-center text-center">
-                    <h1 class="text-lg md:text-2xl font-extrabold tracking-tight" data-en="Contact Us" data-ar="اتصل بنا">
-                        Contact Us
-                    </h1>
-                    <p class="text-xs text-gray-400 font-light mt-1" data-en="Connect with Spare.jo across our official channels, support, and headquarters" data-ar="تواصل مع Spare.jo عبر قنواتنا الرسمية، الدعم، والمقر الرئيسي">
-                        Connect with Spare.jo across our official channels, support, and headquarters
-                    </p>
+                    <h1 class="text-lg md:text-2xl font-extrabold tracking-tight" data-en="Contact Us" data-ar="اتصل بنا">Contact Us</h1>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-5xl">
-                    <a href="https://maps.google.com/?q=Amman,Jordan" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
-                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class="fa-solid fa-location-dot"></i>
-                        </div>
-                        <h3 class="text-xs font-bold mb-1" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</h3>
-                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Amman, Jordan — Visit our primary operations base." data-ar="عمان، الأردن — زيارة قاعدة العمليات الرئيسية.">
-                            Amman, Jordan — Visit our primary operations base.
-                        </p>
-                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="View on Map" data-ar="عرض على الخريطة">View on Map</span>
-                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
-                        </div>
-                    </a>
-
-                    <a href="https://wa.me/962795115122?text=Hello%20Spare.jo,%20I%20would%20like%20to%20inquire%20about%20spare%20parts." target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
-                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                    <a href="https://wa.me/962795115122" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition shadow-lg flex flex-col items-center text-center group text-decoration-none">
+                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2">
                             <i class="fa-brands fa-whatsapp"></i>
                         </div>
-                        <h3 class="text-xs font-bold mb-1" data-en="WhatsApp Chat" data-ar="محادثة واتساب">WhatsApp Chat</h3>
-                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Instant inquiry & part matching support (+962 7 9511 5122)." data-ar="استفسار فوري ودعم مطابقة القطع.">
-                            Instant inquiry & part matching support (+962 7 9511 5122).
-                        </p>
-                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="Chat Now" data-ar="تحدث الآن">Chat Now</span>
-                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
-                        </div>
-                    </a>
-
-                    <a href="https://linkedin.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
-                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class="fa-brands fa-linkedin-in"></i>
-                        </div>
-                        <h3 class="text-xs font-bold mb-1" data-en="LinkedIn" data-ar="لينكد إن">LinkedIn</h3>
-                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Connect with our B2B ecosystem and professional updates." data-ar="تواصل مع نظامنا البيئي المهني.">
-                            Connect with our B2B ecosystem and professional updates.
-                        </p>
-                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="Visit Page" data-ar="زيارة الصفحة">Visit Page</span>
-                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
-                        </div>
-                    </a>
-
-                    <a href="https://facebook.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
-                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class="fa-brands fa-facebook-f"></i>
-                        </div>
-                        <h3 class="text-xs font-bold mb-1" data-en="Facebook" data-ar="فيسبوك">Facebook</h3>
-                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Follow community discussions, news, and promotions." data-ar="تابع مناقشات المجتمع والأخبار والعروض.">
-                            Follow community discussions, news, and promotions.
-                        </p>
-                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="Follow Us" data-ar="تابعنا">Follow Us</span>
-                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
-                        </div>
-                    </a>
-
-                    <a href="https://instagram.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
-                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class="fa-brands fa-instagram"></i>
-                        </div>
-                        <h3 class="text-xs font-bold mb-1" data-en="Instagram" data-ar="انستغرام">Instagram</h3>
-                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Browse auto parts showcases and visual highlights." data-ar="تصفح عروض قطع الغيار واللقطات المرئية.">
-                            Browse auto parts showcases and visual highlights.
-                        </p>
-                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="View Photos" data-ar="عرض الصور">View Photos</span>
-                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
-                        </div>
-                    </a>
-
-                    <a href="https://twitter.com" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col items-center text-center group text-decoration-none">
-                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class="fa-brands fa-twitter"></i>
-                        </div>
-                        <h3 class="text-xs font-bold mb-1" data-en="Twitter / X" data-ar="تويتر / X">Twitter / X</h3>
-                        <p class="text-[10px] text-gray-400 leading-relaxed" data-en="Get real-time announcements and ecosystem updates." data-ar="احصل على الإعلانات الفورية وتحديثات النظام.">
-                            Get real-time announcements and ecosystem updates.
-                        </p>
-                        <div class="mt-2 text-[11px] font-semibold text-blue-400 flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="Read Tweets" data-ar="قراءة التغريدات">Read Tweets</span>
-                            <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
-                        </div>
+                        <h3 class="text-xs font-bold mb-1">WhatsApp Chat</h3>
+                        <p class="text-[10px] text-gray-400">+962 7 9511 5122</p>
                     </a>
                 </div>
-
-                <button onclick="showHomeView()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
+                <button onclick="showHomeView()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer">
                     <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
                     <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
                 </button>
@@ -663,49 +509,66 @@
             applyTranslations();
         }
 
-        function showAboutView() {
-            currentView = 'about';
-            document.getElementById('main-content').innerHTML = aboutViewHTML;
-            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
-            applyTranslations();
+        function showAboutView() { currentView = 'about'; document.getElementById('main-content').innerHTML = aboutViewHTML; applyTranslations(); }
+        function showPrivacyView() { currentView = 'privacy'; document.getElementById('main-content').innerHTML = privacyViewHTML; applyTranslations(); }
+        function showTermsView() { currentView = 'terms'; document.getElementById('main-content').innerHTML = termsViewHTML; applyTranslations(); }
+        function showSupportView() { currentView = 'support'; document.getElementById('main-content').innerHTML = supportViewHTML; applyTranslations(); }
+        function showSitemapView() { currentView = 'sitemap'; document.getElementById('main-content').innerHTML = sitemapViewHTML; applyTranslations(); }
+        function showContactView() { currentView = 'contact'; document.getElementById('main-content').innerHTML = contactViewHTML; applyTranslations(); }
+
+        // VIN Capture / Camera / Upload Handler Functions
+        function openVinSourceModal() {
+            document.getElementById('vin-source-modal').style.display = 'flex';
         }
 
-        function showPrivacyView() {
-            currentView = 'privacy';
-            document.getElementById('main-content').innerHTML = privacyViewHTML;
-            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
-            applyTranslations();
+        function closeVinSourceModal() {
+            document.getElementById('vin-source-modal').style.display = 'none';
         }
 
-        function showTermsView() {
-            currentView = 'terms';
-            document.getElementById('main-content').innerHTML = termsViewHTML;
-            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
-            applyTranslations();
+        function triggerCameraCapture() {
+            closeVinSourceModal();
+            document.getElementById('hidden-vin-camera-input').click();
         }
 
-        function showSupportView() {
-            currentView = 'support';
-            document.getElementById('main-content').innerHTML = supportViewHTML;
-            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
-            applyTranslations();
+        function triggerGalleryUpload() {
+            closeVinSourceModal();
+            document.getElementById('hidden-vin-file-input').click();
         }
 
-        function showSitemapView() {
-            currentView = 'sitemap';
-            document.getElementById('main-content').innerHTML = sitemapViewHTML;
-            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
-            applyTranslations();
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading modal simulating OCR extraction
+            document.getElementById('vin-loading-modal').style.display = 'flex';
+
+            setTimeout(() => {
+                document.getElementById('vin-loading-modal').style.display = 'none';
+                
+                // Simulated extracted VIN from image OCR
+                const sampleVins = ["1HGCR2F83HA001234", "WBA3B3C56EF789012", "JTMZK3EV3HD998877", "KMHDH4AE8FU445566"];
+                const randomVin = sampleVins[Math.floor(Math.random() * sampleVins.length)];
+
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.value = randomVin;
+                    alert((currentLang === 'ar' ? 'تم قراءة رقم الهيكل بنجاح من الصورة وتعبئته تلقائياً: ' : 'Successfully extracted and autofilled VIN from photo: ') + randomVin);
+                }
+                // Reset file inputs
+                event.target.value = '';
+            }, 1500);
         }
 
-        function showContactView() {
-            currentView = 'contact';
-            document.getElementById('main-content').innerHTML = contactViewHTML;
-            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
-            applyTranslations();
+        function handleSearchAction() {
+            const val = document.getElementById('search-input').value;
+            if (!val) {
+                alert(currentLang === 'ar' ? 'يرجى إدخال رقم الهيكل (VIN) أو استخدامه عبر الكاميرا' : 'Please enter a VIN or capture it via photo/camera');
+                return;
+            }
+            alert((currentLang === 'ar' ? 'جاري البحث عن القطع المطابقة لرقم الهيكل: ' : 'Searching compatible parts for VIN: ') + val);
         }
 
-        // Authentication Modal Logic with exact requirements
+        // Authentication Modal Logic
         function openAuthModal(accountType, mode) {
             const overlay = document.getElementById('auth-modal-overlay');
             const body = document.getElementById('auth-modal-body');
@@ -720,31 +583,11 @@
                         <i class="fa-solid ${accountType === 'company' ? 'fa-building' : 'fa-user-tag'}"></i>
                     </div>
                     <h2 class="text-sm font-bold">${typeTitle} — ${modeTitle}</h2>
-                    <p class="text-[10px] text-gray-400 mt-0.5">${currentLang === 'ar' ? 'اختر طريقة المصادقة أو التسجيل اليدوي' : 'Choose authentication or manual registration'}</p>
                 </div>
             `;
 
             if (mode === 'signup') {
                 html += `
-                    <!-- SSO Buttons -->
-                    <div class="space-y-1.5 mb-2">
-                        <button onclick="simulateSSO('Google', '${accountType}')" class="w-full py-1.5 px-3 custom-card border hover:border-blue-500 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 rtl:space-x-reverse transition cursor-pointer">
-                            <i class="fa-brands fa-google text-red-500"></i>
-                            <span>${currentLang === 'ar' ? 'متابعة باستخدام Google' : 'Continue with Google'}</span>
-                        </button>
-                        <button onclick="simulateSSO('Outlook', '${accountType}')" class="w-full py-1.5 px-3 custom-card border hover:border-blue-500 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 rtl:space-x-reverse transition cursor-pointer">
-                            <i class="fa-brands fa-microsoft text-blue-400"></i>
-                            <span>${currentLang === 'ar' ? 'متابعة باستخدام Outlook' : 'Continue with Outlook'}</span>
-                        </button>
-                    </div>
-
-                    <div class="flex items-center my-2">
-                        <div class="flex-grow border-t border-gray-600/50"></div>
-                        <span class="px-2 text-[10px] text-gray-400 uppercase tracking-wider">${currentLang === 'ar' ? 'أو التسجيل اليدوي' : 'Or Manual Form'}</span>
-                        <div class="flex-grow border-t border-gray-600/50"></div>
-                    </div>
-
-                    <!-- Manual Sign Up Form with exact requirements -->
                     <form onsubmit="handleManualSignUp(event, '${accountType}')" class="space-y-2 text-start max-h-[50vh] overflow-y-auto pe-1">
                         ${accountType === 'company' ? `
                             <div>
@@ -760,8 +603,8 @@
                                 <input type="date" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رفع وثيقة السجل التجاري (PDF / Image)' : 'Upload Commercial Registration Document'}</label>
-                                <input type="file" required class="custom-input w-full px-2 py-1 border rounded-lg text-[11px] text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500">
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رفع وثيقة السجل التجاري' : 'Upload Commercial Registration Document'}</label>
+                                <input type="file" required class="custom-input w-full px-2 py-1 border rounded-lg text-[11px] text-gray-400">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
@@ -789,15 +632,12 @@
                                 </div>
                             </div>
                         `}
-
                         <div>
                             <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email Address'}</label>
                             <input type="email" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="name@example.com">
                         </div>
-
-                        <!-- Phone Number & OTP Verification -->
                         <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رقم الهاتف (للتحقق عبر OTP)' : 'Phone Number (OTP Verification Required)'}</label>
+                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رقم الهاتف (للتحقق عبر OTP)' : 'Phone Number (OTP Required)'}</label>
                             <div class="flex gap-2">
                                 <input type="tel" id="signup-phone" required class="custom-input flex-1 px-2.5 py-1.5 border rounded-lg text-xs" placeholder="+962 7XXXXXXXX">
                                 <button type="button" onclick="sendOTP()" class="px-3 py-1.5 bg-blue-600/20 border border-blue-500 hover:bg-blue-600 text-blue-300 hover:text-white text-[10px] font-semibold rounded-lg transition">
@@ -809,7 +649,6 @@
                             <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رمز التحقق (OTP Code)' : 'Enter OTP Code'}</label>
                             <input type="text" id="signup-otp" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs tracking-widest font-mono" placeholder="• • • •">
                         </div>
-
                         <div>
                             <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'كلمة المرور' : 'Password'}</label>
                             <input type="password" id="signup-pass" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="••••••••">
@@ -818,7 +657,6 @@
                             <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm Password'}</label>
                             <input type="password" id="signup-confirm" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="••••••••">
                         </div>
-
                         <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer mt-1">
                             ${currentLang === 'ar' ? 'إنشاء الحساب' : 'Create Account'}
                         </button>
@@ -826,7 +664,6 @@
                 `;
             } else {
                 html += `
-                    <!-- Sign In Form -->
                     <form onsubmit="handleSignIn(event, '${accountType}')" class="space-y-2.5 text-start">
                         <div>
                             <label class="block text-[10px] text-gray-300 font-semibold mb-1">${currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email Address'}</label>
@@ -842,7 +679,6 @@
                     </form>
                 `;
             }
-
             body.innerHTML = html;
         }
 
@@ -856,14 +692,8 @@
                 alert(currentLang === 'ar' ? 'يرجى إدخال رقم الهاتف أولاً' : 'Please enter a phone number first');
                 return;
             }
-            alert((currentLang === 'ar' ? 'تم إرسال رمز التحقق (OTP) بنجاح إلى: ' : 'OTP verification code sent successfully to: ') + phone + '\n(Simulated OTP: 5432)');
+            alert((currentLang === 'ar' ? 'تم إرسال رمز التحقق (OTP) إلى: ' : 'OTP verification code sent to: ') + phone + '\n(Simulated OTP: 5432)');
             document.getElementById('signup-otp').value = '5432';
-        }
-
-        function simulateSSO(provider, accountType) {
-            alert(`Successfully authenticated via ${provider} as a ${accountType.toUpperCase()} account on Spare.jo!`);
-            closeAuthModal();
-            showHomeView();
         }
 
         function handleManualSignUp(event, accountType) {
@@ -881,71 +711,56 @@
                 return;
             }
 
-            alert(`Successfully registered new ${accountType.toUpperCase()} account on Spare.jo with verified phone, commercial registration, and credentials!`);
+            alert(`Successfully registered new ${accountType.toUpperCase()} account on Spare.jo!`);
             closeAuthModal();
             showHomeView();
         }
 
         function handleSignIn(event, accountType) {
             event.preventDefault();
-            alert(`Successfully signed in to ${accountType.toUpperCase()} account on Spare.jo!`);
+            alert(`Successfully signed in to ${accountType.toUpperCase()} account!`);
             closeAuthModal();
             showHomeView();
         }
 
-        // Toggle Category Grid Function
         function toggleCategoryGrid() {
             isGridVisible = !isGridVisible;
             const gridContainer = document.getElementById('categories-grid-container');
             const toggleIcon = document.getElementById('grid-toggle-icon');
-
             if (isGridVisible) {
                 gridContainer.classList.remove('hidden');
                 gridContainer.classList.add('flex');
-                toggleIcon.classList.remove('fa-chevron-down');
-                toggleIcon.classList.add('fa-chevron-up');
+                toggleIcon.className = 'fa-solid fa-chevron-up text-blue-400 text-[10px] transition-transform duration-300';
             } else {
                 gridContainer.classList.remove('flex');
                 gridContainer.classList.add('hidden');
-                toggleIcon.classList.remove('fa-chevron-up');
-                toggleIcon.classList.add('fa-chevron-down');
+                toggleIcon.className = 'fa-solid fa-chevron-down text-blue-400 text-[10px] transition-transform duration-300';
             }
         }
 
-        // Theme Switcher Function
         function toggleTheme() {
             const body = document.getElementById('app-body');
             const themeIcon = document.getElementById('theme-icon');
-            
             if (body.classList.contains('dark')) {
-                body.classList.remove('dark');
-                body.classList.add('light');
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
+                body.classList.remove('dark'); body.classList.add('light');
+                themeIcon.className = 'fa-solid fa-sun';
             } else {
-                body.classList.remove('light');
-                body.classList.add('dark');
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
+                body.classList.remove('light'); body.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-moon';
             }
         }
 
-        // Language Switcher Function
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ar' : 'en';
             const htmlTag = document.documentElement;
             const langBtn = document.getElementById('lang-btn');
-
             if (currentLang === 'ar') {
-                htmlTag.setAttribute('dir', 'rtl');
-                htmlTag.setAttribute('lang', 'ar');
+                htmlTag.setAttribute('dir', 'rtl'); htmlTag.setAttribute('lang', 'ar');
                 langBtn.innerText = 'العربية';
             } else {
-                htmlTag.setAttribute('dir', 'ltr');
-                htmlTag.setAttribute('lang', 'en');
+                htmlTag.setAttribute('dir', 'ltr'); htmlTag.setAttribute('lang', 'en');
                 langBtn.innerText = 'English';
             }
-
             applyTranslations();
         }
 
@@ -954,29 +769,21 @@
             if (searchInput) {
                 searchInput.placeholder = currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)';
             }
-
             document.querySelectorAll('[data-en]').forEach(el => {
                 const translation = el.getAttribute(`data-${currentLang}`);
-                if (translation) {
-                    el.innerText = translation;
-                }
+                if (translation) { el.innerText = translation; }
             });
         }
 
-        // Live Date and Time Updater script
         function updateDateTime() {
             const now = new Date();
             const locale = currentLang === 'ar' ? 'ar-JO' : 'en-US';
-            const dateOptions = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
-            const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
-            
-            document.getElementById('header-date').innerText = now.toLocaleDateString(locale, dateOptions);
-            document.getElementById('header-time').innerText = now.toLocaleTimeString(locale, timeOptions);
+            document.getElementById('header-date').innerText = now.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('header-time').innerText = now.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true });
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        // Initialize default view on load
         showHomeView();
     </script>
 </body>
