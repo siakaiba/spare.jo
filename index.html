@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V5.9.2</title>
+    <title>Spare.jo - Find & Compare V5.9.7</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -162,7 +162,7 @@
 
         <div class="w-full md:w-auto flex items-center justify-center md:justify-end space-x-1.5 rtl:space-x-reverse font-semibold text-center">
             <span id="header-date">Tuesday, Nov 3, 2026</span>
-            <span class="text-blue-500 font-medium" id="header-time">11:31 PM</span>
+            <span class="text-blue-500 font-medium" id="header-time">11:52 PM</span>
         </div>
     </footer>
 
@@ -514,54 +514,55 @@
             const container = document.getElementById('search-pane-container');
             if (!container) return;
 
-            const unifiedActionBtnClass = "w-full sm:w-auto px-4 py-2.5 md:py-2 text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer shrink-0";
+            const unifiedActionBtnClass = "w-full px-2 py-2 md:py-2 text-[11px] font-semibold rounded-lg shadow-sm transition flex items-center justify-center space-x-1 rtl:space-x-reverse cursor-pointer truncate";
             
             const findBtnHTML = `
                 <button onclick="handleSearchAction()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <span data-en="Find Parts" data-ar="ابحث عن القطع">Find Parts</span>
+                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
+                    <span data-en="Find Parts" data-ar="ابحث">Find Parts</span>
                 </button>
             `;
 
             const makeModelFindBtnHTML = `
                 <button onclick="handleMakeModelSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <span data-en="Find Parts" data-ar="ابحث عن القطع">Find Parts</span>
+                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
+                    <span data-en="Find Parts" data-ar="ابحث">Find Parts</span>
                 </button>
             `;
 
             const serialFindBtnHTML = `
                 <button onclick="handleSerialSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <span data-en="Find Parts" data-ar="ابحث عن القطع">Find Parts</span>
+                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
+                    <span data-en="Find Parts" data-ar="ابحث">Find Parts</span>
                 </button>
             `;
 
             const clearBtnHTML = `
                 <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border hover:border-gray-400 text-gray-300">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span data-en="Clear Entry" data-ar="مسح الإدخال">Clear Entry</span>
+                    <i class="fa-solid fa-rotate-right text-[10px]"></i>
+                    <span data-en="Clear" data-ar="مسح">Clear</span>
                 </button>
             `;
 
             if (activeSearchTab === 'vin') {
                 container.innerHTML = `
-                    <div class="flex flex-col sm:flex-row items-center gap-2 pt-0.5">
-                        <div class="relative flex-1 w-full">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
+                        <div class="sm:col-span-8 relative w-full">
                             <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
                                 <i class="fa-solid fa-barcode text-xs"></i>
                             </span>
                             <input id="search-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
                         </div>
-                        ${findBtnHTML}
-                        ${clearBtnHTML}
+                        <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
+                            ${findBtnHTML}
+                            ${clearBtnHTML}
+                        </div>
                     </div>
                     <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between text-[10px] text-gray-400 gap-1 mt-1.5">
                         <span onclick="openVinSourceModal()" class="hover:underline cursor-pointer text-blue-400 flex items-center">
                             <i class="fa-solid fa-camera mr-1 rtl:ml-1 rtl:mr-0"></i> 
                             <span data-en="Upload / Take Photo of Chassis Number to Autofill" data-ar="رفع أو التقاط صورة لرقم الهيكل للتعبئة التلقائية">Upload / Take Photo of Chassis Number to Autofill</span>
                         </span>
-                        <span data-en="Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling" data-ar="بحث سريع: بطانات الفرامل، مضخات الشرارة، الفلاتر، تبريد السيارات الكهربائية">Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling</span>
                     </div>
                 `;
             } else if (activeSearchTab === 'model') {
@@ -572,17 +573,17 @@
 
                 container.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
-                        <div class="sm:col-span-4">
+                        <div class="sm:col-span-3">
                             <select id="select-make" onchange="updateModelDropdown()" class="custom-input w-full px-2.5 py-2.5 md:py-2 border rounded-lg text-xs">
                                 ${makeOptions}
                             </select>
                         </div>
-                        <div class="sm:col-span-4">
+                        <div class="sm:col-span-3">
                             <select id="select-model" class="custom-input w-full px-2.5 py-2.5 md:py-2 border rounded-lg text-xs">
                                 <option value="" data-en="Select Model First" data-ar="اختر الصانع أولاً...">Select Model First</option>
                             </select>
                         </div>
-                        <div class="sm:col-span-1">
+                        <div class="sm:col-span-2">
                             <select id="select-year" class="custom-input w-full px-1 py-2.5 md:py-2 border rounded-lg text-xs">
                                 <option value="" data-en="Year" data-ar="السنة">Year</option>
                                 <option value="2026">2026</option>
@@ -593,26 +594,27 @@
                                 <option value="2020">2020 & Older</option>
                             </select>
                         </div>
-                        <div class="sm:col-span-3 flex gap-1.5 justify-end">
+                        <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
                             ${makeModelFindBtnHTML}
                             ${clearBtnHTML}
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5">
-                        <span data-en="Select vehicle hierarchy for exact spare part matching across Jordanian suppliers." data-ar="حدد تسلسل المركبة لمطابقة قطع الغيار بدقة عبر الموردين في الأردن.">Select vehicle hierarchy for exact spare part matching across Jordanian suppliers.</span>
                     </div>
                 `;
             } else if (activeSearchTab === 'serial') {
                 container.innerHTML = `
-                    <div class="flex flex-col sm:flex-row items-center gap-2 pt-0.5">
-                        <div class="relative flex-1 w-full">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
+                        <div class="sm:col-span-8 relative w-full">
                             <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
                                 <i class="fa-solid fa-hashtag text-xs"></i>
                             </span>
                             <input id="search-serial-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم القطع التسلسلي (OEM / Part #)...' : 'Enter Part Serial Number / OEM Part #'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
                         </div>
-                        ${serialFindBtnHTML}
-                        ${clearBtnHTML}
+                        <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
+                            ${serialFindBtnHTML}
+                            ${clearBtnHTML}
+                        </div>
                     </div>
                     <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5">
                         <span data-en="Examples: OEM part numbers, Bosch, Denso cross-references." data-ar="أمثلة: أرقام القطع الأصلية وقطع التبديل البديلة من الشركات المصنعة.">Examples: OEM part numbers, Bosch, Denso cross-references.</span>
@@ -650,7 +652,7 @@
                 const year = document.getElementById('select-year');
                 if (make) make.value = '';
                 if (model) {
-                    model.innerHTML = `<option value="" data-en="Select Model First" data-ar="اختر الصانع أولاً...">Select Model First</option>`;
+                    model.innerHTML = `<option value="" data-en="Select Make First" data-ar="اختر الصانع أولاً...">Select Model First</option>`;
                 }
                 if (year) year.value = '';
             } else if (activeSearchTab === 'serial') {
