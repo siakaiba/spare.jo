@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V5.8</title>
+    <title>Spare.jo - Find & Compare V5.9.2</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -162,7 +162,7 @@
 
         <div class="w-full md:w-auto flex items-center justify-center md:justify-end space-x-1.5 rtl:space-x-reverse font-semibold text-center">
             <span id="header-date">Tuesday, Nov 3, 2026</span>
-            <span class="text-blue-500 font-medium" id="header-time">12:37 AM</span>
+            <span class="text-blue-500 font-medium" id="header-time">11:31 PM</span>
         </div>
     </footer>
 
@@ -214,7 +214,18 @@
     <script>
         let currentLang = 'en';
         let currentView = 'home'; 
+        let activeSearchTab = 'vin'; // 'vin' | 'model' | 'serial'
         let isGridVisible = false; 
+
+        // Comprehensive realistic make/model database for Jordan market
+        const vehicleDatabase = {
+            "Toyota": ["Camry", "Corolla", "RAV4", "Land Cruiser", "Yaris", "Prius", "Hilux", "Prado"],
+            "Hyundai": ["Elantra", "Sonata", "Tucson", "Santa Fe", "Accent", "Tucson Hybrid", "Ioniq"],
+            "Kia": ["Sportage", "Sorento", "Cerato", "K5 (Optima)", "Picanto", "Rio", "Telluride", "Sonet"],
+            "BMW": ["3 Series", "5 Series", "7 Series", "X1", "X3", "X5", "X6", "i4", "iX"],
+            "Mercedes": ["C-Class", "E-Class", "S-Class", "GLA", "GLC", "GLE", "A-Class"],
+            "Nissan": ["Sunny", "Altima", "Patrol", "Qashqai", "X-Trail", "Kicks"]
+        };
 
         // Templates for views
         const homeViewHTML = `
@@ -243,32 +254,13 @@
             <!-- Search & Verify Engine Box -->
             <div class="custom-card border rounded-xl p-3 md:p-2.5 shadow-xl max-w-5xl mx-auto w-full space-y-2 md:space-y-1.5 transition-colors duration-300">
                 <div class="flex flex-wrap justify-between items-center border-b border-blue-900/50 pb-1.5 md:pb-1 text-[10px] md:text-[11px] font-semibold text-gray-300 gap-2">
-                    <span class="text-blue-400 border-b-2 border-blue-500 pb-1 -mb-1.5" data-en="Search by VIN" data-ar="البحث برقم الهيكل (VIN)">Search by VIN</span>
-                    <span class="hover:text-blue-500 cursor-pointer transition" data-en="Search by Vehicle Make / Model" data-ar="البحث حسب صانع / طراز المركبة">Search by Vehicle Make / Model</span>
-                    <span class="hover:text-blue-500 cursor-pointer transition" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
+                    <span id="tab-vin-btn" onclick="switchSearchTab('vin')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'vin' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by VIN" data-ar="البحث برقم الهيكل (VIN)">Search by VIN</span>
+                    <span id="tab-model-btn" onclick="switchSearchTab('model')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'model' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by Vehicle Make / Model" data-ar="البحث حسب صانع / طراز المركبة">Search by Vehicle Make / Model</span>
+                    <span id="tab-serial-btn" onclick="switchSearchTab('serial')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'serial' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
                 </div>
 
-                <!-- Search input & CTA -->
-                <div class="flex flex-col sm:flex-row items-center gap-2 pt-0.5">
-                    <div class="relative flex-1 w-full">
-                        <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
-                            <i class="fa-solid fa-barcode text-xs"></i>
-                        </span>
-                        <input id="search-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
-                    </div>
-                    <button onclick="handleSearchAction()" class="w-full sm:w-auto px-5 py-2.5 md:py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-blue-600/30 transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <span data-en="Find Related Parts" data-ar="ابحث عن القطع المرتبطة">Find Related Parts</span>
-                    </button>
-                </div>
-
-                <!-- Quick helper links with camera/upload trigger -->
-                <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between text-[10px] text-gray-400 gap-1">
-                    <span onclick="openVinSourceModal()" class="hover:underline cursor-pointer text-blue-400 flex items-center">
-                        <i class="fa-solid fa-camera mr-1 rtl:ml-1 rtl:mr-0"></i> 
-                        <span data-en="Upload / Take Photo of Chassis Number to Autofill" data-ar="رفع أو التقاط صورة لرقم الهيكل للتعبئة التلقائية">Upload / Take Photo of Chassis Number to Autofill</span>
-                    </span>
-                    <span data-en="Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling" data-ar="بحث سريع: بطانات الفرامل، مضخات الشرارة، الفلاتر، تبريد السيارات الكهربائية">Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling</span>
+                <div id="search-pane-container" class="pt-0.5">
+                    <!-- Dynamically rendered based on activeSearchTab -->
                 </div>
             </div>
 
@@ -499,7 +491,172 @@
             currentView = 'home';
             document.getElementById('main-content').innerHTML = homeViewHTML;
             document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            renderSearchPane();
             applyTranslations();
+        }
+
+        function switchSearchTab(tab) {
+            activeSearchTab = tab;
+            ['vin', 'model', 'serial'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}-btn`);
+                if (btn) {
+                    if (t === tab) {
+                        btn.className = 'cursor-pointer transition pb-1 -mb-1.5 text-blue-400 border-b-2 border-blue-500';
+                    } else {
+                        btn.className = 'cursor-pointer transition pb-1 -mb-1.5 text-gray-400 hover:text-white';
+                    }
+                }
+            });
+            renderSearchPane();
+        }
+
+        function renderSearchPane() {
+            const container = document.getElementById('search-pane-container');
+            if (!container) return;
+
+            const unifiedActionBtnClass = "w-full sm:w-auto px-4 py-2.5 md:py-2 text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center space-x-2 rtl:space-x-reverse cursor-pointer shrink-0";
+            
+            const findBtnHTML = `
+                <button onclick="handleSearchAction()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span data-en="Find Parts" data-ar="ابحث عن القطع">Find Parts</span>
+                </button>
+            `;
+
+            const makeModelFindBtnHTML = `
+                <button onclick="handleMakeModelSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span data-en="Find Parts" data-ar="ابحث عن القطع">Find Parts</span>
+                </button>
+            `;
+
+            const serialFindBtnHTML = `
+                <button onclick="handleSerialSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span data-en="Find Parts" data-ar="ابحث عن القطع">Find Parts</span>
+                </button>
+            `;
+
+            const clearBtnHTML = `
+                <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border hover:border-gray-400 text-gray-300">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span data-en="Clear Entry" data-ar="مسح الإدخال">Clear Entry</span>
+                </button>
+            `;
+
+            if (activeSearchTab === 'vin') {
+                container.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-center gap-2 pt-0.5">
+                        <div class="relative flex-1 w-full">
+                            <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
+                                <i class="fa-solid fa-barcode text-xs"></i>
+                            </span>
+                            <input id="search-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
+                        </div>
+                        ${findBtnHTML}
+                        ${clearBtnHTML}
+                    </div>
+                    <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between text-[10px] text-gray-400 gap-1 mt-1.5">
+                        <span onclick="openVinSourceModal()" class="hover:underline cursor-pointer text-blue-400 flex items-center">
+                            <i class="fa-solid fa-camera mr-1 rtl:ml-1 rtl:mr-0"></i> 
+                            <span data-en="Upload / Take Photo of Chassis Number to Autofill" data-ar="رفع أو التقاط صورة لرقم الهيكل للتعبئة التلقائية">Upload / Take Photo of Chassis Number to Autofill</span>
+                        </span>
+                        <span data-en="Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling" data-ar="بحث سريع: بطانات الفرامل، مضخات الشرارة، الفلاتر، تبريد السيارات الكهربائية">Fast-search: Brake Pads, Spark Pumps, Filters, EV Cooling</span>
+                    </div>
+                `;
+            } else if (activeSearchTab === 'model') {
+                let makeOptions = `<option value="" data-en="Select Make (Toyota, BMW...)" data-ar="اختر الشركة الصانعة...">Select Make</option>`;
+                Object.keys(vehicleDatabase).forEach(mk => {
+                    makeOptions += `<option value="${mk}">${mk}</option>`;
+                });
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
+                        <div class="sm:col-span-4">
+                            <select id="select-make" onchange="updateModelDropdown()" class="custom-input w-full px-2.5 py-2.5 md:py-2 border rounded-lg text-xs">
+                                ${makeOptions}
+                            </select>
+                        </div>
+                        <div class="sm:col-span-4">
+                            <select id="select-model" class="custom-input w-full px-2.5 py-2.5 md:py-2 border rounded-lg text-xs">
+                                <option value="" data-en="Select Model First" data-ar="اختر الصانع أولاً...">Select Model First</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-1">
+                            <select id="select-year" class="custom-input w-full px-1 py-2.5 md:py-2 border rounded-lg text-xs">
+                                <option value="" data-en="Year" data-ar="السنة">Year</option>
+                                <option value="2026">2026</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2020">2020 & Older</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-3 flex gap-1.5 justify-end">
+                            ${makeModelFindBtnHTML}
+                            ${clearBtnHTML}
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5">
+                        <span data-en="Select vehicle hierarchy for exact spare part matching across Jordanian suppliers." data-ar="حدد تسلسل المركبة لمطابقة قطع الغيار بدقة عبر الموردين في الأردن.">Select vehicle hierarchy for exact spare part matching across Jordanian suppliers.</span>
+                    </div>
+                `;
+            } else if (activeSearchTab === 'serial') {
+                container.innerHTML = `
+                    <div class="flex flex-col sm:flex-row items-center gap-2 pt-0.5">
+                        <div class="relative flex-1 w-full">
+                            <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
+                                <i class="fa-solid fa-hashtag text-xs"></i>
+                            </span>
+                            <input id="search-serial-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم القطع التسلسلي (OEM / Part #)...' : 'Enter Part Serial Number / OEM Part #'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
+                        </div>
+                        ${serialFindBtnHTML}
+                        ${clearBtnHTML}
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5">
+                        <span data-en="Examples: OEM part numbers, Bosch, Denso cross-references." data-ar="أمثلة: أرقام القطع الأصلية وقطع التبديل البديلة من الشركات المصنعة.">Examples: OEM part numbers, Bosch, Denso cross-references.</span>
+                    </div>
+                `;
+            }
+            applyTranslations();
+        }
+
+        function updateModelDropdown() {
+            const makeSelect = document.getElementById('select-make');
+            const modelSelect = document.getElementById('select-model');
+            if (!makeSelect || !modelSelect) return;
+
+            const selectedMake = makeSelect.value;
+            modelSelect.innerHTML = `<option value="" data-en="Select Model" data-ar="اختر الطراز">Select Model</option>`;
+
+            if (selectedMake && vehicleDatabase[selectedMake]) {
+                vehicleDatabase[selectedMake].forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model;
+                    opt.textContent = model;
+                    modelSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function clearSearchEntry() {
+            if (activeSearchTab === 'vin') {
+                const input = document.getElementById('search-input');
+                if (input) input.value = '';
+            } else if (activeSearchTab === 'model') {
+                const make = document.getElementById('select-make');
+                const model = document.getElementById('select-model');
+                const year = document.getElementById('select-year');
+                if (make) make.value = '';
+                if (model) {
+                    model.innerHTML = `<option value="" data-en="Select Model First" data-ar="اختر الصانع أولاً...">Select Model First</option>`;
+                }
+                if (year) year.value = '';
+            } else if (activeSearchTab === 'serial') {
+                const serialInput = document.getElementById('search-serial-input');
+                if (serialInput) serialInput.value = '';
+            }
         }
 
         function showAccountSelectionView() {
@@ -539,13 +696,11 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Show loading modal simulating OCR extraction
             document.getElementById('vin-loading-modal').style.display = 'flex';
 
             setTimeout(() => {
                 document.getElementById('vin-loading-modal').style.display = 'none';
                 
-                // Simulated extracted VIN from image OCR
                 const sampleVins = ["1HGCR2F83HA001234", "WBA3B3C56EF789012", "JTMZK3EV3HD998877", "KMHDH4AE8FU445566"];
                 const randomVin = sampleVins[Math.floor(Math.random() * sampleVins.length)];
 
@@ -554,7 +709,6 @@
                     searchInput.value = randomVin;
                     alert((currentLang === 'ar' ? 'تم قراءة رقم الهيكل بنجاح من الصورة وتعبئته تلقائياً: ' : 'Successfully extracted and autofilled VIN from photo: ') + randomVin);
                 }
-                // Reset file inputs
                 event.target.value = '';
             }, 1500);
         }
@@ -568,7 +722,27 @@
             alert((currentLang === 'ar' ? 'جاري البحث عن القطع المطابقة لرقم الهيكل: ' : 'Searching compatible parts for VIN: ') + val);
         }
 
-        // Authentication Modal Logic
+        function handleMakeModelSearch() {
+            const make = document.getElementById('select-make').value;
+            const model = document.getElementById('select-model').value;
+            const year = document.getElementById('select-year').value;
+            if (!make || !model) {
+                alert(currentLang === 'ar' ? 'يرجى اختيار الصانع والطراز على الأقل' : 'Please select at least vehicle Make and Model');
+                return;
+            }
+            alert((currentLang === 'ar' ? 'جاري استعراض قطع الغيار لـ: ' : 'Searching parts for vehicle: ') + `${year} ${make} ${model}`);
+        }
+
+        function handleSerialSearch() {
+            const serial = document.getElementById('search-serial-input').value;
+            if (!serial) {
+                alert(currentLang === 'ar' ? 'يرجى إدخال رقم القطع التسلسلي' : 'Please enter part serial number');
+                return;
+            }
+            alert((currentLang === 'ar' ? 'جاري البحث عن القطعة برقم تسلسلي: ' : 'Searching availability for Part #: ') + serial);
+        }
+
+        // Authentication Modal Logic with Password Reset
         function openAuthModal(accountType, mode) {
             const overlay = document.getElementById('auth-modal-overlay');
             const body = document.getElementById('auth-modal-body');
@@ -670,7 +844,10 @@
                             <input type="email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
                         </div>
                         <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-1">${currentLang === 'ar' ? 'كلمة المرور' : 'Password'}</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-[10px] text-gray-300 font-semibold">${currentLang === 'ar' ? 'كلمة المرور' : 'Password'}</label>
+                                <a href="#" onclick="openForgotPasswordModal('${accountType}'); return false;" class="text-[10px] text-blue-400 hover:underline" data-en="Forgot Password?" data-ar="هل نسيت كلمة المرور؟">Forgot Password?</a>
+                            </div>
                             <input type="password" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="••••••••">
                         </div>
                         <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer mt-2">
@@ -680,6 +857,45 @@
                 `;
             }
             body.innerHTML = html;
+        }
+
+        function openForgotPasswordModal(accountType) {
+            const body = document.getElementById('auth-modal-body');
+            body.innerHTML = `
+                <div class="text-center space-y-3 py-2">
+                    <div class="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-lg mx-auto">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <h3 class="text-sm font-bold" data-en="Reset Your Password" data-ar="إعادة تعيين كلمة المرور">Reset Your Password</h3>
+                    <p class="text-[11px] text-gray-400" data-en="Enter your registered email or phone number to receive a password reset verification link/OTP." data-ar="أدخل بريدك الإلكتروني أو رقم هاتفك المسجل لتلقي رمز التحقق لإعادة تعيين كلمة المرور.">
+                        Enter your registered email or phone number to receive a password reset verification link/OTP.
+                    </p>
+                    <div class="space-y-2 text-start pt-2">
+                        <div>
+                            <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Email or Phone Number" data-ar="البريد الإلكتروني أو رقم الهاتف">Email or Phone Number</label>
+                            <input type="text" id="reset-target" class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com or +962 7XXXXXXXX">
+                        </div>
+                        <button onclick="handlePasswordResetRequest()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer">
+                            <span data-en="Send Reset Instructions" data-ar="إرسال تعليمات إعادة التعيين">Send Reset Instructions</span>
+                        </button>
+                        <button onclick="openAuthModal('${accountType}', 'signin')" class="w-full py-2 custom-card border hover:border-gray-400 text-gray-300 text-xs font-semibold rounded-xl transition cursor-pointer">
+                            <span data-en="Back to Sign In" data-ar="العودة لتسجيل الدخول">Back to Sign In</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            applyTranslations();
+        }
+
+        function handlePasswordResetRequest() {
+            const val = document.getElementById('reset-target').value;
+            if (!val) {
+                alert(currentLang === 'ar' ? 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف' : 'Please enter your email or phone number');
+                return;
+            }
+            alert((currentLang === 'ar' ? 'تم إرسال تعليمات إعادة تعيين كلمة المرور بنجاح إلى: ' : 'Password reset instructions successfully sent to: ') + val);
+            closeAuthModal();
+            showHomeView();
         }
 
         function closeAuthModal() {
