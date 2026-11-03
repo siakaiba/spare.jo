@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V5.6</title>
+    <title>Spare.jo - Find & Compare V5.7</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -705,7 +705,7 @@
             applyTranslations();
         }
 
-        // Authentication Modal Logic (Google, Outlook, Manual Signup/Signin with exact validation rules)
+        // Authentication Modal Logic with exact requirements
         function openAuthModal(accountType, mode) {
             const overlay = document.getElementById('auth-modal-overlay');
             const body = document.getElementById('auth-modal-body');
@@ -744,7 +744,7 @@
                         <div class="flex-grow border-t border-gray-600/50"></div>
                     </div>
 
-                    <!-- Manual Sign Up Form with exact validation rules -->
+                    <!-- Manual Sign Up Form with exact requirements -->
                     <form onsubmit="handleManualSignUp(event, '${accountType}')" class="space-y-2 text-start max-h-[50vh] overflow-y-auto pe-1">
                         ${accountType === 'company' ? `
                             <div>
@@ -752,7 +752,15 @@
                                 <input type="text" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. Amman Auto Parts Co.">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رفع السجل التجاري (Commercial Registration)' : 'Upload Commercial Registration'}</label>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رقم السجل التجاري' : 'Commercial Registration Number'}</label>
+                                <input type="text" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. CR-123456">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'تاريخ صلاحية السجل التجاري' : 'Commercial Registration Validity Date'}</label>
+                                <input type="date" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رفع وثيقة السجل التجاري (PDF / Image)' : 'Upload Commercial Registration Document'}</label>
                                 <input type="file" required class="custom-input w-full px-2 py-1 border rounded-lg text-[11px] text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
@@ -789,7 +797,7 @@
 
                         <!-- Phone Number & OTP Verification -->
                         <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رقم الهاتف (للتحقق عبر OTP)' : 'Phone Number (OTP Required)'}</label>
+                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رقم الهاتف (للتحقق عبر OTP)' : 'Phone Number (OTP Verification Required)'}</label>
                             <div class="flex gap-2">
                                 <input type="tel" id="signup-phone" required class="custom-input flex-1 px-2.5 py-1.5 border rounded-lg text-xs" placeholder="+962 7XXXXXXXX">
                                 <button type="button" onclick="sendOTP()" class="px-3 py-1.5 bg-blue-600/20 border border-blue-500 hover:bg-blue-600 text-blue-300 hover:text-white text-[10px] font-semibold rounded-lg transition">
@@ -873,7 +881,7 @@
                 return;
             }
 
-            alert(`Successfully registered new ${accountType.toUpperCase()} account on Spare.jo with verified phone & credentials!`);
+            alert(`Successfully registered new ${accountType.toUpperCase()} account on Spare.jo with verified phone, commercial registration, and credentials!`);
             closeAuthModal();
             showHomeView();
         }
