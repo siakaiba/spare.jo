@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.1.8</title>
+    <title>Spare.jo - Find & Compare V6.1.9</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Admin Analytics Pie Charts -->
@@ -964,8 +964,8 @@
                         </div>
                     </div>
 
-                    <!-- Extended 5-Column KPI Summary Strip -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 shrink-0">
+                    <!-- Extended 6-Column KPI Summary Strip (Total Parts Value placed next to Total Spare Parts) -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 shrink-0">
                         <div class="custom-card border rounded-2xl p-4 space-y-1">
                             <div class="flex items-center justify-between text-gray-400 text-xs">
                                 <span data-en="Total Accounts" data-ar="إجمالي الحسابات">Total Accounts</span>
@@ -995,6 +995,15 @@
 
                         <div class="custom-card border rounded-2xl p-4 space-y-1">
                             <div class="flex items-center justify-between text-gray-400 text-xs">
+                                <span data-en="Total Parts Value" data-ar="إجمالي قيمة القطع">Total Parts Value</span>
+                                <i class="fa-solid fa-coins text-emerald-400"></i>
+                            </div>
+                            <div class="text-2xl font-black text-emerald-400" id="kpi-parts-value">-- JOD</div>
+                            <div class="text-[11px] text-gray-400" id="kpi-parts-value-sub" data-en="Catalog & Stock Valuation" data-ar="تقييم المخزون والكتالوج">Catalog & Stock Valuation</div>
+                        </div>
+
+                        <div class="custom-card border rounded-2xl p-4 space-y-1">
+                            <div class="flex items-center justify-between text-gray-400 text-xs">
                                 <span data-en="VIN / Part Queries" data-ar="عمليات البحث">VIN / Part Queries</span>
                                 <i class="fa-solid fa-magnifying-glass text-purple-400"></i>
                             </div>
@@ -1002,7 +1011,7 @@
                             <div class="text-[11px] text-emerald-400">+18.4% <span data-en="this week" data-ar="هذا الأسبوع">this week</span></div>
                         </div>
 
-                        <div class="custom-card border rounded-2xl p-4 space-y-1 col-span-2 sm:col-span-1">
+                        <div class="custom-card border rounded-2xl p-4 space-y-1">
                             <div class="flex items-center justify-between text-gray-400 text-xs">
                                 <span data-en="System Status" data-ar="حالة النظام">System Status</span>
                                 <i class="fa-solid fa-server text-emerald-400"></i>
@@ -1017,7 +1026,7 @@
                         <div class="flex items-center justify-between border-b border-blue-900/40 pb-2.5 mb-3">
                             <div class="flex items-center space-x-2 rtl:space-x-reverse">
                                 <i class="fa-solid fa-chart-pie text-amber-400 text-xs"></i>
-                                <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400" data-en="Platform Visual Analytics (6 Live Breakdowns)" data-ar="التحليلات المرئية للمنصة (6 مخططات حية)">Platform Visual Analytics (6 Live Breakdowns)</h2>
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400" data-en="Platform Visual Analytics" data-ar="التحليلات المرئية للمنصة">Platform Visual Analytics</h2>
                             </div>
                             <button onclick="toggleAdminAnalyticsCharts()" class="text-[11px] text-gray-400 hover:text-white flex items-center space-x-1 rtl:space-x-reverse cursor-pointer">
                                 <i class="fa-solid fa-xmark"></i>
@@ -1149,6 +1158,7 @@
             document.getElementById('main-content').innerHTML = getAdminDashboardHTML();
             applyTranslations();
             renderAdminActivityFeed();
+            updateAdminPartsKPIs();
             await refreshAdminData();
             if (isAdminChartsVisible) {
                 renderAdminPieCharts();
@@ -1169,6 +1179,36 @@
             if (kpiSplit) kpiSplit.innerText = `${customers} Customers • ${companies} Companies`;
         }
 
+        function updateAdminPartsKPIs() {
+            const activeParts = adminPartsCache.length > 0 ? adminPartsCache : fallbackSparePartsCatalog;
+            const kpiPartsCount = document.getElementById('kpi-parts-count');
+            const kpiPartsValue = document.getElementById('kpi-parts-value');
+            const kpiPartsValueSub = document.getElementById('kpi-parts-value-sub');
+
+            let totalValue = 0;
+            let totalUnits = 0;
+
+            activeParts.forEach(p => {
+                const unitPrice = Number(p.priceJOD !== undefined ? p.priceJOD : (p.price || 0)) || 0;
+                const qty = p.stock !== undefined && p.stock !== '' ? (Number(p.stock) || 0) : 1;
+                totalValue += unitPrice * qty;
+                totalUnits += qty;
+            });
+
+            if (kpiPartsCount && adminPartsCache.length > 0) {
+                kpiPartsCount.innerText = adminPartsCache.length.toLocaleString();
+            }
+
+            if (kpiPartsValue) {
+                kpiPartsValue.innerText = `${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} JOD`;
+            }
+
+            if (kpiPartsValueSub) {
+                const sourceLabel = adminPartsCache.length > 0 ? 'Live Firestore Stock' : 'Active Catalog Stock';
+                kpiPartsValueSub.innerText = `${totalUnits.toLocaleString()} units • ${sourceLabel}`;
+            }
+        }
+
         async function refreshAdminData() {
             const tbody = document.getElementById('admin-users-tbody');
             if (!tbody) return;
@@ -1183,16 +1223,15 @@
                 try {
                     const partsSnap = await db.collection('parts').get();
                     adminPartsCache = [];
-                    const kpiParts = document.getElementById('kpi-parts-count');
                     if (!partsSnap.empty) {
                         partsSnap.forEach(doc => adminPartsCache.push({ id: doc.id, ...doc.data() }));
-                        if (kpiParts) kpiParts.innerText = partsSnap.size.toLocaleString();
                     }
                 } catch (_) {
-                    // Keep default ecosystem inventory metric if parts collection isn't populated yet
+                    // Keep fallback catalog inventory metric if parts collection isn't populated yet
                 }
 
                 updateAdminKPIs();
+                updateAdminPartsKPIs();
                 filterAdminUsersTable();
                 if (isAdminChartsVisible) {
                     renderAdminPieCharts();
