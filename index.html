@@ -301,7 +301,10 @@
             "Nissan": ["Sunny", "Altima", "Patrol", "Qashqai", "X-Trail", "Kicks"]
         };
 
-        const homeViewHTML = `
+        function getHomeViewHTML() {
+            const activeTabClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-blue-400 border-b-2 border-blue-500";
+            const inactiveTabClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-gray-400 hover:text-white border-b-2 border-transparent";
+            return `
             <div class="flex flex-col items-center justify-center text-center -mt-2 md:-mt-6 mb-1 md:-mb-1">
                 <div class="w-32 h-32 md:w-48 md:h-48 rounded-2xl shadow-2xl border-2 border-blue-500/50 bg-[#131e38] flex flex-col items-center justify-center p-3 text-blue-400 relative overflow-hidden group">
                     <img src="Spare.jo_4.jpg" alt="Spare.jo Logo" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
@@ -325,10 +328,10 @@
             </div>
 
             <div class="custom-card border rounded-xl p-3 md:p-2.5 shadow-xl max-w-5xl mx-auto w-full space-y-2 md:space-y-1.5 transition-colors duration-300">
-                <div class="flex flex-wrap justify-between items-center border-b border-blue-900/50 pb-1.5 md:pb-1 text-[10px] md:text-[11px] font-semibold text-gray-300 gap-2">
-                    <span id="tab-vin-btn" onclick="switchSearchTab('vin')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'vin' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by VIN" data-ar="البحث برقم الهيكل (VIN)">Search by VIN</span>
-                    <span id="tab-model-btn" onclick="switchSearchTab('model')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'model' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by Vehicle Make / Model" data-ar="البحث حسب صانع / طراز المركبة">Search by Vehicle Make / Model</span>
-                    <span id="tab-serial-btn" onclick="switchSearchTab('serial')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'serial' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
+                <div class="flex flex-wrap justify-between items-center border-b border-blue-900/50 pb-1.5 text-[10px] md:text-[11px] font-semibold text-gray-300 gap-2">
+                    <span id="tab-vin-btn" onclick="switchSearchTab('vin')" class="${activeSearchTab === 'vin' ? activeTabClass : inactiveTabClass}" data-en="Search by VIN" data-ar="البحث برقم الهيكل (VIN)">Search by VIN</span>
+                    <span id="tab-model-btn" onclick="switchSearchTab('model')" class="${activeSearchTab === 'model' ? activeTabClass : inactiveTabClass}" data-en="Search by Vehicle Make / Model" data-ar="البحث حسب صانع / طراز المركبة">Search by Vehicle Make / Model</span>
+                    <span id="tab-serial-btn" onclick="switchSearchTab('serial')" class="${activeSearchTab === 'serial' ? activeTabClass : inactiveTabClass}" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
                 </div>
 
                 <div id="search-pane-container" class="pt-0.5"></div>
@@ -337,7 +340,7 @@
             <div class="max-w-5xl mx-auto w-full space-y-1 pb-2 md:pb-0">
                 <div onclick="toggleCategoryGrid()" class="flex items-center justify-between cursor-pointer group py-0.5">
                     <h3 id="txt-grid-title" class="text-[11px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse">
-                        <span data-en="Popular Categories (30)" data-ar="الأصناف الشائعة (30)">Popular Categories (30)</span>
+                        <span data-en="Popular Categories" data-ar="الأصناف الشائعة">Popular Categories</span>
                         <i id="grid-toggle-icon" class="fa-solid ${isGridVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-blue-400 text-[10px] transition-transform duration-300"></i>
                     </h3>
                 </div>
@@ -375,6 +378,7 @@
                 </div>
             </div>
         `;
+        }
 
         const accountSelectionViewHTML = `
             <div class="flex flex-col items-center justify-center text-center max-w-5xl mx-auto w-full space-y-4 py-2">
@@ -895,20 +899,40 @@
 
         function showHomeView() {
             currentView = 'home';
-            document.getElementById('main-content').innerHTML = homeViewHTML;
+            document.getElementById('main-content').innerHTML = getHomeViewHTML();
             renderSearchPane();
             applyTranslations();
             updateProfileButtonUI();
         }
 
+        function updateSearchTabIndicators() {
+            const activeClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-blue-400 border-b-2 border-blue-500";
+            const inactiveClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-gray-400 hover:text-white border-b-2 border-transparent";
+
+            const tabs = {
+                vin: document.getElementById('tab-vin-btn'),
+                model: document.getElementById('tab-model-btn'),
+                serial: document.getElementById('tab-serial-btn')
+            };
+
+            Object.keys(tabs).forEach(key => {
+                if (tabs[key]) {
+                    tabs[key].className = (activeSearchTab === key) ? activeClass : inactiveClass;
+                }
+            });
+        }
+
         function switchSearchTab(tab) {
             activeSearchTab = tab;
+            updateSearchTabIndicators();
             renderSearchPane();
         }
 
         function renderSearchPane() {
             const container = document.getElementById('search-pane-container');
             if (!container) return;
+
+            updateSearchTabIndicators();
 
             const unifiedActionBtnClass = "w-full px-2 py-2 md:py-2 text-[11px] font-semibold rounded-lg shadow-sm transition flex items-center justify-center space-x-1 rtl:space-x-reverse cursor-pointer truncate";
             
@@ -939,7 +963,7 @@
                         <div class="sm:col-span-3"><select id="select-model" class="custom-input w-full px-2.5 py-2.5 border rounded-lg text-xs"><option value="">Select Make First</option></select></div>
                         <div class="sm:col-span-2"><select id="select-year" class="custom-input w-full px-1 py-2.5 border rounded-lg text-xs"><option value="">Year</option><option value="2026">2026</option><option value="2025">2025</option><option value="2020">2020 & Older</option></select></div>
                         <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
-                            <button onclick="handleMakeModelSearch()" class="${unifiedActionBtnClass} bg-blue-600 text-white">Find Parts</button>
+                            <button onclick="handleMakeModelSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">Find Parts</button>
                             <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border text-gray-300">Clear</button>
                         </div>
                     </div>
@@ -952,7 +976,7 @@
                             <input id="search-serial-input" type="text" placeholder="Enter Part Serial Number / OEM Part #" class="custom-input w-full ps-9 pe-4 py-2.5 border rounded-lg text-xs">
                         </div>
                         <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
-                            <button onclick="handleSerialSearch()" class="${unifiedActionBtnClass} bg-blue-600 text-white">Find Parts</button>
+                            <button onclick="handleSerialSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">Find Parts</button>
                             <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border text-gray-300">Clear</button>
                         </div>
                     </div>
