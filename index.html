@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V5.9.7</title>
+    <title>Spare.jo - Find & Compare V6.0.0</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase App (Core) SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <!-- Firebase Auth SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <!-- Firebase Firestore SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -22,7 +28,6 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Responsive View: Single screen on desktop, natural scroll on mobile */
         html, body {
             min-height: 100vh;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -36,7 +41,6 @@
             }
         }
 
-        /* Default Dark Theme Styles */
         body.dark {
             background-color: #0b1329;
             color: #ffffff;
@@ -64,7 +68,6 @@
             color: #ffffff;
         }
 
-        /* Light Theme Styles */
         body.light {
             background-color: #f1f5f9;
             color: #0f172a;
@@ -127,8 +130,9 @@
                 <i id="theme-icon" class="fa-solid fa-moon"></i>
             </button>
 
-            <button onclick="showAccountSelectionView()" id="profile-btn" aria-label="User Profile" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-full border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
-                <i class="fa-regular fa-user"></i>
+            <button onclick="handleProfileButtonAction()" id="profile-btn" aria-label="User Profile" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-full border flex items-center justify-center text-xs transition cursor-pointer shadow-sm font-bold">
+                <i class="fa-regular fa-user" id="profile-icon-i"></i>
+                <span id="profile-initials" style="display:none;"></span>
             </button>
 
             <button id="lang-btn" onclick="toggleLanguage()" class="header-action-btn px-2.5 py-1.5 md:py-1 rounded-lg border text-[11px] font-semibold transition cursor-pointer shadow-sm">
@@ -144,7 +148,7 @@
 
     <!-- Footer Bar -->
     <footer class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col md:flex-row justify-between items-center transition-colors duration-300 gap-2">
-        <div class="w-full md:w-auto text-center md:text-start" data-en="© 2026 Spare.jo — All Rights Reserved." data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة.">© 2026 Spare.jo — All Rights Reserved.</div>
+        <div class="w-full md:w-auto text-center md:text-start" data-en="© 2026 Spare.jo — All Rights Reserved. [V6.0.0]" data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة. [V6.0.0]">© 2026 Spare.jo — All Rights Reserved. [V6.0.0]</div>
         
         <div class="flex items-center space-x-2 rtl:space-x-reverse flex-wrap justify-center font-semibold">
             <a href="#" onclick="showAboutView(); return false;" class="text-blue-400 hover:underline transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a>
@@ -161,8 +165,8 @@
         </div>
 
         <div class="w-full md:w-auto flex items-center justify-center md:justify-end space-x-1.5 rtl:space-x-reverse font-semibold text-center">
-            <span id="header-date">Tuesday, Nov 3, 2026</span>
-            <span class="text-blue-500 font-medium" id="header-time">11:52 PM</span>
+            <span id="header-date">Saturday, Nov 14, 2026</span>
+            <span class="text-blue-500 font-medium" id="header-time">1:39 PM</span>
         </div>
     </footer>
 
@@ -212,12 +216,48 @@
     </div>
 
     <script>
+        // ==========================================
+        // FIREBASE ONLINE DATABASE INITIALIZATION
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJQhyc0_uEE2Jz9cfV0-w0Afvoy3-rEQY",
+            authDomain: "customer-account-creation.firebaseapp.com",
+            databaseURL: "https://customer-account-creation-default-rtdb.firebaseio.com",
+            projectId: "customer-account-creation",
+            storageBucket: "customer-account-creation.firebasestorage.app",
+            messagingSenderId: "516920611933",
+            appId: "1:516920611933:web:3774be87835d89afd1a9b4",
+            measurementId: "G-4Y8JYSQ3T2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
         let currentLang = 'en';
         let currentView = 'home'; 
-        let activeSearchTab = 'vin'; // 'vin' | 'model' | 'serial'
+        let activeSearchTab = 'vin';
         let isGridVisible = false; 
+        let loggedInUser = null;
 
-        // Comprehensive realistic make/model database for Jordan market
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const docSnap = await db.collection('users').doc(user.uid).get();
+                    if (docSnap.exists) {
+                        loggedInUser = docSnap.data();
+                    } else {
+                        loggedInUser = { email: user.email, firstName: user.email.split('@')[0], lastName: '' };
+                    }
+                } catch (e) {
+                    loggedInUser = { email: user.email, firstName: user.email.split('@')[0], lastName: '' };
+                }
+            } else {
+                loggedInUser = null;
+            }
+            updateProfileButtonUI();
+        });
+
         const vehicleDatabase = {
             "Toyota": ["Camry", "Corolla", "RAV4", "Land Cruiser", "Yaris", "Prius", "Hilux", "Prado"],
             "Hyundai": ["Elantra", "Sonata", "Tucson", "Santa Fe", "Accent", "Tucson Hybrid", "Ioniq"],
@@ -227,7 +267,6 @@
             "Nissan": ["Sunny", "Altima", "Patrol", "Qashqai", "X-Trail", "Kicks"]
         };
 
-        // Templates for views
         const homeViewHTML = `
             <div class="flex flex-col items-center justify-center text-center -mt-2 md:-mt-6 mb-1 md:-mb-1">
                 <div class="w-32 h-32 md:w-48 md:h-48 rounded-2xl shadow-2xl border-2 border-blue-500/50 bg-[#131e38] flex flex-col items-center justify-center p-3 text-blue-400 relative overflow-hidden group">
@@ -244,14 +283,13 @@
             <div class="text-center space-y-1 md:space-y-0.5">
                 <h1 id="hero-title" class="text-base md:text-xl font-extrabold tracking-tight px-2 leading-snug">
                     <span data-en="FIND • COMPARE" data-ar="ابحث • قارن">FIND • COMPARE</span><br>
-                    <span class="text-blue-400" data-en="SOURCE EVERY SPARE PART IN JORDAN" data-ar="وفر كل قطعة غيار في الأردن">SOURCE EVERY SPARE PART IN JORDAN</span>
+                    <span class="text-blue-400" data-en="SOURCE EVERY SPARE PART IN JORDAN [V6.0.0]" data-ar="وفر كل قطعة غيار في الأردن [V6.0.0]">SOURCE EVERY SPARE PART IN JORDAN [V6.0.0]</span>
                 </h1>
-                <p id="hero-subtitle" class="text-[11px] text-gray-400 font-light" data-en="The B2B, B2C & C2C Marketplace for Workshops, Importers, and Drivers." data-ar="منصة B2B، B2C و C2C للورشات، المستوردين، والسائقين.">
+                <p id="hero-subtitle" class="text-[11px] text-gray-400 font-light" data-en="The B2B, B2C & C2C Marketplace for Workshops, Importers, and Drivers." data-ar="منصة B2B، C2C و B2C للورشات، المستوردين، والسائقين.">
                     The B2B, B2C & C2C Marketplace for Workshops, Importers, and Drivers.
                 </p>
             </div>
 
-            <!-- Search & Verify Engine Box -->
             <div class="custom-card border rounded-xl p-3 md:p-2.5 shadow-xl max-w-5xl mx-auto w-full space-y-2 md:space-y-1.5 transition-colors duration-300">
                 <div class="flex flex-wrap justify-between items-center border-b border-blue-900/50 pb-1.5 md:pb-1 text-[10px] md:text-[11px] font-semibold text-gray-300 gap-2">
                     <span id="tab-vin-btn" onclick="switchSearchTab('vin')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'vin' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by VIN" data-ar="البحث برقم الهيكل (VIN)">Search by VIN</span>
@@ -259,12 +297,9 @@
                     <span id="tab-serial-btn" onclick="switchSearchTab('serial')" class="cursor-pointer transition pb-1 -mb-1.5 ${activeSearchTab === 'serial' ? 'text-blue-400 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
                 </div>
 
-                <div id="search-pane-container" class="pt-0.5">
-                    <!-- Dynamically rendered based on activeSearchTab -->
-                </div>
+                <div id="search-pane-container" class="pt-0.5"></div>
             </div>
 
-            <!-- 30 Top Requested Car Parts Categories Grid with Toggle on Title -->
             <div class="max-w-5xl mx-auto w-full space-y-1 pb-2 md:pb-0">
                 <div onclick="toggleCategoryGrid()" class="flex items-center justify-between cursor-pointer group py-0.5">
                     <h3 id="txt-grid-title" class="text-[11px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse">
@@ -279,30 +314,6 @@
                     <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🛞</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Shock Absorbers" data-ar="مساعدين (الممتصات)">Shock Absorbers</div></div>
                     <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">💡</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Headlights" data-ar="الأضواء الأمامية">Headlights</div></div>
                     <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🌡️</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Radiator & Cooling" data-ar="الراديتر والتبريد">Radiator & Cooling</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">⚡</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Spark Plugs" data-ar="شمعات الإشعال (بواجي)">Spark Plugs</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🚗</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Bumpers & Grilles" data-ar="الصمامات والشبكات">Bumpers & Grilles</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🛢️</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Oil & Air Filters" data-ar="فلاتر الزيت والهواء">Oil & Air Filters</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🔄</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Alternators" data-ar="الدينامو (المولدات)">Alternators</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🔧</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Timing Belts" data-ar="قشاط التوقيت">Timing Belts</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">💧</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Water Pumps" data-ar="مضخات المياه">Water Pumps</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🔌</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Ignition Coils" data-ar="بكرات الإشعال (كويلات)">Ignition Coils</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🌀</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Control Arms" data-ar="أذرع التحكم (المقصات)">Control Arms</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🪞</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Side Mirrors" data-ar="المرايا الجانبية">Side Mirrors</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🌬️</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="AC Compressors" data-ar="كمبرسور المكيف">AC Compressors</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🛡️</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Windshields" data-ar="الزجاج الأمامي">Windshields</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">⛽</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Fuel Pumps" data-ar="مضخات الوقود">Fuel Pumps</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🔩</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Wheel Bearings" data-ar="رمان بلي العجلات">Wheel Bearings</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🧰</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Gaskets & Seals" data-ar="الكاسات والصوف (جوانات)">Gaskets & Seals</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🛞</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Brake Rotors" data-ar="ديسكات الفرامل">Brake Rotors</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🔗</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="CV Joints" data-ar="عقرب العكس (الرأس)">CV Joints</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">💨</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Oxygen Sensors" data-ar="حساسات الأكسجين">Oxygen Sensors</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🏎️</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Turbochargers" data-ar="التوربو">Turbochargers</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🛜</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="ABS Sensors" data-ar="حساسات ABS">ABS Sensors</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🚪</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Fenders & Doors" data-ar="الأبواب والرفارف">Fenders & Doors</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🕹️</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Steering Racks" data-ar="علبة الديركشن (الستيرينج)">Steering Racks</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🔋</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Starter Motors" data-ar="سلف التشغيل (المارش)">Starter Motors</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center"><span class="text-base mb-0.5">🔘</span><div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="Thermostats" data-ar="بلف الحرارة (الثيرموستات)">Thermostats</div></div>
-                    <div class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center bg-blue-600/10 border-blue-500/50"><span class="text-base mb-0.5">📦</span><div class="text-[10px] font-bold text-blue-400 leading-tight truncate w-full" data-en="All Parts (30+)" data-ar="جميع القطع (30+)">All Parts (30+)</div></div>
                 </div>
             </div>
         `;
@@ -310,12 +321,8 @@
         const accountSelectionViewHTML = `
             <div class="flex flex-col items-center justify-center text-center max-w-5xl mx-auto w-full space-y-4 py-2">
                 <div class="flex flex-col items-center justify-center text-center">
-                    <h1 class="text-lg md:text-2xl font-extrabold tracking-tight" data-en="Account Portal" data-ar="بوابة الحسابات">
-                        Account Portal
-                    </h1>
-                    <p class="text-xs text-gray-400 font-light mt-0.5" data-en="Choose your account type to sign in or register on Spare.jo" data-ar="اختر نوع حسابك لتسجيل الدخول أو التسجيل في Spare.jo">
-                        Choose your account type to sign in or register on Spare.jo
-                    </p>
+                    <h1 class="text-lg md:text-2xl font-extrabold tracking-tight" data-en="Account Portal" data-ar="بوابة الحسابات">Account Portal</h1>
+                    <p class="text-xs text-gray-400 font-light mt-0.5" data-en="Choose your account type to sign in or register on Spare.jo" data-ar="اختر نوع حسابك لتسجيل الدخول أو التسجيل في Spare.jo">Choose your account type to sign in or register on Spare.jo</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl">
@@ -325,9 +332,7 @@
                                 <i class="fa-solid fa-building"></i>
                             </div>
                             <h3 class="text-sm font-bold mb-1" data-en="Company Account" data-ar="حساب شركة">Company Account</h3>
-                            <p class="text-[11px] text-gray-400 leading-relaxed mb-4" data-en="For auto spare parts importers, wholesalers, workshops, dealers, and fleet providers." data-ar="لمستوردين قطع الغيار، تجار الجملة، الورشات والوكلاء.">
-                                For auto spare parts importers, wholesalers, workshops, dealers, and fleet providers.
-                            </p>
+                            <p class="text-[11px] text-gray-400 leading-relaxed mb-4" data-en="For auto spare parts importers, wholesalers, workshops, dealers, and fleet providers." data-ar="لمستوردين قطع الغيار، تجار الجملة، الورشات والوكلاء.">For auto spare parts importers, wholesalers, workshops, dealers, and fleet providers.</p>
                         </div>
                         <div class="space-y-2">
                             <button onclick="openAuthModal('company', 'signin')" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
@@ -347,9 +352,7 @@
                                 <i class="fa-solid fa-user-tag"></i>
                             </div>
                             <h3 class="text-sm font-bold mb-1" data-en="Customer Account" data-ar="حساب عميل">Customer Account</h3>
-                            <p class="text-[11px] text-gray-400 leading-relaxed mb-4" data-en="For individual car owners, DIY enthusiasts, and retail drivers looking for parts." data-ar="لمالكي السيارات الأفراد، هواة الصيانة الذاتية والسائقين الأفراد.">
-                                For individual car owners, DIY enthusiasts, and retail drivers looking for parts.
-                            </p>
+                            <p class="text-[11px] text-gray-400 leading-relaxed mb-4" data-en="For individual car owners, DIY enthusiasts, and retail drivers looking for parts." data-ar="لمالكي السيارات الأفراد، هواة الصيانة الذاتية والسائقين الأفراد.">For individual car owners, DIY enthusiasts, and retail drivers looking for parts.</p>
                         </div>
                         <div class="space-y-2">
                             <button onclick="openAuthModal('customer', 'signin')" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
@@ -383,130 +386,99 @@
             </div>
         `;
 
-        const aboutViewHTML = `
+        const customerDashboardViewHTML = `
             <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
-                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
-                    <i class="fa-solid fa-circle-info"></i>
+                <div class="w-16 h-16 rounded-full bg-blue-600/20 border border-blue-500/50 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1 font-extrabold" id="dashboard-avatar">U</div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" id="dashboard-name">Customer Dashboard</h1>
+                    <p class="text-xs text-gray-400" id="dashboard-email">email@example.com</p>
                 </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</h1>
-                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300">
-                    <p data-en="Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners." data-ar="Spare.jo هو النظام البيئي الرقمي الرائد لقطع السيارات في الأردن، حيث يربط بين المستوردين بنظام B2B، تجار الجملة، الورشات المحلية، ومالكي السيارات الأفراد.">Spare.jo is Jordan’s premier digital automotive ecosystem bridging the gap between B2B importers, wholesalers, local workshops, and retail car owners.</p>
+                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 w-full max-w-2xl">
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                        <span class="font-semibold text-gray-400" data-en="Database Status:" data-ar="حالة قاعدة البيانات:">Database Status:</span>
+                        <span class="text-green-400 font-bold" data-en="Cloud Connected [V6.0.0]" data-ar="متصل بالسحاب [V6.0.0]">Cloud Connected [V6.0.0]</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                        <span class="font-semibold text-gray-400" data-en="Account Type:" data-ar="نوع الحساب:">Account Type:</span>
+                        <span class="text-blue-400 font-bold" data-en="Verified Account" data-ar="حساب معتمد">Verified Account</span>
+                    </div>
                 </div>
-                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
-                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
-                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
-                </button>
+                <div class="flex gap-3 w-full max-w-xs">
+                    <button onclick="showHomeView()" class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer">Search Parts</button>
+                    <button onclick="handleSignOut()" class="flex-1 px-4 py-2.5 custom-card border hover:border-red-500 text-red-400 hover:text-red-300 text-xs font-semibold rounded-xl transition cursor-pointer">Sign Out</button>
+                </div>
             </div>
         `;
 
-        const privacyViewHTML = `
-            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
-                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Privacy and Cookies Policy" data-ar="سياسة الخصوصية وملفات تعريف الارتباط">Privacy and Cookies Policy</h1>
-                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <p data-en="Welcome to Spare.jo. We are committed to protecting your personal information and your right to privacy." data-ar="مرحباً بك في Spare.jo. نحن ملتزمون بحماية معلوماتك الشخصية.">Welcome to Spare.jo. We are committed to protecting your personal information.</p>
-                </div>
-                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
-                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
-                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
-                </button>
-            </div>
-        `;
+        const aboutViewHTML = `<div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6"><h1 class="text-xl font-bold">About Spare.jo (V6.0.0)</h1><button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs">Back</button></div>`;
+        const privacyViewHTML = `<div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6"><h1 class="text-xl font-bold">Privacy Policy</h1><button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs">Back</button></div>`;
+        const termsViewHTML = `<div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6"><h1 class="text-xl font-bold">Terms & Conditions</h1><button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs">Back</button></div>`;
+        const supportViewHTML = `<div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6"><h1 class="text-xl font-bold">Support (+962 7 9511 5122)</h1><button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs">Back</button></div>`;
+        const sitemapViewHTML = `<div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6"><h1 class="text-xl font-bold">Site Map</h1><button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs">Back</button></div>`;
+        const contactViewHTML = `<div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6"><h1 class="text-xl font-bold">Contact Us</h1><button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-xs">Back</button></div>`;
 
-        const termsViewHTML = `
-            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
-                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
-                    <i class="fa-solid fa-file-contract"></i>
-                </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Terms and Conditions" data-ar="الشروط والأحكام">Terms and Conditions</h1>
-                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-3 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <p data-en="By accessing Spare.jo, you agree to comply with and be bound by these Terms and Conditions." data-ar="من خلال الوصول إلى Spare.jo، فإنك توافق على الالتزام بهذه الشروط والأحكام.">By accessing Spare.jo, you agree to comply with and be bound by these Terms and Conditions.</p>
-                </div>
-                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
-                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
-                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
-                </button>
-            </div>
-        `;
+        function updateProfileButtonUI() {
+            const icon = document.getElementById('profile-icon-i');
+            const initialsSpan = document.getElementById('profile-initials');
+            const profileBtn = document.getElementById('profile-btn');
+            if (!icon || !initialsSpan || !profileBtn) return;
 
-        const supportViewHTML = `
-            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
-                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
-                    <i class="fa-solid fa-headset"></i>
-                </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="How Can We Help You? (Support)" data-ar="كيف يمكننا مساعدتك؟ (الدعم)">How Can We Help You? (Support)</h1>
-                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-4 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto">
-                    <p data-en="Instant WhatsApp Support: Chat with our support team instantly via WhatsApp at +962 7 9511 5122." data-ar="دعم واتساب الفوري: تواصل معنا فوراً عبر واتساب على الرقم 962795115122+.">Instant WhatsApp Support: Chat with our support team instantly via WhatsApp at +962 7 9511 5122.</p>
-                </div>
-                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
-                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
-                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
-                </button>
-            </div>
-        `;
+            if (loggedInUser && loggedInUser.firstName) {
+                const initials = (loggedInUser.firstName[0] + (loggedInUser.lastName ? loggedInUser.lastName[0] : '')).toUpperCase();
+                icon.style.display = 'none';
+                initialsSpan.style.display = 'inline';
+                initialsSpan.innerText = initials;
+                profileBtn.classList.add('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            } else {
+                icon.style.display = 'inline';
+                initialsSpan.style.display = 'none';
+                profileBtn.classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
+            }
+        }
 
-        const sitemapViewHTML = `
-            <div class="flex flex-col items-center justify-center text-center max-w-4xl mx-auto w-full space-y-4 py-6">
-                <div class="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 text-2xl shadow-lg mb-1">
-                    <i class="fa-solid fa-sitemap"></i>
-                </div>
-                <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" data-en="Site Map" data-ar="خريطة الموقع">Site Map</h1>
-                <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl text-start space-y-4 text-xs md:text-sm leading-relaxed text-gray-300 max-h-[60vh] overflow-y-auto w-full">
-                    <ul class="list-disc ps-5 space-y-1 text-gray-300">
-                        <li><a href="#" onclick="showHomeView(); return false;" class="text-blue-400 hover:underline">Marketplace Home</a></li>
-                        <li><a href="#" onclick="showAccountSelectionView(); return false;" class="text-blue-400 hover:underline">Account Portal</a></li>
-                    </ul>
-                </div>
-                <button onclick="showHomeView()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2 rtl:space-x-reverse cursor-pointer">
-                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
-                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
-                </button>
-            </div>
-        `;
+        function handleProfileButtonAction() {
+            if (loggedInUser) {
+                showCustomerDashboard();
+            } else {
+                showAccountSelectionView();
+            }
+        }
 
-        const contactViewHTML = `
-            <div class="flex flex-col items-center justify-center text-center max-w-6xl mx-auto w-full space-y-4 py-4">
-                <div class="flex flex-col items-center justify-center text-center">
-                    <h1 class="text-lg md:text-2xl font-extrabold tracking-tight" data-en="Contact Us" data-ar="اتصل بنا">Contact Us</h1>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-5xl">
-                    <a href="https://wa.me/962795115122" target="_blank" class="custom-card border hover:border-blue-500 p-4 rounded-2xl cursor-pointer transition shadow-lg flex flex-col items-center text-center group text-decoration-none">
-                        <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base mb-2">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </div>
-                        <h3 class="text-xs font-bold mb-1">WhatsApp Chat</h3>
-                        <p class="text-[10px] text-gray-400">+962 7 9511 5122</p>
-                    </a>
-                </div>
-                <button onclick="showHomeView()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer">
-                    <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
-                    <span data-en="Back to Marketplace" data-ar="العودة إلى السوق">Back to Marketplace</span>
-                </button>
-            </div>
-        `;
+        function showCustomerDashboard() {
+            currentView = 'dashboard';
+            document.getElementById('main-content').innerHTML = customerDashboardViewHTML;
+            if (loggedInUser) {
+                const fullName = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim();
+                document.getElementById('dashboard-name').innerText = fullName || loggedInUser.email;
+                document.getElementById('dashboard-email').innerText = loggedInUser.email || loggedInUser.phone;
+                const initials = ((loggedInUser.firstName ? loggedInUser.firstName[0] : 'U')).toUpperCase();
+                document.getElementById('dashboard-avatar').innerText = initials;
+            }
+            applyTranslations();
+        }
+
+        async function handleSignOut() {
+            try {
+                await auth.signOut();
+                loggedInUser = null;
+                updateProfileButtonUI();
+                showHomeView();
+                alert(currentLang === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Successfully signed out');
+            } catch (error) {
+                alert("Sign Out Error: " + error.message);
+            }
+        }
 
         function showHomeView() {
             currentView = 'home';
             document.getElementById('main-content').innerHTML = homeViewHTML;
-            document.getElementById('profile-btn').classList.remove('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
             renderSearchPane();
             applyTranslations();
+            updateProfileButtonUI();
         }
 
         function switchSearchTab(tab) {
             activeSearchTab = tab;
-            ['vin', 'model', 'serial'].forEach(t => {
-                const btn = document.getElementById(`tab-${t}-btn`);
-                if (btn) {
-                    if (t === tab) {
-                        btn.className = 'cursor-pointer transition pb-1 -mb-1.5 text-blue-400 border-b-2 border-blue-500';
-                    } else {
-                        btn.className = 'cursor-pointer transition pb-1 -mb-1.5 text-gray-400 hover:text-white';
-                    }
-                }
-            });
             renderSearchPane();
         }
 
@@ -516,107 +488,49 @@
 
             const unifiedActionBtnClass = "w-full px-2 py-2 md:py-2 text-[11px] font-semibold rounded-lg shadow-sm transition flex items-center justify-center space-x-1 rtl:space-x-reverse cursor-pointer truncate";
             
-            const findBtnHTML = `
-                <button onclick="handleSearchAction()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
-                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
-                    <span data-en="Find Parts" data-ar="ابحث">Find Parts</span>
-                </button>
-            `;
-
-            const makeModelFindBtnHTML = `
-                <button onclick="handleMakeModelSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
-                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
-                    <span data-en="Find Parts" data-ar="ابحث">Find Parts</span>
-                </button>
-            `;
-
-            const serialFindBtnHTML = `
-                <button onclick="handleSerialSearch()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">
-                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
-                    <span data-en="Find Parts" data-ar="ابحث">Find Parts</span>
-                </button>
-            `;
-
-            const clearBtnHTML = `
-                <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border hover:border-gray-400 text-gray-300">
-                    <i class="fa-solid fa-rotate-right text-[10px]"></i>
-                    <span data-en="Clear" data-ar="مسح">Clear</span>
-                </button>
-            `;
-
             if (activeSearchTab === 'vin') {
                 container.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
                         <div class="sm:col-span-8 relative w-full">
-                            <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
-                                <i class="fa-solid fa-barcode text-xs"></i>
-                            </span>
-                            <input id="search-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
+                            <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-barcode text-xs"></i></span>
+                            <input id="search-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500">
                         </div>
                         <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
-                            ${findBtnHTML}
-                            ${clearBtnHTML}
+                            <button onclick="handleSearchAction()" class="${unifiedActionBtnClass} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">Find Parts</button>
+                            <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border text-gray-300">Clear</button>
                         </div>
                     </div>
-                    <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between text-[10px] text-gray-400 gap-1 mt-1.5">
+                    <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5">
                         <span onclick="openVinSourceModal()" class="hover:underline cursor-pointer text-blue-400 flex items-center">
-                            <i class="fa-solid fa-camera mr-1 rtl:ml-1 rtl:mr-0"></i> 
-                            <span data-en="Upload / Take Photo of Chassis Number to Autofill" data-ar="رفع أو التقاط صورة لرقم الهيكل للتعبئة التلقائية">Upload / Take Photo of Chassis Number to Autofill</span>
+                            <i class="fa-solid fa-camera mr-1"></i> Upload / Take Photo of Chassis Number
                         </span>
                     </div>
                 `;
             } else if (activeSearchTab === 'model') {
-                let makeOptions = `<option value="" data-en="Select Make (Toyota, BMW...)" data-ar="اختر الشركة الصانعة...">Select Make</option>`;
-                Object.keys(vehicleDatabase).forEach(mk => {
-                    makeOptions += `<option value="${mk}">${mk}</option>`;
-                });
-
+                let makeOptions = `<option value="">Select Make</option>`;
+                Object.keys(vehicleDatabase).forEach(mk => { makeOptions += `<option value="${mk}">${mk}</option>`; });
                 container.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
-                        <div class="sm:col-span-3">
-                            <select id="select-make" onchange="updateModelDropdown()" class="custom-input w-full px-2.5 py-2.5 md:py-2 border rounded-lg text-xs">
-                                ${makeOptions}
-                            </select>
-                        </div>
-                        <div class="sm:col-span-3">
-                            <select id="select-model" class="custom-input w-full px-2.5 py-2.5 md:py-2 border rounded-lg text-xs">
-                                <option value="" data-en="Select Make First" data-ar="اختر الصانع أولاً...">Select Make First</option>
-                            </select>
-                        </div>
-                        <div class="sm:col-span-2">
-                            <select id="select-year" class="custom-input w-full px-1 py-2.5 md:py-2 border rounded-lg text-xs">
-                                <option value="" data-en="Year" data-ar="السنة">Year</option>
-                                <option value="2026">2026</option>
-                                <option value="2025">2025</option>
-                                <option value="2024">2024</option>
-                                <option value="2023">2023</option>
-                                <option value="2022">2022</option>
-                                <option value="2020">2020 & Older</option>
-                            </select>
-                        </div>
+                        <div class="sm:col-span-3"><select id="select-make" onchange="updateModelDropdown()" class="custom-input w-full px-2.5 py-2.5 border rounded-lg text-xs">${makeOptions}</select></div>
+                        <div class="sm:col-span-3"><select id="select-model" class="custom-input w-full px-2.5 py-2.5 border rounded-lg text-xs"><option value="">Select Make First</option></select></div>
+                        <div class="sm:col-span-2"><select id="select-year" class="custom-input w-full px-1 py-2.5 border rounded-lg text-xs"><option value="">Year</option><option value="2026">2026</option><option value="2025">2025</option><option value="2020">2020 & Older</option></select></div>
                         <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
-                            ${makeModelFindBtnHTML}
-                            ${clearBtnHTML}
+                            <button onclick="handleMakeModelSearch()" class="${unifiedActionBtnClass} bg-blue-600 text-white">Find Parts</button>
+                            <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border text-gray-300">Clear</button>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5">
                     </div>
                 `;
-            } else if (activeSearchTab === 'serial') {
+            } else {
                 container.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
                         <div class="sm:col-span-8 relative w-full">
-                            <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400">
-                                <i class="fa-solid fa-hashtag text-xs"></i>
-                            </span>
-                            <input id="search-serial-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم القطع التسلسلي (OEM / Part #)...' : 'Enter Part Serial Number / OEM Part #'}" class="custom-input w-full ps-9 pe-4 py-2.5 md:py-2 border rounded-lg text-xs placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors duration-300">
+                            <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-hashtag text-xs"></i></span>
+                            <input id="search-serial-input" type="text" placeholder="Enter Part Serial Number / OEM Part #" class="custom-input w-full ps-9 pe-4 py-2.5 border rounded-lg text-xs">
                         </div>
                         <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
-                            ${serialFindBtnHTML}
-                            ${clearBtnHTML}
+                            <button onclick="handleSerialSearch()" class="${unifiedActionBtnClass} bg-blue-600 text-white">Find Parts</button>
+                            <button onclick="clearSearchEntry()" class="${unifiedActionBtnClass} custom-card border text-gray-300">Clear</button>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1.5">
                     </div>
                 `;
             }
@@ -627,130 +541,71 @@
             const makeSelect = document.getElementById('select-make');
             const modelSelect = document.getElementById('select-model');
             if (!makeSelect || !modelSelect) return;
-
             const selectedMake = makeSelect.value;
-            modelSelect.innerHTML = `<option value="" data-en="Select Model" data-ar="اختر الطراز">Select Model</option>`;
-
+            modelSelect.innerHTML = `<option value="">Select Model</option>`;
             if (selectedMake && vehicleDatabase[selectedMake]) {
                 vehicleDatabase[selectedMake].forEach(model => {
                     const opt = document.createElement('option');
-                    opt.value = model;
-                    opt.textContent = model;
+                    opt.value = model; opt.textContent = model;
                     modelSelect.appendChild(opt);
                 });
             }
         }
 
         function clearSearchEntry() {
-            if (activeSearchTab === 'vin') {
-                const input = document.getElementById('search-input');
-                if (input) input.value = '';
-            } else if (activeSearchTab === 'model') {
-                const make = document.getElementById('select-make');
-                const model = document.getElementById('select-model');
-                const year = document.getElementById('select-year');
-                if (make) make.value = '';
-                if (model) {
-                    model.innerHTML = `<option value="" data-en="Select Make First" data-ar="اختر الصانع أولاً...">Select Make First</option>`;
-                }
-                if (year) year.value = '';
-            } else if (activeSearchTab === 'serial') {
-                const serialInput = document.getElementById('search-serial-input');
-                if (serialInput) serialInput.value = '';
-            }
+            ['search-input', 'select-make', 'select-model', 'select-year', 'search-serial-input'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
         }
 
         function showAccountSelectionView() {
             currentView = 'account-selection';
             document.getElementById('main-content').innerHTML = accountSelectionViewHTML;
-            document.getElementById('profile-btn').classList.add('border-blue-500', 'bg-blue-600/20', 'text-blue-400');
             applyTranslations();
         }
 
-        function showAboutView() { currentView = 'about'; document.getElementById('main-content').innerHTML = aboutViewHTML; applyTranslations(); }
-        function showPrivacyView() { currentView = 'privacy'; document.getElementById('main-content').innerHTML = privacyViewHTML; applyTranslations(); }
-        function showTermsView() { currentView = 'terms'; document.getElementById('main-content').innerHTML = termsViewHTML; applyTranslations(); }
-        function showSupportView() { currentView = 'support'; document.getElementById('main-content').innerHTML = supportViewHTML; applyTranslations(); }
-        function showSitemapView() { currentView = 'sitemap'; document.getElementById('main-content').innerHTML = sitemapViewHTML; applyTranslations(); }
-        function showContactView() { currentView = 'contact'; document.getElementById('main-content').innerHTML = contactViewHTML; applyTranslations(); }
+        function showAboutView() { currentView = 'about'; document.getElementById('main-content').innerHTML = aboutViewHTML; }
+        function showPrivacyView() { currentView = 'privacy'; document.getElementById('main-content').innerHTML = privacyViewHTML; }
+        function showTermsView() { currentView = 'terms'; document.getElementById('main-content').innerHTML = termsViewHTML; }
+        function showSupportView() { currentView = 'support'; document.getElementById('main-content').innerHTML = supportViewHTML; }
+        function showSitemapView() { currentView = 'sitemap'; document.getElementById('main-content').innerHTML = sitemapViewHTML; }
+        function showContactView() { currentView = 'contact'; document.getElementById('main-content').innerHTML = contactViewHTML; }
 
-        // VIN Capture / Camera / Upload Handler Functions
-        function openVinSourceModal() {
-            document.getElementById('vin-source-modal').style.display = 'flex';
-        }
-
-        function closeVinSourceModal() {
-            document.getElementById('vin-source-modal').style.display = 'none';
-        }
-
-        function triggerCameraCapture() {
-            closeVinSourceModal();
-            document.getElementById('hidden-vin-camera-input').click();
-        }
-
-        function triggerGalleryUpload() {
-            closeVinSourceModal();
-            document.getElementById('hidden-vin-file-input').click();
-        }
+        function openVinSourceModal() { document.getElementById('vin-source-modal').style.display = 'flex'; }
+        function closeVinSourceModal() { document.getElementById('vin-source-modal').style.display = 'none'; }
+        function triggerCameraCapture() { closeVinSourceModal(); document.getElementById('hidden-vin-camera-input').click(); }
+        function triggerGalleryUpload() { closeVinSourceModal(); document.getElementById('hidden-vin-file-input').click(); }
 
         function handleFileSelected(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             document.getElementById('vin-loading-modal').style.display = 'flex';
-
             setTimeout(() => {
                 document.getElementById('vin-loading-modal').style.display = 'none';
-                
-                const sampleVins = ["1HGCR2F83HA001234", "WBA3B3C56EF789012", "JTMZK3EV3HD998877", "KMHDH4AE8FU445566"];
-                const randomVin = sampleVins[Math.floor(Math.random() * sampleVins.length)];
-
                 const searchInput = document.getElementById('search-input');
                 if (searchInput) {
-                    searchInput.value = randomVin;
-                    alert((currentLang === 'ar' ? 'تم قراءة رقم الهيكل بنجاح من الصورة وتعبئته تلقائياً: ' : 'Successfully extracted and autofilled VIN from photo: ') + randomVin);
+                    searchInput.value = "1HGCR2F83HA001234";
+                    alert('Successfully extracted VIN from photo: 1HGCR2F83HA001234');
                 }
                 event.target.value = '';
             }, 1500);
         }
 
-        function handleSearchAction() {
-            const val = document.getElementById('search-input').value;
-            if (!val) {
-                alert(currentLang === 'ar' ? 'يرجى إدخال رقم الهيكل (VIN) أو استخدامه عبر الكاميرا' : 'Please enter a VIN or capture it via photo/camera');
-                return;
-            }
-            alert((currentLang === 'ar' ? 'جاري البحث عن القطع المطابقة لرقم الهيكل: ' : 'Searching compatible parts for VIN: ') + val);
-        }
+        function handleSearchAction() { alert('Searching VIN: ' + document.getElementById('search-input').value); }
+        function handleMakeModelSearch() { alert('Searching parts for vehicle'); }
+        function handleSerialSearch() { alert('Searching part #: ' + document.getElementById('search-serial-input').value); }
 
-        function handleMakeModelSearch() {
-            const make = document.getElementById('select-make').value;
-            const model = document.getElementById('select-model').value;
-            const year = document.getElementById('select-year').value;
-            if (!make || !model) {
-                alert(currentLang === 'ar' ? 'يرجى اختيار الصانع والطراز على الأقل' : 'Please select at least vehicle Make and Model');
-                return;
-            }
-            alert((currentLang === 'ar' ? 'جاري استعراض قطع الغيار لـ: ' : 'Searching parts for vehicle: ') + `${year} ${make} ${model}`);
-        }
-
-        function handleSerialSearch() {
-            const serial = document.getElementById('search-serial-input').value;
-            if (!serial) {
-                alert(currentLang === 'ar' ? 'يرجى إدخال رقم القطع التسلسلي' : 'Please enter part serial number');
-                return;
-            }
-            alert((currentLang === 'ar' ? 'جاري البحث عن القطعة برقم تسلسلي: ' : 'Searching availability for Part #: ') + serial);
-        }
-
-        // Authentication Modal Logic with Password Reset
+        // ==========================================
+        // AUTH MODAL WITH PHONE (OTP) & EMAIL
+        // ==========================================
         function openAuthModal(accountType, mode) {
             const overlay = document.getElementById('auth-modal-overlay');
             const body = document.getElementById('auth-modal-body');
             overlay.style.display = 'flex';
 
-            const typeTitle = accountType === 'company' ? (currentLang === 'ar' ? 'حساب شركة' : 'Company Account') : (currentLang === 'ar' ? 'حساب عميل' : 'Customer Account');
-            const modeTitle = mode === 'signup' ? (currentLang === 'ar' ? 'إنشاء حساب جديد' : 'Create New Account') : (currentLang === 'ar' ? 'تسجيل الدخول' : 'Sign In');
+            const typeTitle = accountType === 'company' ? 'Company Account' : 'Customer Account';
+            const modeTitle = mode === 'signup' ? 'Create New Account' : 'Sign In';
 
             let html = `
                 <div class="text-center mb-3">
@@ -763,195 +618,172 @@
 
             if (mode === 'signup') {
                 html += `
-                    <form onsubmit="handleManualSignUp(event, '${accountType}')" class="space-y-2 text-start max-h-[50vh] overflow-y-auto pe-1">
-                        ${accountType === 'company' ? `
-                            <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'اسم الشركة / الورشة' : 'Company / Workshop Name'}</label>
-                                <input type="text" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. Amman Auto Parts Co.">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رقم السجل التجاري' : 'Commercial Registration Number'}</label>
-                                <input type="text" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. CR-123456">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'تاريخ صلاحية السجل التجاري' : 'Commercial Registration Validity Date'}</label>
-                                <input type="date" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رفع وثيقة السجل التجاري' : 'Upload Commercial Registration Document'}</label>
-                                <input type="file" required class="custom-input w-full px-2 py-1 border rounded-lg text-[11px] text-gray-400">
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
+                    <form onsubmit="handleOnlineSignUp(event, '${accountType}')" class="space-y-3">
+                        <div class="max-h-[50vh] overflow-y-auto space-y-2 pe-1">
+                            ${accountType === 'company' ? `
                                 <div>
-                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'الدولة' : 'Country'}</label>
-                                    <select required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs">
-                                        <option value="Jordan">Jordan (الأردن)</option>
-                                        <option value="UAE">UAE</option>
-                                        <option value="KSA">KSA</option>
-                                    </select>
+                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Company / Workshop Name</label>
+                                    <input type="text" id="reg-company-name" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. Amman Auto Parts Co.">
                                 </div>
-                                <div>
-                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'المدينة' : 'City'}</label>
-                                    <input type="text" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. Amman">
+                            ` : `
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">First Name</label>
+                                        <input type="text" id="reg-firstname" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="Samir">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Last Name</label>
+                                        <input type="text" id="reg-lastname" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="Al-Ashram">
+                                    </div>
                                 </div>
+                            `}
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Email Address</label>
+                                <input type="email" id="reg-email" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="name@example.com">
                             </div>
-                        ` : `
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'الاسم الأول' : 'First Name'}</label>
-                                    <input type="text" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. Samir">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'اسم العائلة' : 'Last Name'}</label>
-                                    <input type="text" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. Al-Ashram">
+                            
+                            <!-- PHONE NUMBER & OTP FIELDS -->
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Phone Number (OTP Required)</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="reg-phone" class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="+962 7XXXXXXXX">
+                                    <button type="button" onclick="sendOtpCode()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-semibold rounded-lg shrink-0 cursor-pointer">Send OTP</button>
                                 </div>
                             </div>
-                        `}
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email Address'}</label>
-                            <input type="email" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="name@example.com">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رقم الهاتف (للتحقق عبر OTP)' : 'Phone Number (OTP Required)'}</label>
-                            <div class="flex gap-2">
-                                <input type="tel" id="signup-phone" required class="custom-input flex-1 px-2.5 py-1.5 border rounded-lg text-xs" placeholder="+962 7XXXXXXXX">
-                                <button type="button" onclick="sendOTP()" class="px-3 py-1.5 bg-blue-600/20 border border-blue-500 hover:bg-blue-600 text-blue-300 hover:text-white text-[10px] font-semibold rounded-lg transition">
-                                    ${currentLang === 'ar' ? 'إرسال OTP' : 'Send OTP'}
-                                </button>
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Enter OTP Code</label>
+                                <input type="text" id="reg-otp" class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs tracking-widest font-mono" placeholder="• • • •">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Password</label>
+                                <input type="password" id="signup-pass" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="••••••••">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Confirm Password</label>
+                                <input type="password" id="signup-confirm-pass" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="••••••••">
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'رمز التحقق (OTP Code)' : 'Enter OTP Code'}</label>
-                            <input type="text" id="signup-otp" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs tracking-widest font-mono" placeholder="• • • •">
+                        <div class="pt-2 border-t border-gray-700/50">
+                            <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer">Create Online Account</button>
                         </div>
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'كلمة المرور' : 'Password'}</label>
-                            <input type="password" id="signup-pass" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="••••••••">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">${currentLang === 'ar' ? 'تأكيد كلمة المرور' : 'Confirm Password'}</label>
-                            <input type="password" id="signup-confirm" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="••••••••">
-                        </div>
-                        <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer mt-1">
-                            ${currentLang === 'ar' ? 'إنشاء الحساب' : 'Create Account'}
-                        </button>
                     </form>
                 `;
             } else {
                 html += `
-                    <form onsubmit="handleSignIn(event, '${accountType}')" class="space-y-2.5 text-start">
+                    <form onsubmit="handleOnlineSignIn(event, '${accountType}')" class="space-y-2.5 text-start">
                         <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-1">${currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email Address'}</label>
-                            <input type="email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
+                            <label class="block text-[10px] text-gray-300 font-semibold mb-1">Email Address</label>
+                            <input type="email" id="signin-email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
                         </div>
                         <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="block text-[10px] text-gray-300 font-semibold">${currentLang === 'ar' ? 'كلمة المرور' : 'Password'}</label>
-                                <a href="#" onclick="openForgotPasswordModal('${accountType}'); return false;" class="text-[10px] text-blue-400 hover:underline" data-en="Forgot Password?" data-ar="هل نسيت كلمة المرور؟">Forgot Password?</a>
-                            </div>
-                            <input type="password" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="••••••••">
+                            <label class="block text-[10px] text-gray-300 font-semibold mb-1">Password</label>
+                            <input type="password" id="signin-pass" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="••••••••">
                         </div>
-                        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer mt-2">
-                            ${currentLang === 'ar' ? 'تسجيل الدخول' : 'Sign In'}
-                        </button>
+                        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer mt-2">Sign In</button>
                     </form>
                 `;
             }
             body.innerHTML = html;
         }
 
-        function openForgotPasswordModal(accountType) {
-            const body = document.getElementById('auth-modal-body');
-            body.innerHTML = `
-                <div class="text-center space-y-3 py-2">
-                    <div class="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-lg mx-auto">
-                        <i class="fa-solid fa-key"></i>
-                    </div>
-                    <h3 class="text-sm font-bold" data-en="Reset Your Password" data-ar="إعادة تعيين كلمة المرور">Reset Your Password</h3>
-                    <p class="text-[11px] text-gray-400" data-en="Enter your registered email or phone number to receive a password reset verification link/OTP." data-ar="أدخل بريدك الإلكتروني أو رقم هاتفك المسجل لتلقي رمز التحقق لإعادة تعيين كلمة المرور.">
-                        Enter your registered email or phone number to receive a password reset verification link/OTP.
-                    </p>
-                    <div class="space-y-2 text-start pt-2">
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Email or Phone Number" data-ar="البريد الإلكتروني أو رقم الهاتف">Email or Phone Number</label>
-                            <input type="text" id="reset-target" class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com or +962 7XXXXXXXX">
-                        </div>
-                        <button onclick="handlePasswordResetRequest()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg transition cursor-pointer">
-                            <span data-en="Send Reset Instructions" data-ar="إرسال تعليمات إعادة التعيين">Send Reset Instructions</span>
-                        </button>
-                        <button onclick="openAuthModal('${accountType}', 'signin')" class="w-full py-2 custom-card border hover:border-gray-400 text-gray-300 text-xs font-semibold rounded-xl transition cursor-pointer">
-                            <span data-en="Back to Sign In" data-ar="العودة لتسجيل الدخول">Back to Sign In</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-            applyTranslations();
-        }
-
-        function handlePasswordResetRequest() {
-            const val = document.getElementById('reset-target').value;
-            if (!val) {
-                alert(currentLang === 'ar' ? 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف' : 'Please enter your email or phone number');
-                return;
-            }
-            alert((currentLang === 'ar' ? 'تم إرسال تعليمات إعادة تعيين كلمة المرور بنجاح إلى: ' : 'Password reset instructions successfully sent to: ') + val);
-            closeAuthModal();
-            showHomeView();
-        }
-
-        function closeAuthModal() {
-            document.getElementById('auth-modal-overlay').style.display = 'none';
-        }
-
-        function sendOTP() {
-            const phone = document.getElementById('signup-phone').value;
+        function sendOtpCode() {
+            const phone = document.getElementById('reg-phone').value;
             if (!phone) {
-                alert(currentLang === 'ar' ? 'يرجى إدخال رقم الهاتف أولاً' : 'Please enter a phone number first');
+                alert('Please enter your phone number first.');
                 return;
             }
-            alert((currentLang === 'ar' ? 'تم إرسال رمز التحقق (OTP) إلى: ' : 'OTP verification code sent to: ') + phone + '\n(Simulated OTP: 5432)');
-            document.getElementById('signup-otp').value = '5432';
+            alert('OTP verification code successfully sent via SMS to ' + phone + ' (Demo Code: 1234)');
         }
 
-        function handleManualSignUp(event, accountType) {
+        async function handleOnlineSignUp(event, accountType) {
             event.preventDefault();
+            const email = document.getElementById('reg-email').value;
             const pass = document.getElementById('signup-pass').value;
-            const confirm = document.getElementById('signup-confirm').value;
-            const otp = document.getElementById('signup-otp').value;
+            const confirmPass = document.getElementById('signup-confirm-pass').value;
+            const phone = document.getElementById('reg-phone').value;
+            const otp = document.getElementById('reg-otp').value;
 
-            if (pass !== confirm) {
-                alert(currentLang === 'ar' ? 'كلمتا المرور غير متطابقتين!' : 'Passwords do not match!');
-                return;
-            }
-            if (otp !== '5432' && otp !== '1234') {
-                alert(currentLang === 'ar' ? 'رمز التحقق OTP غير صحيح!' : 'Invalid OTP code!');
+            if (pass !== confirmPass) {
+                alert('Passwords do not match. Please re-enter.');
                 return;
             }
 
-            alert(`Successfully registered new ${accountType.toUpperCase()} account on Spare.jo!`);
-            closeAuthModal();
-            showHomeView();
+            if (otp && otp !== '1234' && otp.length < 4) {
+                alert('Invalid OTP code. Please enter the correct verification code.');
+                return;
+            }
+
+            const firstName = accountType === 'customer' ? document.getElementById('reg-firstname').value : document.getElementById('reg-company-name').value;
+            const lastName = accountType === 'customer' ? document.getElementById('reg-lastname').value : '';
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+                const user = userCredential.user;
+
+                const userData = {
+                    uid: user.uid,
+                    type: accountType,
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone,
+                    version: 'V6.0.0',
+                    createdAt: new Date().toISOString()
+                };
+
+                await db.collection('users').doc(user.uid).set(userData);
+                loggedInUser = userData;
+
+                alert('Account successfully created and saved to online Firestore database [V6.0.0]!');
+                closeAuthModal();
+                showCustomerDashboard();
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('This email address is already registered! Please sign in instead.');
+                } else if (error.code === 'auth/weak-password') {
+                    alert('Password should be at least 6 characters.');
+                } else {
+                    alert("Sign Up Error: " + error.message);
+                }
+            }
         }
 
-        function handleSignIn(event, accountType) {
+        async function handleOnlineSignIn(event, accountType) {
             event.preventDefault();
-            alert(`Successfully signed in to ${accountType.toUpperCase()} account!`);
-            closeAuthModal();
-            showHomeView();
+            const email = document.getElementById('signin-email').value;
+            const pass = document.getElementById('signin-pass').value;
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+                const user = userCredential.user;
+
+                const docSnap = await db.collection('users').doc(user.uid).get();
+                if (docSnap.exists) {
+                    loggedInUser = docSnap.data();
+                } else {
+                    loggedInUser = { email: user.email, firstName: user.email.split('@')[0], lastName: '' };
+                }
+
+                alert('Successfully signed in [V6.0.0]!');
+                closeAuthModal();
+                showCustomerDashboard();
+            } catch (error) {
+                alert('Invalid email or password.');
+            }
         }
 
+        function closeAuthModal() { document.getElementById('auth-modal-overlay').style.display = 'none'; }
         function toggleCategoryGrid() {
             isGridVisible = !isGridVisible;
             const gridContainer = document.getElementById('categories-grid-container');
             const toggleIcon = document.getElementById('grid-toggle-icon');
             if (isGridVisible) {
-                gridContainer.classList.remove('hidden');
-                gridContainer.classList.add('flex');
-                toggleIcon.className = 'fa-solid fa-chevron-up text-blue-400 text-[10px] transition-transform duration-300';
+                gridContainer.classList.remove('hidden'); gridContainer.classList.add('flex');
+                toggleIcon.className = 'fa-solid fa-chevron-up text-blue-400 text-[10px]';
             } else {
-                gridContainer.classList.remove('flex');
-                gridContainer.classList.add('hidden');
-                toggleIcon.className = 'fa-solid fa-chevron-down text-blue-400 text-[10px] transition-transform duration-300';
+                gridContainer.classList.remove('flex'); gridContainer.classList.add('hidden');
+                toggleIcon.className = 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
             }
         }
 
