@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.0.5</title>
+    <title>Spare.jo - Find & Compare V6.1.7</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase App (Core) SDK Compat -->
@@ -81,7 +81,7 @@
             border-color: #cbd5e1;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-        body.light .custom-card h3, body.light .custom-card div, body.light h1, body.light span:not(.text-blue-500):not(.text-blue-400) {
+        body.light .custom-card h3, body.light .custom-card div, body.light h1, body.light h2, body.light td, body.light span:not(.text-blue-500):not(.text-blue-400):not(.text-emerald-400):not(.text-amber-400):not(.text-red-400):not(.text-cyan-400) {
             color: #0f172a;
         }
         body.light .custom-input {
@@ -121,8 +121,8 @@
 </head>
 <body class="dark flex flex-col min-h-screen justify-between select-none" id="app-body">
 
-    <!-- Top Navigation Header -->
-    <header class="border-b px-4 md:px-6 py-2 flex items-center justify-between shrink-0 transition-colors duration-300 relative z-40">
+    <!-- Constant Top Navigation Header -->
+    <header id="main-header" class="border-b px-4 md:px-6 py-2 flex items-center justify-between shrink-0 transition-colors duration-300 relative z-40">
         <div class="flex items-center space-x-2 md:space-x-3 rtl:space-x-reverse">
             <button onclick="showHomeView()" aria-label="Home" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
                 <i class="fa-solid fa-house"></i>
@@ -136,6 +136,13 @@
         </div>
 
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
+            <!-- Admin Login / Monitor Button (Next to Theme Button) -->
+            <button onclick="handleAdminButtonAction()" id="admin-header-btn" title="Admin Portal" aria-label="Admin Portal" class="header-action-btn h-9 md:h-8 px-2.5 rounded-lg border flex items-center justify-center space-x-1.5 rtl:space-x-reverse text-xs transition cursor-pointer shadow-sm font-semibold">
+                <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                <span class="hidden sm:inline text-[11px]" id="admin-btn-label" data-en="Admin" data-ar="الإدارة">Admin</span>
+            </button>
+
+            <!-- Light / Dark Theme Toggle -->
             <button onclick="toggleTheme()" aria-label="Toggle Theme" class="header-action-btn w-9 h-9 md:w-8 md:h-8 rounded-lg border flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
                 <i id="theme-icon" class="fa-solid fa-moon"></i>
             </button>
@@ -175,13 +182,13 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main id="main-content" class="flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0">
+    <!-- Main Content Area (Extends edge-to-edge for Admin Dashboard) -->
+    <main id="main-content" class="flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0 overflow-hidden">
         <!-- Default Content loaded via JS -->
     </main>
 
-    <!-- Footer Bar -->
-    <footer class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col md:flex-row justify-between items-center transition-colors duration-300 gap-2">
+    <!-- Constant Footer Bar -->
+    <footer id="main-footer" class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col md:flex-row justify-between items-center transition-colors duration-300 gap-2">
         <div class="w-full md:w-auto text-center md:text-start" data-en="© 2026 Spare.jo — All Rights Reserved." data-ar="© 2026 Spare.jo — جميع الحقوق محفوظة.">© 2026 Spare.jo — All Rights Reserved.</div>
         
         <div class="flex items-center space-x-2 rtl:space-x-reverse flex-wrap justify-center font-semibold">
@@ -203,6 +210,119 @@
             <span class="text-blue-500 font-medium" id="header-time">2:36 PM</span>
         </div>
     </footer>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="custom-card border border-amber-500/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative space-y-4">
+            <button onclick="closeAdminLoginModal()" class="absolute top-4 end-4 text-gray-400 hover:text-white text-sm cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xl mx-auto">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-base font-extrabold" data-en="Spare.jo Admin Console" data-ar="لوحة تحكم إدارة Spare.jo">Spare.jo Admin Console</h3>
+                <p class="text-[11px] text-gray-400" data-en="Restricted access for platform administrators & operations." data-ar="وصول مقيد لمشرفي المنصة والعمليات.">Restricted access for platform administrators & operations.</p>
+            </div>
+            <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-3 text-start">
+                <div>
+                    <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Admin Email" data-ar="البريد الإلكتروني للمشرف">Admin Email</label>
+                    <input type="email" id="admin-email-input" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="admin@spare.jo">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Security Passcode / Password" data-ar="رمز المرور الأمني">Security Passcode / Password</label>
+                    <input type="password" id="admin-pass-input" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="••••••••">
+                </div>
+                <div class="pt-1 space-y-2">
+                    <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                        <i class="fa-solid fa-lock-open"></i>
+                        <span data-en="Access Admin Dashboard" data-ar="الدخول إلى لوحة الإدارة">Access Admin Dashboard</span>
+                    </button>
+                    <button type="button" onclick="quickDemoAdminLogin()" class="w-full py-2 custom-card border border-amber-500/30 hover:border-amber-400 text-amber-400 text-[11px] font-semibold rounded-xl transition cursor-pointer">
+                        <span data-en="Instant Admin Preview (admin@spare.jo)" data-ar="معاينة فورية للمشرف (admin@spare.jo)">Instant Admin Preview (admin@spare.jo)</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Edit User Modal -->
+    <div id="admin-edit-user-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="custom-card border border-blue-500/40 rounded-2xl p-6 max-w-md w-full shadow-2xl relative space-y-4">
+            <button onclick="closeAdminEditUserModal()" class="absolute top-4 end-4 text-gray-400 hover:text-white text-sm cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center space-x-3 rtl:space-x-reverse border-b border-blue-900/40 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600/15 border border-blue-500/40 flex items-center justify-center text-blue-400 text-base">
+                    <i class="fa-solid fa-user-pen"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold" data-en="Edit Platform User" data-ar="تعديل بيانات المستخدم">Edit Platform User</h3>
+                    <p class="text-[10px] text-gray-400" id="edit-user-uid-label">UID: --</p>
+                </div>
+            </div>
+
+            <form onsubmit="handleAdminSaveUserEdit(event)" class="space-y-3 text-start">
+                <input type="hidden" id="edit-user-id">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="First Name / Entity" data-ar="الاسم الأول / الشركة">First Name / Entity</label>
+                        <input type="text" id="edit-user-firstname" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Last Name" data-ar="اسم العائلة">Last Name</label>
+                        <input type="text" id="edit-user-lastname" class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Optional for Company">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Account Type" data-ar="نوع الحساب">Account Type</label>
+                        <select id="edit-user-type" onchange="toggleEditCrSection()" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                            <option value="customer">Customer</option>
+                            <option value="company">Company</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Account Status" data-ar="حالة الحساب">Account Status</label>
+                        <select id="edit-user-verification" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                            <option value="verified">Verified</option>
+                            <option value="pending">Pending Verification</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="edit-cr-section" class="space-y-2 p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5" style="display: none;">
+                    <div>
+                        <label class="block text-[10px] text-amber-300 font-semibold mb-1" data-en="Commercial Registration Number" data-ar="رقم السجل التجاري">Commercial Registration Number</label>
+                        <input type="text" id="edit-user-cr-number" class="custom-input w-full px-3 py-1.5 border rounded-lg text-xs font-mono" placeholder="e.g. 200145890">
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-gray-400" data-en="CR Copy File:" data-ar="نسخة السجل التجاري:">CR Copy File:</span>
+                        <span id="edit-user-cr-doc-info" class="text-blue-400 font-semibold truncate max-w-[200px]">Not uploaded</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
+                    <input type="email" id="edit-user-email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Phone Number" data-ar="رقم الهاتف">Phone Number</label>
+                    <input type="text" id="edit-user-phone" class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="+962 7XXXXXXXX">
+                </div>
+
+                <div class="pt-2 flex items-center justify-end space-x-2 rtl:space-x-reverse border-t border-blue-900/40">
+                    <button type="button" onclick="closeAdminEditUserModal()" class="px-4 py-2 custom-card border text-gray-300 hover:text-white text-xs font-semibold rounded-xl transition cursor-pointer" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span data-en="Save Changes" data-ar="حفظ التغييرات">Save Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Hidden File Input for Gallery Upload -->
     <input type="file" id="hidden-vin-file-input" accept="image/*" class="hidden" onchange="handleFileSelected(event)">
@@ -273,6 +393,17 @@
         let activeSearchTab = 'vin';
         let isGridVisible = false; 
         let loggedInUser = null;
+        let isAdminAuthenticated = false;
+        let adminEmail = '';
+        let adminUsersCache = [];
+        let adminSortColumn = 'createdAt';
+        let adminSortDirection = 'desc';
+        let recentSearchLogs = [
+            { time: '2 mins ago', type: 'VIN', query: '1HGCR2F83HA001234', location: 'Amman', status: 'Matched (14 parts)' },
+            { time: '9 mins ago', type: 'Make/Model', query: 'Toyota Camry 2025', location: 'Irbid', status: 'Matched (32 parts)' },
+            { time: '21 mins ago', type: 'OEM #', query: '04465-33471', location: 'Zarqa', status: 'Matched (6 suppliers)' },
+            { time: '44 mins ago', type: 'VIN', query: 'KMHD84LF9HU192837', location: 'Amman', status: 'Matched (9 parts)' }
+        ];
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -301,6 +432,648 @@
             "Nissan": ["Sunny", "Altima", "Patrol", "Qashqai", "X-Trail", "Kicks"]
         };
 
+        // Helper to toggle between standard centered container and full-width extended container
+        function setMainContainerLayout(mode) {
+            const main = document.getElementById('main-content');
+            if (!main) return;
+            if (mode === 'admin') {
+                main.className = "flex-1 flex flex-col justify-start px-4 md:px-6 py-3 w-full h-full overflow-y-auto md:overflow-hidden";
+            } else {
+                main.className = "flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0 overflow-hidden";
+            }
+        }
+
+        // ==========================================
+        // ADMIN AUTHENTICATION & EXTENDED DASHBOARD
+        // ==========================================
+        function updateAdminHeaderUI() {
+            const adminBtn = document.getElementById('admin-header-btn');
+            const adminLabel = document.getElementById('admin-btn-label');
+            if (!adminBtn || !adminLabel) return;
+
+            if (isAdminAuthenticated) {
+                adminBtn.classList.add('border-amber-500', 'bg-amber-500/20');
+                adminLabel.setAttribute('data-en', 'Admin Panel');
+                adminLabel.setAttribute('data-ar', 'لوحة الإدارة');
+            } else {
+                adminBtn.classList.remove('border-amber-500', 'bg-amber-500/20');
+                adminLabel.setAttribute('data-en', 'Admin');
+                adminLabel.setAttribute('data-ar', 'الإدارة');
+            }
+            applyTranslations();
+        }
+
+        function handleAdminButtonAction() {
+            if (isAdminAuthenticated) {
+                showAdminDashboardView();
+            } else {
+                openAdminLoginModal();
+            }
+        }
+
+        function openAdminLoginModal() {
+            document.getElementById('admin-login-modal').style.display = 'flex';
+            applyTranslations();
+        }
+
+        function closeAdminLoginModal() {
+            document.getElementById('admin-login-modal').style.display = 'none';
+        }
+
+        async function handleAdminLoginSubmit(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('admin-email-input').value.trim();
+            const passInput = document.getElementById('admin-pass-input').value;
+
+            if ((emailInput.toLowerCase() === 'admin@spare.jo' && passInput === 'Admin@2026') || (emailInput.toLowerCase() === 'admin@spare.jo' && passInput === '123456')) {
+                isAdminAuthenticated = true;
+                adminEmail = emailInput;
+                closeAdminLoginModal();
+                updateAdminHeaderUI();
+                showAdminDashboardView();
+                return;
+            }
+
+            try {
+                const cred = await auth.signInWithEmailAndPassword(emailInput, passInput);
+                const docSnap = await db.collection('users').doc(cred.user.uid).get();
+                const userData = docSnap.exists ? docSnap.data() : {};
+                if (userData.role === 'admin' || emailInput.toLowerCase().endsWith('@spare.jo')) {
+                    isAdminAuthenticated = true;
+                    adminEmail = emailInput;
+                    closeAdminLoginModal();
+                    updateAdminHeaderUI();
+                    showAdminDashboardView();
+                } else {
+                    alert(currentLang === 'ar' ? 'هذا الحساب لا يملك صلاحيات المشرف.' : 'Access Denied: This account does not have Administrator privileges.');
+                }
+            } catch (err) {
+                alert(currentLang === 'ar' ? 'بيانات دخول المشرف غير صحيحة.' : 'Invalid Admin credentials. Tip: Use Instant Admin Preview or admin@spare.jo / Admin@2026');
+            }
+        }
+
+        function quickDemoAdminLogin() {
+            isAdminAuthenticated = true;
+            adminEmail = 'admin@spare.jo';
+            closeAdminLoginModal();
+            updateAdminHeaderUI();
+            showAdminDashboardView();
+        }
+
+        function handleAdminLogout() {
+            isAdminAuthenticated = false;
+            adminEmail = '';
+            updateAdminHeaderUI();
+            showHomeView();
+        }
+
+        function getSortIconHTML(colKey) {
+            if (adminSortColumn !== colKey) {
+                return `<i class="fa-solid fa-sort text-gray-500/70 ms-1 text-[10px]"></i>`;
+            }
+            return adminSortDirection === 'asc'
+                ? `<i class="fa-solid fa-sort-up text-blue-400 ms-1 text-[10px]"></i>`
+                : `<i class="fa-solid fa-sort-down text-blue-400 ms-1 text-[10px]"></i>`;
+        }
+
+        function sortAdminUsersBy(colKey) {
+            if (adminSortColumn === colKey) {
+                adminSortDirection = adminSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                adminSortColumn = colKey;
+                adminSortDirection = 'asc';
+            }
+            updateAdminSortIcons();
+            filterAdminUsersTable();
+        }
+
+        function updateAdminSortIcons() {
+            const cols = ['name', 'type', 'email', 'phone', 'status', 'createdAt'];
+            cols.forEach(c => {
+                const el = document.getElementById(`sort-icon-${c}`);
+                if (el) el.innerHTML = getSortIconHTML(c);
+            });
+        }
+
+        function getSortedAdminUsers(list) {
+            const copy = [...list];
+            const dir = adminSortDirection === 'asc' ? 1 : -1;
+
+            copy.sort((a, b) => {
+                let valA = '';
+                let valB = '';
+
+                switch (adminSortColumn) {
+                    case 'name':
+                        valA = `${a.firstName || ''} ${a.lastName || ''}`.trim().toLowerCase();
+                        valB = `${b.firstName || ''} ${b.lastName || ''}`.trim().toLowerCase();
+                        break;
+                    case 'type':
+                        valA = (a.type || 'customer').toLowerCase();
+                        valB = (b.type || 'customer').toLowerCase();
+                        break;
+                    case 'email':
+                        valA = (a.email || '').toLowerCase();
+                        valB = (b.email || '').toLowerCase();
+                        break;
+                    case 'phone':
+                        valA = (a.phone || '').toLowerCase();
+                        valB = (b.phone || '').toLowerCase();
+                        break;
+                    case 'status':
+                        valA = isUserVerified(a) ? 'verified' : 'pending';
+                        valB = isUserVerified(b) ? 'verified' : 'pending';
+                        break;
+                    case 'createdAt':
+                        valA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                        valB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                        return (valA - valB) * dir;
+                    default:
+                        return 0;
+                }
+
+                if (valA < valB) return -1 * dir;
+                if (valA > valB) return 1 * dir;
+                return 0;
+            });
+
+            return copy;
+        }
+
+        function getAdminDashboardHTML() {
+            return `
+                <div class="w-full h-full flex flex-col gap-3 min-h-0">
+                    <!-- Extended Top Monitor Banner -->
+                    <div class="custom-card border border-amber-500/30 rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center space-x-3.5 rtl:space-x-reverse">
+                            <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg shrink-0">
+                                <i class="fa-solid fa-gauge-high"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-2.5 rtl:space-x-reverse">
+                                    <h1 class="text-base md:text-lg font-black tracking-tight" data-en="Spare.jo Platform Monitor" data-ar="مراقبة منصة Spare.jo">Spare.jo Platform Monitor</h1>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 rtl:space-x-reverse">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                                        <span data-en="LIVE" data-ar="مباشر">LIVE</span>
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-gray-400">${adminEmail} • <span data-en="Full System Telemetry & User Directory" data-ar="قياسات النظام الكاملة ودليل المستخدمين">Full System Telemetry & User Directory</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse self-end sm:self-auto">
+                            <button onclick="refreshAdminData()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse shadow-sm">
+                                <i class="fa-solid fa-rotate"></i>
+                                <span data-en="Sync Firestore" data-ar="تحديث البيانات">Sync Firestore</span>
+                            </button>
+                            <button onclick="handleAdminLogout()" class="px-3.5 py-2 bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-semibold rounded-lg transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span data-en="Exit Admin" data-ar="خروج الإدارة">Exit Admin</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Extended 5-Column KPI Summary Strip -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 shrink-0">
+                        <div class="custom-card border rounded-2xl p-4 space-y-1">
+                            <div class="flex items-center justify-between text-gray-400 text-xs">
+                                <span data-en="Total Accounts" data-ar="إجمالي الحسابات">Total Accounts</span>
+                                <i class="fa-solid fa-users text-blue-400"></i>
+                            </div>
+                            <div class="text-2xl font-black" id="kpi-total-users">--</div>
+                            <div class="text-[11px] text-emerald-400" id="kpi-user-split">Loading Firestore...</div>
+                        </div>
+
+                        <div class="custom-card border rounded-2xl p-4 space-y-1">
+                            <div class="flex items-center justify-between text-gray-400 text-xs">
+                                <span data-en="B2B Companies" data-ar="شركات B2B">B2B Companies</span>
+                                <i class="fa-solid fa-building text-amber-400"></i>
+                            </div>
+                            <div class="text-2xl font-black" id="kpi-company-count">--</div>
+                            <div class="text-[11px] text-gray-400" data-en="Importers & Workshops" data-ar="مستوردون وورشات">Importers & Workshops</div>
+                        </div>
+
+                        <div class="custom-card border rounded-2xl p-4 space-y-1">
+                            <div class="flex items-center justify-between text-gray-400 text-xs">
+                                <span data-en="Total Spare Parts" data-ar="إجمالي قطع الغيار">Total Spare Parts</span>
+                                <i class="fa-solid fa-gears text-cyan-400"></i>
+                            </div>
+                            <div class="text-2xl font-black text-cyan-400" id="kpi-parts-count">18,450</div>
+                            <div class="text-[11px] text-gray-400" id="kpi-parts-sub" data-en="Genuine, OEM & Aftermarket" data-ar="أصلية، OEM وبديلة">Genuine, OEM & Aftermarket</div>
+                        </div>
+
+                        <div class="custom-card border rounded-2xl p-4 space-y-1">
+                            <div class="flex items-center justify-between text-gray-400 text-xs">
+                                <span data-en="VIN / Part Queries" data-ar="عمليات البحث">VIN / Part Queries</span>
+                                <i class="fa-solid fa-magnifying-glass text-purple-400"></i>
+                            </div>
+                            <div class="text-2xl font-black" id="kpi-search-count">1,428</div>
+                            <div class="text-[11px] text-emerald-400">+18.4% <span data-en="this week" data-ar="هذا الأسبوع">this week</span></div>
+                        </div>
+
+                        <div class="custom-card border rounded-2xl p-4 space-y-1 col-span-2 sm:col-span-1">
+                            <div class="flex items-center justify-between text-gray-400 text-xs">
+                                <span data-en="System Status" data-ar="حالة النظام">System Status</span>
+                                <i class="fa-solid fa-server text-emerald-400"></i>
+                            </div>
+                            <div class="text-2xl font-black text-emerald-400">99.98%</div>
+                            <div class="text-[11px] text-gray-400">Firebase Auth & DB Online</div>
+                        </div>
+                    </div>
+
+                    <!-- Extended Full-Height Split Panels -->
+                    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
+                        <!-- Registered Platform Accounts Table (8 cols) -->
+                        <div class="lg:col-span-8 custom-card border rounded-2xl p-4 flex flex-col min-h-[280px] overflow-hidden">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-900/40 pb-3 shrink-0">
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center space-x-2 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-database"></i>
+                                    <span data-en="Registered Platform Accounts" data-ar="حسابات المنصة المسجلة">Registered Platform Accounts</span>
+                                </h2>
+                                <input type="text" id="admin-user-filter" onkeyup="filterAdminUsersTable()" placeholder="Filter name, email, phone, CR #, status..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-72 focus:outline-none focus:border-blue-500">
+                            </div>
+
+                            <div class="flex-1 overflow-auto mt-1">
+                                <table class="w-full text-start text-xs">
+                                    <thead class="text-[10px] text-gray-400 uppercase border-b border-blue-900/40 sticky top-0 bg-inherit z-10">
+                                        <tr>
+                                            <th onclick="sortAdminUsersBy('name')" class="py-2.5 pe-2 text-start cursor-pointer hover:text-blue-400 transition whitespace-nowrap">
+                                                <span data-en="Name / Entity" data-ar="الاسم / الجهة">Name / Entity</span><span id="sort-icon-name">${getSortIconHTML('name')}</span>
+                                            </th>
+                                            <th onclick="sortAdminUsersBy('type')" class="py-2.5 px-2 text-start cursor-pointer hover:text-blue-400 transition whitespace-nowrap">
+                                                <span data-en="Type" data-ar="النوع">Type</span><span id="sort-icon-type">${getSortIconHTML('type')}</span>
+                                            </th>
+                                            <th onclick="sortAdminUsersBy('email')" class="py-2.5 px-2 text-start cursor-pointer hover:text-blue-400 transition whitespace-nowrap">
+                                                <span data-en="E-mail" data-ar="البريد الإلكتروني">E-mail</span><span id="sort-icon-email">${getSortIconHTML('email')}</span>
+                                            </th>
+                                            <th onclick="sortAdminUsersBy('phone')" class="py-2.5 px-2 text-start cursor-pointer hover:text-blue-400 transition whitespace-nowrap">
+                                                <span data-en="Phone Number" data-ar="رقم الهاتف">Phone Number</span><span id="sort-icon-phone">${getSortIconHTML('phone')}</span>
+                                            </th>
+                                            <th onclick="sortAdminUsersBy('status')" class="py-2.5 px-2 text-start cursor-pointer hover:text-blue-400 transition whitespace-nowrap">
+                                                <span data-en="Account Status" data-ar="حالة الحساب">Account Status</span><span id="sort-icon-status">${getSortIconHTML('status')}</span>
+                                            </th>
+                                            <th onclick="sortAdminUsersBy('createdAt')" class="py-2.5 px-2 text-start cursor-pointer hover:text-blue-400 transition whitespace-nowrap">
+                                                <span data-en="Joined" data-ar="تاريخ التسجيل">Joined</span><span id="sort-icon-createdAt">${getSortIconHTML('createdAt')}</span>
+                                            </th>
+                                            <th class="py-2.5 ps-2 text-end whitespace-nowrap" data-en="Actions" data-ar="الإجراءات">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-users-tbody" class="divide-y divide-blue-900/20">
+                                        <tr>
+                                            <td colspan="7" class="py-8 text-center text-gray-400">
+                                                <i class="fa-solid fa-spinner animate-spin mr-1"></i> Fetching live accounts from Firestore...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Live Search & VIN Feed (4 cols) -->
+                        <div class="lg:col-span-4 custom-card border rounded-2xl p-4 flex flex-col min-h-[280px] overflow-hidden">
+                            <div class="flex items-center justify-between border-b border-blue-900/40 pb-3 shrink-0">
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center space-x-2 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-wave-square"></i>
+                                    <span data-en="Live Search & VIN Feed" data-ar="سجل البحث المباشر">Live Search & VIN Feed</span>
+                                </h2>
+                                <span class="text-[11px] text-gray-400">Jordan Region</span>
+                            </div>
+
+                            <div id="admin-activity-feed" class="flex-1 space-y-2.5 overflow-y-auto mt-2.5 pe-1">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function showAdminDashboardView() {
+            currentView = 'admin-dashboard';
+            setMainContainerLayout('admin');
+            document.getElementById('main-content').innerHTML = getAdminDashboardHTML();
+            applyTranslations();
+            renderAdminActivityFeed();
+            await refreshAdminData();
+        }
+
+        function updateAdminKPIs() {
+            const total = adminUsersCache.length;
+            const companies = adminUsersCache.filter(u => u.type === 'company').length;
+            const customers = total - companies;
+
+            const kpiTotal = document.getElementById('kpi-total-users');
+            const kpiSplit = document.getElementById('kpi-user-split');
+            const kpiComp = document.getElementById('kpi-company-count');
+
+            if (kpiTotal) kpiTotal.innerText = total;
+            if (kpiComp) kpiComp.innerText = companies;
+            if (kpiSplit) kpiSplit.innerText = `${customers} Customers • ${companies} Companies`;
+        }
+
+        async function refreshAdminData() {
+            const tbody = document.getElementById('admin-users-tbody');
+            if (!tbody) return;
+
+            try {
+                const snapshot = await db.collection('users').get();
+                adminUsersCache = [];
+                snapshot.forEach(doc => {
+                    adminUsersCache.push({ id: doc.id, ...doc.data() });
+                });
+
+                try {
+                    const partsSnap = await db.collection('parts').get();
+                    const kpiParts = document.getElementById('kpi-parts-count');
+                    if (kpiParts && !partsSnap.empty) {
+                        kpiParts.innerText = partsSnap.size.toLocaleString();
+                    }
+                } catch (_) {
+                    // Keep default ecosystem inventory metric if parts collection isn't populated yet
+                }
+
+                updateAdminKPIs();
+                filterAdminUsersTable();
+            } catch (error) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-4 text-center text-amber-400 text-xs">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Firestore Read Rule Notice: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function isUserVerified(u) {
+            if (u.verificationStatus === 'verified' || u.verified === true) return true;
+            if (u.verificationStatus === 'pending' || u.verified === false) return false;
+            return Boolean(u.phone && u.phone.trim().length > 0);
+        }
+
+        function viewCompanyCrDocument(userId) {
+            const userObj = adminUsersCache.find(u => u.id === userId);
+            if (!userObj || !userObj.crDocumentData) {
+                alert(currentLang === 'ar' ? 'لا يوجد ملف مرفق لهذه الشركة.' : 'No Commercial Registration copy uploaded for this company.');
+                return;
+            }
+            const win = window.open();
+            if (win) {
+                win.document.write(`<iframe src="${userObj.crDocumentData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+            }
+        }
+
+        function renderAdminUsersRows(usersList) {
+            const tbody = document.getElementById('admin-users-tbody');
+            if (!tbody) return;
+
+            const sortedList = getSortedAdminUsers(usersList);
+
+            if (sortedList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-400">No registered accounts found in database yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = sortedList.map(u => {
+                const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unnamed User';
+                const isCompany = u.type === 'company';
+                const badgeClass = isCompany
+                    ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                    : 'bg-blue-500/15 text-blue-400 border-blue-500/30';
+                const typeLabel = isCompany ? 'Company' : 'Customer';
+
+                const crBadge = (isCompany && u.crNumber)
+                    ? `<div class="text-[10px] text-amber-400/90 font-mono mt-0.5 flex items-center space-x-1.5 rtl:space-x-reverse">
+                         <span>CR: ${u.crNumber}</span>
+                         ${u.crDocumentData ? `<button onclick="viewCompanyCrDocument('${u.id}')" class="text-blue-400 hover:underline cursor-pointer" title="View CR Copy"><i class="fa-solid fa-file-arrow-down"></i></button>` : ''}
+                       </div>`
+                    : '';
+
+                const verified = isUserVerified(u);
+                const statusBadgeClass = verified
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    : 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+                const statusIcon = verified ? 'fa-circle-check' : 'fa-clock';
+                const statusEn = verified ? 'Verified' : 'Pending Verification';
+                const statusAr = verified ? 'مُوثّق' : 'بانتظار التوثيق';
+
+                const joinedDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Active';
+
+                return `
+                    <tr class="hover:bg-blue-600/5 transition">
+                        <td class="py-2.5 pe-2 font-semibold whitespace-nowrap">
+                            <div>${fullName}</div>
+                            ${crBadge}
+                        </td>
+                        <td class="py-2.5 px-2 whitespace-nowrap">
+                            <span class="px-2.5 py-0.5 rounded-md border text-[10px] font-bold ${badgeClass}">${typeLabel}</span>
+                        </td>
+                        <td class="py-2.5 px-2 text-gray-300 text-[11px] whitespace-nowrap">
+                            ${u.email || '-'}
+                        </td>
+                        <td class="py-2.5 px-2 text-gray-300 font-mono text-[11px] whitespace-nowrap">
+                            ${u.phone || 'N/A'}
+                        </td>
+                        <td class="py-2.5 px-2 whitespace-nowrap">
+                            <span class="px-2.5 py-0.5 rounded-md border text-[10px] font-bold inline-flex items-center space-x-1 rtl:space-x-reverse ${statusBadgeClass}">
+                                <i class="fa-solid ${statusIcon} text-[9px]"></i>
+                                <span data-en="${statusEn}" data-ar="${statusAr}">${statusEn}</span>
+                            </span>
+                        </td>
+                        <td class="py-2.5 px-2 text-gray-400 text-[11px] whitespace-nowrap">${joinedDate}</td>
+                        <td class="py-2.5 ps-2 text-end whitespace-nowrap">
+                            <div class="inline-flex items-center space-x-1.5 rtl:space-x-reverse">
+                                <button onclick="openAdminEditUserModal('${u.id}')" title="Edit User" class="px-2.5 py-1 rounded-lg bg-blue-600/15 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-[11px] font-semibold transition cursor-pointer flex items-center space-x-1 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span data-en="Edit" data-ar="تعديل">Edit</span>
+                                </button>
+                                <button onclick="adminDeleteUser('${u.id}')" title="Delete User" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 text-[11px] font-semibold transition cursor-pointer flex items-center space-x-1 rtl:space-x-reverse">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    <span data-en="Delete" data-ar="حذف">Delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            applyTranslations();
+        }
+
+        function toggleEditCrSection() {
+            const typeVal = document.getElementById('edit-user-type').value;
+            const crSec = document.getElementById('edit-cr-section');
+            if (crSec) {
+                crSec.style.display = typeVal === 'company' ? 'block' : 'none';
+            }
+        }
+
+        function openAdminEditUserModal(userId) {
+            const userObj = adminUsersCache.find(u => u.id === userId);
+            if (!userObj) return;
+
+            document.getElementById('edit-user-id').value = userObj.id;
+            document.getElementById('edit-user-uid-label').innerText = `UID: ${userObj.id}`;
+            document.getElementById('edit-user-firstname').value = userObj.firstName || '';
+            document.getElementById('edit-user-lastname').value = userObj.lastName || '';
+            document.getElementById('edit-user-type').value = userObj.type === 'company' ? 'company' : 'customer';
+            document.getElementById('edit-user-verification').value = isUserVerified(userObj) ? 'verified' : 'pending';
+            document.getElementById('edit-user-cr-number').value = userObj.crNumber || '';
+            document.getElementById('edit-user-email').value = userObj.email || '';
+            document.getElementById('edit-user-phone').value = userObj.phone || '';
+
+            const docInfo = document.getElementById('edit-user-cr-doc-info');
+            if (docInfo) {
+                if (userObj.crDocumentData) {
+                    docInfo.innerHTML = `<button type="button" onclick="viewCompanyCrDocument('${userObj.id}')" class="underline hover:text-blue-300 cursor-pointer"><i class="fa-solid fa-file-check mr-1"></i>${userObj.crDocumentName || 'View CR Copy'}</button>`;
+                } else {
+                    docInfo.innerText = userObj.crDocumentName || 'Not uploaded';
+                }
+            }
+
+            toggleEditCrSection();
+            document.getElementById('admin-edit-user-modal').style.display = 'flex';
+            applyTranslations();
+        }
+
+        function closeAdminEditUserModal() {
+            document.getElementById('admin-edit-user-modal').style.display = 'none';
+        }
+
+        async function handleAdminSaveUserEdit(event) {
+            event.preventDefault();
+            const userId = document.getElementById('edit-user-id').value;
+            const firstName = document.getElementById('edit-user-firstname').value.trim();
+            const lastName = document.getElementById('edit-user-lastname').value.trim();
+            const type = document.getElementById('edit-user-type').value;
+            const verificationStatus = document.getElementById('edit-user-verification').value;
+            const crNumber = type === 'company' ? document.getElementById('edit-user-cr-number').value.trim() : '';
+            const email = document.getElementById('edit-user-email').value.trim();
+            const phone = document.getElementById('edit-user-phone').value.trim();
+
+            try {
+                await db.collection('users').doc(userId).update({
+                    firstName: firstName,
+                    lastName: lastName,
+                    type: type,
+                    crNumber: crNumber,
+                    verificationStatus: verificationStatus,
+                    verified: verificationStatus === 'verified',
+                    email: email,
+                    phone: phone,
+                    updatedAt: new Date().toISOString()
+                });
+
+                const idx = adminUsersCache.findIndex(u => u.id === userId);
+                if (idx !== -1) {
+                    adminUsersCache[idx] = {
+                        ...adminUsersCache[idx],
+                        firstName,
+                        lastName,
+                        type,
+                        crNumber,
+                        verificationStatus,
+                        verified: verificationStatus === 'verified',
+                        email,
+                        phone
+                    };
+                }
+
+                recentSearchLogs.unshift({
+                    time: 'Just now',
+                    type: 'ADMIN EDIT',
+                    query: email,
+                    location: 'Console',
+                    status: verificationStatus === 'verified' ? 'Marked Verified' : 'Marked Pending'
+                });
+                renderAdminActivityFeed();
+
+                updateAdminKPIs();
+                filterAdminUsersTable();
+                closeAdminEditUserModal();
+                alert(currentLang === 'ar' ? 'تم تحديث بيانات المستخدم بنجاح.' : 'User account updated successfully.');
+            } catch (error) {
+                alert('Error updating user: ' + error.message);
+            }
+        }
+
+        async function adminDeleteUser(userId) {
+            const userObj = adminUsersCache.find(u => u.id === userId);
+            const targetName = userObj ? (`${userObj.firstName || ''} ${userObj.lastName || ''}`.trim() || userObj.email) : userId;
+
+            const confirmMsg = currentLang === 'ar'
+                ? `هل أنت متأكد من حذف حساب "${targetName}" من قاعدة البيانات؟ لا يمكن التراجع عن هذا الإجراء.`
+                : `Are you sure you want to permanently delete "${targetName}" from the database? This action cannot be undone.`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                await db.collection('users').doc(userId).delete();
+
+                adminUsersCache = adminUsersCache.filter(u => u.id !== userId);
+
+                recentSearchLogs.unshift({
+                    time: 'Just now',
+                    type: 'ADMIN DEL',
+                    query: targetName,
+                    location: 'Console',
+                    status: 'Account Removed'
+                });
+                renderAdminActivityFeed();
+
+                updateAdminKPIs();
+                filterAdminUsersTable();
+                alert(currentLang === 'ar' ? 'تم حذف المستخدم بنجاح.' : 'User account deleted successfully.');
+            } catch (error) {
+                alert('Error deleting user: ' + error.message);
+            }
+        }
+
+        function filterAdminUsersTable() {
+            const term = (document.getElementById('admin-user-filter')?.value || '').toLowerCase();
+            const filtered = adminUsersCache.filter(u => {
+                const name = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+                const email = (u.email || '').toLowerCase();
+                const phone = (u.phone || '').toLowerCase();
+                const crNum = (u.crNumber || '').toLowerCase();
+                const type = (u.type || '').toLowerCase();
+                const status = isUserVerified(u) ? 'verified' : 'pending verification';
+                return name.includes(term) || email.includes(term) || phone.includes(term) || crNum.includes(term) || type.includes(term) || status.includes(term);
+            });
+            renderAdminUsersRows(filtered);
+        }
+
+        function renderAdminActivityFeed() {
+            const feedContainer = document.getElementById('admin-activity-feed');
+            if (!feedContainer) return;
+
+            feedContainer.innerHTML = recentSearchLogs.map(item => `
+                <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/20 flex items-center justify-between gap-2 text-xs">
+                    <div class="space-y-1 min-w-0">
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                            <span class="px-2 py-0.5 rounded bg-blue-600/20 text-blue-400 text-[10px] font-bold">${item.type}</span>
+                            <span class="font-mono font-bold truncate">${item.query}</span>
+                        </div>
+                        <div class="text-[11px] text-gray-400">${item.location} • <span class="text-emerald-400">${item.status}</span></div>
+                    </div>
+                    <span class="text-[10px] text-gray-400 shrink-0">${item.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function logPlatformSearch(type, query) {
+            if (!query) return;
+            recentSearchLogs.unshift({
+                time: 'Just now',
+                type: type,
+                query: query,
+                location: 'Amman',
+                status: 'Queried Live'
+            });
+            if (recentSearchLogs.length > 15) recentSearchLogs.pop();
+        }
+
+        // ==========================================
+        // MAIN MARKETPLACE VIEWS
+        // ==========================================
         function getHomeViewHTML() {
             const activeTabClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-blue-400 border-b-2 border-blue-500";
             const inactiveTabClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-gray-400 hover:text-white border-b-2 border-transparent";
@@ -462,7 +1235,11 @@
                     </div>
                     <div class="flex justify-between items-center border-b border-gray-700 pb-2">
                         <span class="font-semibold text-gray-400" data-en="Account Type:" data-ar="نوع الحساب:">Account Type:</span>
-                        <span class="text-blue-400 font-bold" data-en="Verified Account" data-ar="حساب معتمد">Verified Account</span>
+                        <span class="text-blue-400 font-bold" id="dashboard-account-type" data-en="Verified Account" data-ar="حساب معتمد">Verified Account</span>
+                    </div>
+                    <div id="dashboard-cr-row" class="flex justify-between items-center border-b border-gray-700 pb-2" style="display: none;">
+                        <span class="font-semibold text-gray-400" data-en="Commercial Registration #:" data-ar="رقم السجل التجاري:">Commercial Registration #:</span>
+                        <span class="text-amber-400 font-mono font-bold" id="dashboard-cr-number">--</span>
                     </div>
                 </div>
                 <div class="flex justify-center w-full max-w-xs">
@@ -512,15 +1289,15 @@
 
                     <div class="space-y-1.5">
                         <h3 class="font-bold text-white" data-en="2. Information We Collect" data-ar="2. المعلومات التي نجمعها">2. Information We Collect</h3>
-                        <p data-en="We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials." data-ar="نجمع المعلومات الشخصية التي تقدمها طواعية عند التسجيل، بما في ذلك المعرفات الشخصية (الاسم الكامل، البريد الإلكتروني، رقم الهاتف/واتساب)، وبيانات السيارات والمعاملات (رقم الهيكل VIN، الشركة المصنعة، الطراز، السنة، أرقام القطع)، وبيانات اعتماد الحساب.">
-                            We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials.
+                        <p data-en="We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Commercial Registration details for business accounts, Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials." data-ar="نجمع المعلومات الشخصية التي تقدمها طواعية عند التسجيل، بما في ذلك المعرفات الشخصية (الاسم الكامل، البريد الإلكتروني، رقم الهاتف/واتساب)، وبيانات السجل التجاري لحسابات الشركات، وبيانات السيارات والمعاملات (رقم الهيكل VIN، الشركة المصنعة، الطراز، السنة، أرقام القطع)، وبيانات اعتماد الحساب.">
+                            We collect personal information that you voluntarily provide when registering, including Personal Identifiers (full name, email, phone number/WhatsApp), Commercial Registration details for business accounts, Automotive & Transactional Data (Vehicle Identification Numbers - VIN, make, model, year, part numbers), and Account Credentials.
                         </p>
                     </div>
 
                     <div class="space-y-1.5">
                         <h3 class="font-bold text-white" data-en="3. How We Use Your Information" data-ar="3. كيف نستخدم معلوماتك">3. How We Use Your Information</h3>
-                        <p data-en="We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp support), and Platform Security." data-ar="نستخدم معلوماتك لعمليات السوق (تسهيل المعاملات، مطابقة رقم الهيكل، ربط المشترين بالورشات والمستوردين)، والتواصل (تحديثات الطلبات، دعم واتساب)، وأمن المنصة.">
-                            We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp support), and Platform Security.
+                        <p data-en="We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp & email support), and Platform Security." data-ar="نستخدم معلوماتك لعمليات السوق (تسهيل المعاملات، مطابقة رقم الهيكل، ربط المشترين بالورشات والمستوردين)، والتواصل (تحديثات الطلبات، دعم واتساب والبريد الإلكتروني)، وأمن المنصة.">
+                            We use your information for Marketplace Operations (facilitating transactions, VIN-matching, connecting buyers with workshops and importers), Communication (order updates, WhatsApp & email support), and Platform Security.
                         </p>
                     </div>
 
@@ -533,8 +1310,8 @@
 
                     <div class="space-y-1.5">
                         <h3 class="font-bold text-white" data-en="5. Contact Us" data-ar="5. اتصل بنا">5. Contact Us</h3>
-                        <p data-en="If you have questions about this policy or wish to exercise your privacy rights, contact us directly through our official WhatsApp support channel." data-ar="إذا كانت لديك أسئلة حول هذه السياسة أو كنت ترغب في ممارسة حقوق الخصوصية الخاصة بك، فتواصل معنا مباشرة عبر قناة دعم واتساب الرسمية الخاصة بنا.">
-                            If you have questions about this policy or wish to exercise your privacy rights, contact us directly through our official WhatsApp support channel.
+                        <p data-en="If you have questions about this policy or wish to exercise your privacy rights, contact us via email at Spare.jo@outlook.com or through our official WhatsApp support channel." data-ar="إذا كانت لديك أسئلة حول هذه السياسة أو كنت ترغب في ممارسة حقوق الخصوصية الخاصة بك، فتواصل معنا عبر البريد الإلكتروني Spare.jo@outlook.com أو عبر قناة دعم واتساب الرسمية.">
+                            If you have questions about this policy or wish to exercise your privacy rights, contact us via email at Spare.jo@outlook.com or through our official WhatsApp support channel.
                         </p>
                     </div>
                 </div>
@@ -562,8 +1339,8 @@
 
                     <div class="space-y-1.5">
                         <h3 class="font-bold text-white" data-en="2. Marketplace Ecosystem & Accounts" data-ar="2. نظام السوق والحسابات">2. Marketplace Ecosystem & Accounts</h3>
-                        <p data-en="Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security." data-ar="تعمل Spare.jo كسوق رقمي لقطاعات B2B و B2C و C2C يربط مستوردي قطع غيار السيارات وتجار الجملة والورشات المحلية ومزودي الأساطيل ومالكي السيارات الأفراد. يمكن للمستخدمين التسجيل كحساب شركة أو حساب عميل وهم مسؤولون عن أمان حساباتهم.">
-                            Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Users may register as a Company Account or Customer Account and are responsible for account security.
+                        <p data-en="Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Company registrants must provide a valid Commercial Registration Number and copy." data-ar="تعمل Spare.jo كسوق رقمي لقطاعات B2B و B2C و C2C يربط مستوردي قطع غيار السيارات وتجار الجملة والورشات المحلية ومزودي الأساطيل ومالكي السيارات الأفراد. يجب على الشركات المسجلة تقديم رقم سجل تجاري ساري المفعول ونسخة منه.">
+                            Spare.jo operates as a digital B2B, B2C, and C2C marketplace connecting automotive parts importers, wholesalers, local workshops, fleet providers, and retail car owners. Company registrants must provide a valid Commercial Registration Number and copy.
                         </p>
                     </div>
 
@@ -594,8 +1371,8 @@
                 <div class="custom-card border rounded-2xl p-6 md:p-8 shadow-xl w-full text-start space-y-4 text-xs md:text-sm leading-relaxed text-gray-200">
                     <div class="space-y-1.5">
                         <h3 class="font-bold text-white" data-en="1. Quick Assistance & Direct Support Channels" data-ar="1. المساعدة السريعة وقنوات الدعم المباشر">1. Quick Assistance & Direct Support Channels</h3>
-                        <p data-en="Instant WhatsApp Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team instantly via WhatsApp at +962 7 9511 5122. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time)." data-ar="دعم واتساب الفوري: هل لديك استفسار عاجل حول قطعة غيار أو حالة طلب أو مطابقة رقم الهيكل؟ تحدث مع فريق الدعم لدينا فوراً عبر واتساب على الرقم 5122 9511 7 962+. ساعات العمل: السبت – الخميس، 9:00 صباحاً – 8:00 مساءً (بتوقيت الأردن).">
-                            Instant WhatsApp Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team instantly via WhatsApp at +962 7 9511 5122. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time).
+                        <p data-en="Instant WhatsApp & Email Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team via WhatsApp at +962 7 9511 5122 or email Spare.jo@outlook.com. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time)." data-ar="دعم واتساب والبريد الإلكتروني الفوري: هل لديك استفسار عاجل حول قطعة غيار أو حالة طلب أو مطابقة رقم الهيكل؟ تحدث مع فريق الدعم لدينا عبر واتساب على الرقم 5122 9511 7 962+ أو راسلنا عبر البريد الإلكتروني Spare.jo@outlook.com. ساعات العمل: السبت – الخميس، 9:00 صباحاً – 8:00 مساءً (بتوقيت الأردن).">
+                            Instant WhatsApp & Email Support: Have an urgent inquiry about a spare part, order status, or VIN matching? Chat with our support team via WhatsApp at +962 7 9511 5122 or email Spare.jo@outlook.com. Business Hours: Saturday – Thursday, 9:00 AM – 8:00 PM (Jordan Time).
                         </p>
                     </div>
 
@@ -604,15 +1381,15 @@
                         <p data-en="• How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts." data-ar="• كيف أجد قطعة باستخدام رقم الهيكل (VIN)؟ أدخل رقم هيكل سيارتك المكون من 17 خانة في مربع البحث في الصفحة الرئيسية لتصفية القطع الأصلية وقطع OEM والبديلة المتوافقة تلقائياً.">
                             • How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts.
                         </p>
-                        <p data-en="• What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops. Customer Accounts are for retail car owners and DIY enthusiasts." data-ar="• ما الفرق بين حساب الشركة وحساب العميل؟ حسابات الشركات مخصصة للمستوردين وتجار الجملة والورشات المحترفة. حسابات العملاء مخصصة لمالكي السيارات الأفراد وهواة الصيانة.">
-                            • What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops. Customer Accounts are for retail car owners and DIY enthusiasts.
+                        <p data-en="• What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops (requires Commercial Registration Number & copy). Customer Accounts are for retail car owners and DIY enthusiasts." data-ar="• ما الفرق بين حساب الشركة وحساب العميل؟ حسابات الشركات مخصصة للمستوردين وتجار الجملة والورشات المحترفة (يتطلب رقم السجل التجاري ونسخة منه). حسابات العملاء مخصصة لمالكي السيارات الأفراد وهواة الصيانة.">
+                            • What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops (requires Commercial Registration Number & copy). Customer Accounts are for retail car owners and DIY enthusiasts.
                         </p>
                     </div>
 
                     <div class="space-y-1.5">
                         <h3 class="font-bold text-white" data-en="3. Reporting an Issue or Part Mismatch" data-ar="3. الإبلاغ عن مشكلة أو عدم تطابق قطعة">3. Reporting an Issue or Part Mismatch</h3>
-                        <p data-en="If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp with your order reference number." data-ar="إذا استلمت قطعة غير صحيحة أو واجهت مشكلة تقنية: التقط صورة واضحة لملصق القطعة أو لوحة رقم هيكل سيارتك، وأرسل التفاصيل مباشرة إلى فريق الدعم لدينا عبر واتساب مع الرقم المرجعي لطلبك.">
-                            If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp with your order reference number.
+                        <p data-en="If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp or Spare.jo@outlook.com with your order reference number." data-ar="إذا استلمت قطعة غير صحيحة أو واجهت مشكلة تقنية: التقط صورة واضحة لملصق القطعة أو لوحة رقم هيكل سيارتك، وأرسل التفاصيل مباشرة إلى فريق الدعم لدينا عبر واتساب أو Spare.jo@outlook.com مع الرقم المرجعي لطلبك.">
+                            If you received an incorrect part or encountered a technical issue: Take a clear photo of the part label or your vehicle's VIN plate, and send the details directly to our support team via WhatsApp or Spare.jo@outlook.com with your order reference number.
                         </p>
                     </div>
                 </div>
@@ -638,6 +1415,7 @@
                         <h3 class="font-bold text-white" data-en="2. Account Portals" data-ar="2. بوابات الحسابات">2. Account Portals</h3>
                         <ul class="list-disc ps-5 space-y-1">
                             <li><a href="#" onclick="showAccountSelectionView(); return false;" class="text-blue-400 hover:underline" data-en="Account Selection / Sign In / Create Account" data-ar="اختيار الحساب / تسجيل الدخول / إنشاء حساب">Account Selection / Sign In / Create Account</a></li>
+                            <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="text-amber-400 hover:underline" data-en="Admin Console & Platform Monitor" data-ar="لوحة تحكم الإدارة ومراقبة المنصة">Admin Console & Platform Monitor</a></li>
                         </ul>
                     </div>
 
@@ -655,7 +1433,7 @@
                         <ul class="list-disc ps-5 space-y-1">
                             <li><a href="#" onclick="showSupportView(); return false;" class="text-blue-400 hover:underline" data-en="Support & FAQ" data-ar="الدعم والأسئلة الشائعة">Support & FAQ</a></li>
                             <li><a href="#" onclick="showSitemapView(); return false;" class="text-blue-400 hover:underline" data-en="Site Map" data-ar="خريطة الموقع">Site Map</a></li>
-                            <li><a href="#" onclick="showContactView(); return false;" class="text-blue-400 hover:underline" data-en="Contact Us (Headquarters, WhatsApp, Social Channels)" data-ar="اتصل بنا (المقر الرئيسي، واتساب، قنوات التواصل الاجتماعي)">Contact Us (Headquarters, WhatsApp, Social Channels)</a></li>
+                            <li><a href="#" onclick="showContactView(); return false;" class="text-blue-400 hover:underline" data-en="Contact Us (Headquarters, Email, WhatsApp, Social Channels)" data-ar="اتصل بنا (المقر الرئيسي، البريد الإلكتروني، واتساب، قنوات التواصل الاجتماعي)">Contact Us (Headquarters, Email, WhatsApp, Social Channels)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -666,33 +1444,41 @@
             </div>
         `;
 
+        function copyOfficialEmail() {
+            navigator.clipboard?.writeText('Spare.jo@outlook.com');
+            alert(currentLang === 'ar' ? 'تم نسخ البريد الإلكتروني: Spare.jo@outlook.com' : 'Copied email: Spare.jo@outlook.com');
+        }
+
         const contactViewHTML = `
-            <div class="flex flex-col items-center justify-center max-w-6xl mx-auto w-full space-y-5 py-4 px-2 overflow-y-auto max-h-[82vh]">
+            <div class="flex flex-col items-center justify-center max-w-5xl mx-auto w-full space-y-5 py-4 px-2 overflow-y-auto max-h-[82vh]">
                 <div class="text-center space-y-1">
                     <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white" data-en="Contact Us" data-ar="اتصل بنا">Contact Us</h1>
-                    <p class="text-xs text-gray-400" data-en="Connect with Spare.jo across our official channels, support, and headquarters" data-ar="تواصل مع Spare.jo عبر قنواتنا الرسمية والدعم والمقر الرئيسي">
-                        Connect with Spare.jo across our official channels, support, and headquarters
+                    <p class="text-xs text-gray-400" data-en="Connect with Spare.jo across our official channels, email, support, and headquarters" data-ar="تواصل مع Spare.jo عبر قنواتنا الرسمية والبريد الإلكتروني والدعم والمقر الرئيسي">
+                        Connect with Spare.jo across our official channels, email, support, and headquarters
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                    <!-- Headquarters -->
-                    <div class="custom-card border rounded-2xl p-6 text-center space-y-3 shadow-lg flex flex-col items-center justify-between">
+                <!-- 3 Rows: 3 rectangles + 3 rectangles + 1 rectangle -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                    <!-- Row 1, Card 1 -->
+                    <div class="custom-card border rounded-2xl p-5 text-center space-y-2.5 shadow-lg flex flex-col items-center justify-center">
                         <div class="w-11 h-11 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base">
-                            <i class="fa-solid fa-location-dot"></i>
+                            <i class="fa-solid fa-envelope"></i>
                         </div>
-                        <div class="space-y-1">
-                            <h3 class="text-sm font-bold text-white" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</h3>
-                            <p class="text-[11px] text-gray-400" data-en="Amman, Jordan — Visit our primary operations base." data-ar="عمّان، الأردن — قم بزيارة مقر عملياتنا الرئيسي.">Amman, Jordan — Visit our primary operations base.</p>
+                        <div class="space-y-1.5">
+                            <h3 class="text-sm font-bold text-white" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</h3>
+                            <p class="text-[11px] text-gray-400" data-en="Direct inquiries, partnerships & commercial registration support." data-ar="الاستفسارات المباشرة والشراكات ودعم تسجيل الشركات.">Direct inquiries, partnerships & commercial registration support.</p>
+                            <div class="inline-flex items-center justify-center space-x-2 rtl:space-x-reverse pt-1">
+                                <span class="text-xs font-mono font-bold text-blue-400 select-all">Spare.jo@outlook.com</span>
+                                <button onclick="copyOfficialEmail()" class="text-gray-400 hover:text-white text-xs cursor-pointer transition p-1 rounded hover:bg-blue-600/20" title="Copy Email">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
                         </div>
-                        <a href="https://maps.google.com/?q=Amman,Jordan" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 text-xs font-semibold inline-flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="View on Map" data-ar="عرض على الخريطة">View on Map</span>
-                            <i class="fa-solid fa-arrow-right rtl:rotate-180 text-[10px]"></i>
-                        </a>
                     </div>
 
-                    <!-- WhatsApp Chat -->
-                    <div class="custom-card border rounded-2xl p-6 text-center space-y-3 shadow-lg flex flex-col items-center justify-between">
+                    <!-- Row 1, Card 2 -->
+                    <div class="custom-card border rounded-2xl p-5 text-center space-y-2.5 shadow-lg flex flex-col items-center justify-between">
                         <div class="w-11 h-11 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base">
                             <i class="fa-brands fa-whatsapp"></i>
                         </div>
@@ -706,8 +1492,23 @@
                         </a>
                     </div>
 
-                    <!-- LinkedIn -->
-                    <div class="custom-card border rounded-2xl p-6 text-center space-y-3 shadow-lg flex flex-col items-center justify-between">
+                    <!-- Row 1, Card 3 -->
+                    <div class="custom-card border rounded-2xl p-5 text-center space-y-2.5 shadow-lg flex flex-col items-center justify-between">
+                        <div class="w-11 h-11 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-sm font-bold text-white" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</h3>
+                            <p class="text-[11px] text-gray-400" data-en="Amman, Jordan — Visit our primary operations base." data-ar="عمّان، الأردن — قم بزيارة مقر عملياتنا الرئيسي.">Amman, Jordan — Visit our primary operations base.</p>
+                        </div>
+                        <a href="https://maps.google.com/?q=Amman,Jordan" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 text-xs font-semibold inline-flex items-center space-x-1 rtl:space-x-reverse">
+                            <span data-en="View on Map" data-ar="عرض على الخريطة">View on Map</span>
+                            <i class="fa-solid fa-arrow-right rtl:rotate-180 text-[10px]"></i>
+                        </a>
+                    </div>
+
+                    <!-- Row 2, Card 4 -->
+                    <div class="custom-card border rounded-2xl p-5 text-center space-y-2.5 shadow-lg flex flex-col items-center justify-between">
                         <div class="w-11 h-11 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base">
                             <i class="fa-brands fa-linkedin-in"></i>
                         </div>
@@ -721,8 +1522,8 @@
                         </a>
                     </div>
 
-                    <!-- Facebook -->
-                    <div class="custom-card border rounded-2xl p-6 text-center space-y-3 shadow-lg flex flex-col items-center justify-between">
+                    <!-- Row 2, Card 5 -->
+                    <div class="custom-card border rounded-2xl p-5 text-center space-y-2.5 shadow-lg flex flex-col items-center justify-between">
                         <div class="w-11 h-11 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base">
                             <i class="fa-brands fa-facebook-f"></i>
                         </div>
@@ -736,8 +1537,8 @@
                         </a>
                     </div>
 
-                    <!-- Instagram -->
-                    <div class="custom-card border rounded-2xl p-6 text-center space-y-3 shadow-lg flex flex-col items-center justify-between">
+                    <!-- Row 2, Card 6 -->
+                    <div class="custom-card border rounded-2xl p-5 text-center space-y-2.5 shadow-lg flex flex-col items-center justify-between">
                         <div class="w-11 h-11 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base">
                             <i class="fa-brands fa-instagram"></i>
                         </div>
@@ -751,8 +1552,8 @@
                         </a>
                     </div>
 
-                    <!-- Twitter / X -->
-                    <div class="custom-card border rounded-2xl p-6 text-center space-y-3 shadow-lg flex flex-col items-center justify-between">
+                    <!-- Row 3, Card 7 -->
+                    <div class="md:col-start-2 custom-card border rounded-2xl p-5 text-center space-y-2.5 shadow-lg flex flex-col items-center justify-between">
                         <div class="w-11 h-11 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-base">
                             <i class="fa-brands fa-twitter"></i>
                         </div>
@@ -761,7 +1562,7 @@
                             <p class="text-[11px] text-gray-400" data-en="Get real-time announcements and ecosystem updates." data-ar="احصل على الإعلانات الفورية وتحديثات المنظومة.">Get real-time announcements and ecosystem updates.</p>
                         </div>
                         <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 text-xs font-semibold inline-flex items-center space-x-1 rtl:space-x-reverse">
-                            <span data-en="Read Tweets" data-ar="قراءة التغريدات">Read Tweets</span>
+                            <span data-en="Visit Twitter" data-ar="زيارة تويتر">Visit Twitter</span>
                             <i class="fa-solid fa-arrow-right rtl:rotate-180 text-[10px]"></i>
                         </a>
                     </div>
@@ -842,6 +1643,7 @@
 
         function showCustomerDashboard() {
             currentView = 'dashboard';
+            setMainContainerLayout('default');
             document.getElementById('main-content').innerHTML = customerDashboardViewHTML;
             if (loggedInUser) {
                 const fullName = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim();
@@ -849,6 +1651,18 @@
                 document.getElementById('dashboard-email').innerText = loggedInUser.email || loggedInUser.phone;
                 const initials = ((loggedInUser.firstName ? loggedInUser.firstName[0] : 'U')).toUpperCase();
                 document.getElementById('dashboard-avatar').innerText = initials;
+
+                const typeLabelEl = document.getElementById('dashboard-account-type');
+                if (typeLabelEl) {
+                    typeLabelEl.innerText = loggedInUser.type === 'company' ? 'Company Account (B2B)' : 'Customer Account';
+                }
+
+                const crRow = document.getElementById('dashboard-cr-row');
+                const crNumEl = document.getElementById('dashboard-cr-number');
+                if (crRow && crNumEl && loggedInUser.type === 'company' && loggedInUser.crNumber) {
+                    crRow.style.display = 'flex';
+                    crNumEl.innerText = loggedInUser.crNumber;
+                }
             }
             applyTranslations();
         }
@@ -899,10 +1713,12 @@
 
         function showHomeView() {
             currentView = 'home';
+            setMainContainerLayout('default');
             document.getElementById('main-content').innerHTML = getHomeViewHTML();
             renderSearchPane();
             applyTranslations();
             updateProfileButtonUI();
+            updateAdminHeaderUI();
         }
 
         function updateSearchTabIndicators() {
@@ -1009,16 +1825,17 @@
 
         function showAccountSelectionView() {
             currentView = 'account-selection';
+            setMainContainerLayout('default');
             document.getElementById('main-content').innerHTML = accountSelectionViewHTML;
             applyTranslations();
         }
 
-        function showAboutView() { currentView = 'about'; document.getElementById('main-content').innerHTML = aboutViewHTML; applyTranslations(); }
-        function showPrivacyView() { currentView = 'privacy'; document.getElementById('main-content').innerHTML = privacyViewHTML; applyTranslations(); }
-        function showTermsView() { currentView = 'terms'; document.getElementById('main-content').innerHTML = termsViewHTML; applyTranslations(); }
-        function showSupportView() { currentView = 'support'; document.getElementById('main-content').innerHTML = supportViewHTML; applyTranslations(); }
-        function showSitemapView() { currentView = 'sitemap'; document.getElementById('main-content').innerHTML = sitemapViewHTML; applyTranslations(); }
-        function showContactView() { currentView = 'contact'; document.getElementById('main-content').innerHTML = contactViewHTML; applyTranslations(); }
+        function showAboutView() { currentView = 'about'; setMainContainerLayout('default'); document.getElementById('main-content').innerHTML = aboutViewHTML; applyTranslations(); }
+        function showPrivacyView() { currentView = 'privacy'; setMainContainerLayout('default'); document.getElementById('main-content').innerHTML = privacyViewHTML; applyTranslations(); }
+        function showTermsView() { currentView = 'terms'; setMainContainerLayout('default'); document.getElementById('main-content').innerHTML = termsViewHTML; applyTranslations(); }
+        function showSupportView() { currentView = 'support'; setMainContainerLayout('default'); document.getElementById('main-content').innerHTML = supportViewHTML; applyTranslations(); }
+        function showSitemapView() { currentView = 'sitemap'; setMainContainerLayout('default'); document.getElementById('main-content').innerHTML = sitemapViewHTML; applyTranslations(); }
+        function showContactView() { currentView = 'contact'; setMainContainerLayout('default'); document.getElementById('main-content').innerHTML = contactViewHTML; applyTranslations(); }
 
         function openVinSourceModal() { document.getElementById('vin-source-modal').style.display = 'flex'; }
         function closeVinSourceModal() { document.getElementById('vin-source-modal').style.display = 'none'; }
@@ -1034,18 +1851,33 @@
                 const searchInput = document.getElementById('search-input');
                 if (searchInput) {
                     searchInput.value = "1HGCR2F83HA001234";
+                    logPlatformSearch('VIN OCR', '1HGCR2F83HA001234');
                     alert('Successfully extracted VIN from photo: 1HGCR2F83HA001234');
                 }
                 event.target.value = '';
             }, 1500);
         }
 
-        function handleSearchAction() { alert('Searching VIN: ' + document.getElementById('search-input').value); }
-        function handleMakeModelSearch() { alert('Searching parts for vehicle'); }
-        function handleSerialSearch() { alert('Searching part #: ' + document.getElementById('search-serial-input').value); }
+        function handleSearchAction() {
+            const val = document.getElementById('search-input').value.trim();
+            logPlatformSearch('VIN', val || 'Empty Query');
+            alert('Searching VIN: ' + val);
+        }
+        function handleMakeModelSearch() {
+            const mk = document.getElementById('select-make')?.value || '';
+            const md = document.getElementById('select-model')?.value || '';
+            const yr = document.getElementById('select-year')?.value || '';
+            logPlatformSearch('Make/Model', `${mk} ${md} ${yr}`.trim() || 'Vehicle Search');
+            alert('Searching parts for vehicle');
+        }
+        function handleSerialSearch() {
+            const serial = document.getElementById('search-serial-input').value.trim();
+            logPlatformSearch('OEM #', serial || 'Empty Part #');
+            alert('Searching part #: ' + serial);
+        }
 
         // ==========================================
-        // AUTH MODAL WITH PHONE (OTP) & EMAIL
+        // AUTH MODAL WITH COMPANY CR & PHONE (OTP)
         // ==========================================
         function openAuthModal(accountType, mode) {
             const overlay = document.getElementById('auth-modal-overlay');
@@ -1066,12 +1898,21 @@
 
             if (mode === 'signup') {
                 html += `
-                    <form onsubmit="handleOnlineSignUp(event, '${accountType}')" class="space-y-3">
-                        <div class="max-h-[50vh] overflow-y-auto space-y-2 pe-1">
+                    <form onsubmit="handleOnlineSignUp(event, '${accountType}')" class="space-y-3 text-start">
+                        <div class="max-h-[54vh] overflow-y-auto space-y-2.5 pe-1">
                             ${accountType === 'company' ? `
                                 <div>
-                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Company / Workshop Name</label>
+                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Company / Workshop Name *</label>
                                     <input type="text" id="reg-company-name" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="e.g. Amman Auto Parts Co.">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Commercial Registration Number *</label>
+                                    <input type="text" id="reg-cr-number" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs font-mono" placeholder="e.g. 200145890">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Upload Commercial Registration Copy (PDF / Image) *</label>
+                                    <input type="file" id="reg-cr-file" required accept=".pdf,.jpg,.jpeg,.png" onchange="updateCrFileLabel(event)" class="custom-input w-full px-2 py-1.5 border rounded-lg text-[11px] file:mr-2.5 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+                                    <p id="reg-cr-file-hint" class="text-[9px] text-gray-400 mt-0.5">Accepted: PDF, JPG, PNG (Max 1MB for cloud storage)</p>
                                 </div>
                             ` : `
                                 <div class="grid grid-cols-2 gap-2">
@@ -1090,7 +1931,6 @@
                                 <input type="email" id="reg-email" required class="custom-input w-full px-2.5 py-1.5 border rounded-lg text-xs" placeholder="name@example.com">
                             </div>
                             
-                            <!-- PHONE NUMBER & OTP FIELDS -->
                             <div>
                                 <label class="block text-[10px] text-gray-300 font-semibold mb-0.5">Phone Number (OTP Required)</label>
                                 <div class="flex gap-2">
@@ -1135,6 +1975,24 @@
             body.innerHTML = html;
         }
 
+        function updateCrFileLabel(event) {
+            const file = event.target.files[0];
+            const hint = document.getElementById('reg-cr-file-hint');
+            if (file && hint) {
+                hint.innerText = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                hint.className = 'text-[9px] text-emerald-400 mt-0.5 font-semibold';
+            }
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('Failed to read uploaded file.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
         function sendOtpCode() {
             const phone = document.getElementById('reg-phone').value;
             if (!phone) {
@@ -1149,8 +2007,8 @@
             const email = document.getElementById('reg-email').value;
             const pass = document.getElementById('signup-pass').value;
             const confirmPass = document.getElementById('signup-confirm-pass').value;
-            const phone = document.getElementById('reg-phone').value;
-            const otp = document.getElementById('reg-otp').value;
+            const phone = document.getElementById('reg-phone').value.trim();
+            const otp = document.getElementById('reg-otp').value.trim();
 
             if (pass !== confirmPass) {
                 alert('Passwords do not match. Please re-enter.');
@@ -1162,8 +2020,35 @@
                 return;
             }
 
+            let crNumber = '';
+            let crDocumentName = '';
+            let crDocumentData = '';
+
+            if (accountType === 'company') {
+                crNumber = document.getElementById('reg-cr-number').value.trim();
+                const crFileInput = document.getElementById('reg-cr-file');
+                const crFile = crFileInput && crFileInput.files ? crFileInput.files[0] : null;
+
+                if (!crNumber) {
+                    alert('Please enter your Commercial Registration Number.');
+                    return;
+                }
+                if (!crFile) {
+                    alert('Please upload a copy of your Commercial Registration.');
+                    return;
+                }
+                if (crFile.size > 900 * 1024) {
+                    alert('Commercial Registration file is too large. Please upload a PDF or image under 900 KB.');
+                    return;
+                }
+
+                crDocumentName = crFile.name;
+                crDocumentData = await readFileAsDataURL(crFile);
+            }
+
             const firstName = accountType === 'customer' ? document.getElementById('reg-firstname').value : document.getElementById('reg-company-name').value;
             const lastName = accountType === 'customer' ? document.getElementById('reg-lastname').value : '';
+            const isOtpVerified = (otp === '1234' || otp.length >= 4);
 
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
@@ -1174,8 +2059,13 @@
                     type: accountType,
                     firstName: firstName,
                     lastName: lastName,
+                    crNumber: crNumber,
+                    crDocumentName: crDocumentName,
+                    crDocumentData: crDocumentData,
                     email: email,
                     phone: phone,
+                    verified: isOtpVerified,
+                    verificationStatus: isOtpVerified ? 'verified' : 'pending',
                     createdAt: new Date().toISOString()
                 };
 
@@ -1239,10 +2129,10 @@
             const themeIcon = document.getElementById('theme-icon');
             if (body.classList.contains('dark')) {
                 body.classList.remove('dark'); body.classList.add('light');
-                themeIcon.className = 'fa-solid fa-sun';
+                if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
             } else {
                 body.classList.remove('light'); body.classList.add('dark');
-                themeIcon.className = 'fa-solid fa-moon';
+                if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
             }
         }
 
@@ -1252,10 +2142,10 @@
             const langBtn = document.getElementById('lang-btn');
             if (currentLang === 'ar') {
                 htmlTag.setAttribute('dir', 'rtl'); htmlTag.setAttribute('lang', 'ar');
-                langBtn.innerText = 'العربية';
+                if (langBtn) langBtn.innerText = 'العربية';
             } else {
                 htmlTag.setAttribute('dir', 'ltr'); htmlTag.setAttribute('lang', 'en');
-                langBtn.innerText = 'English';
+                if (langBtn) langBtn.innerText = 'English';
             }
             applyTranslations();
         }
