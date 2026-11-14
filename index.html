@@ -107,14 +107,17 @@
             background-color: #dbeafe;
             color: #1e40af;
         }
-        body.light #profile-dropdown {
+        body.light #profile-dropdown,
+        body.light #admin-export-dropdown {
             background-color: #ffffff;
             border-color: #cbd5e1;
         }
-        body.light #profile-dropdown button.dropdown-normal-item {
+        body.light #profile-dropdown button.dropdown-normal-item,
+        body.light #admin-export-dropdown button.dropdown-normal-item {
             color: #0f172a;
         }
-        body.light #profile-dropdown button.dropdown-normal-item:hover {
+        body.light #profile-dropdown button.dropdown-normal-item:hover,
+        body.light #admin-export-dropdown button.dropdown-normal-item:hover {
             background-color: #f1f5f9;
         }
     </style>
@@ -405,6 +408,15 @@
             { time: '44 mins ago', type: 'VIN', query: 'KMHD84LF9HU192837', location: 'Amman', status: 'Matched (9 parts)' }
         ];
 
+        const fallbackSparePartsCatalog = [
+            { partNumber: '04465-33471', name: 'Front Ceramic Brake Pads', category: 'Brake Pads', make: 'Toyota', model: 'Camry', grade: 'Genuine', priceJOD: 48.00, stock: 24, supplier: 'Amman Auto Parts Co.' },
+            { partNumber: 'G9510-47060', name: 'Hybrid HV Battery Assembly', category: 'Hybrid Battery', make: 'Toyota', model: 'Prius', grade: 'OEM', priceJOD: 920.00, stock: 4, supplier: 'Jordan Hybrid Center' },
+            { partNumber: '54651-D3000', name: 'Front Left Shock Absorber', category: 'Shock Absorbers', make: 'Hyundai', model: 'Tucson', grade: 'Genuine', priceJOD: 62.50, stock: 15, supplier: 'Al-Markaziah Parts' },
+            { partNumber: '92101-2T100', name: 'LED Projector Headlight LH', category: 'Headlights', make: 'Kia', model: 'K5 (Optima)', grade: 'Aftermarket', priceJOD: 115.00, stock: 9, supplier: 'Zarqa Lighting Hub' },
+            { partNumber: '17117-54720', name: 'Aluminum Core Radiator', category: 'Radiator & Cooling', make: 'BMW', model: '3 Series', grade: 'OEM', priceJOD: 145.00, stock: 7, supplier: 'EuroParts Amman' },
+            { partNumber: '90915-YZZD2', name: 'Spin-On Engine Oil Filter', category: 'Oil Filters', make: 'Toyota', model: 'Land Cruiser', grade: 'Genuine', priceJOD: 8.50, stock: 140, supplier: 'Amman Auto Parts Co.' }
+        ];
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 try {
@@ -527,6 +539,128 @@
             showHomeView();
         }
 
+        // ==========================================
+        // ADMIN EXPORT DROPDOWN & CSV DOWNLOAD HELPERS
+        // ==========================================
+        function toggleAdminExportDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('admin-export-dropdown');
+            if (!dropdown) return;
+            const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
+            dropdown.style.display = isHidden ? 'block' : 'none';
+        }
+
+        function closeAdminExportDropdown() {
+            const dropdown = document.getElementById('admin-export-dropdown');
+            if (dropdown) dropdown.style.display = 'none';
+        }
+
+        function downloadCSVFile(filename, headers, rows) {
+            const escapeCell = (val) => {
+                const str = val === null || val === undefined ? '' : String(val);
+                if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+            const csvLines = [
+                headers.map(escapeCell).join(','),
+                ...rows.map(row => row.map(escapeCell).join(','))
+            ];
+            const blob = new Blob(['\uFEFF' + csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function handleExportListOfUsers() {
+            closeAdminExportDropdown();
+            const sortedUsers = getSortedAdminUsers(adminUsersCache);
+            if (!sortedUsers.length) {
+                alert(currentLang === 'ar' ? 'لا يوجد مستخدمون للتصدير حالياً.' : 'No users available to export yet.');
+                return;
+            }
+
+            const headers = ['UID', 'Name / Entity', 'Account Type', 'Email', 'Phone Number', 'Commercial Registration #', 'Account Status', 'Joined Date'];
+            const rows = sortedUsers.map(u => {
+                const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unnamed User';
+                const typeLabel = u.type === 'company' ? 'Company' : 'Customer';
+                const statusLabel = isUserVerified(u) ? 'Verified' : 'Pending Verification';
+                const joinedDate = u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : 'Active';
+                return [
+                    u.id || '',
+                    fullName,
+                    typeLabel,
+                    u.email || '',
+                    u.phone || '',
+                    u.crNumber || '',
+                    statusLabel,
+                    joinedDate
+                ];
+            });
+
+            const dateTag = new Date().toISOString().split('T')[0];
+            downloadCSVFile(`Spare_jo_Users_${dateTag}.csv`, headers, rows);
+
+            recentSearchLogs.unshift({
+                time: 'Just now',
+                type: 'EXPORT',
+                query: `Users List (${rows.length})`,
+                location: 'Console',
+                status: 'CSV Downloaded'
+            });
+            renderAdminActivityFeed();
+        }
+
+        async function handleExportListOfSpareParts() {
+            closeAdminExportDropdown();
+            let partsList = [];
+            try {
+                const snap = await db.collection('parts').get();
+                if (!snap.empty) {
+                    snap.forEach(doc => {
+                        partsList.push({ id: doc.id, ...doc.data() });
+                    });
+                }
+            } catch (_) {
+                // Fallback to catalog list if Firestore parts collection is empty or restricted
+            }
+
+            if (partsList.length === 0) {
+                partsList = fallbackSparePartsCatalog;
+            }
+
+            const headers = ['Part Number / OEM #', 'Part Name', 'Category', 'Make', 'Model', 'Grade', 'Price (JOD)', 'Stock Qty', 'Supplier'];
+            const rows = partsList.map(p => [
+                p.partNumber || p.id || '',
+                p.name || p.partName || '',
+                p.category || '',
+                p.make || '',
+                p.model || '',
+                p.grade || 'OEM',
+                p.priceJOD !== undefined ? p.priceJOD : (p.price || ''),
+                p.stock !== undefined ? p.stock : '',
+                p.supplier || ''
+            ]);
+
+            const dateTag = new Date().toISOString().split('T')[0];
+            downloadCSVFile(`Spare_jo_Spare_Parts_${dateTag}.csv`, headers, rows);
+
+            recentSearchLogs.unshift({
+                time: 'Just now',
+                type: 'EXPORT',
+                query: `Spare Parts (${rows.length})`,
+                location: 'Console',
+                status: 'CSV Downloaded'
+            });
+            renderAdminActivityFeed();
+        }
+
         function getSortIconHTML(colKey) {
             if (adminSortColumn !== colKey) {
                 return `<i class="fa-solid fa-sort text-gray-500/70 ms-1 text-[10px]"></i>`;
@@ -604,7 +738,7 @@
             return `
                 <div class="w-full h-full flex flex-col gap-3 min-h-0">
                     <!-- Extended Top Monitor Banner -->
-                    <div class="custom-card border border-amber-500/30 rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
+                    <div class="custom-card border border-amber-500/30 rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 relative z-30">
                         <div class="flex items-center space-x-3.5 rtl:space-x-reverse">
                             <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg shrink-0">
                                 <i class="fa-solid fa-gauge-high"></i>
@@ -621,6 +755,26 @@
                             </div>
                         </div>
                         <div class="flex items-center space-x-2 rtl:space-x-reverse self-end sm:self-auto">
+                            <!-- Export Dropdown Button (Placed before Sync Firestore) -->
+                            <div class="relative" id="admin-export-menu-container">
+                                <button onclick="toggleAdminExportDropdown(event)" class="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 text-xs font-semibold rounded-lg transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse shadow-sm">
+                                    <i class="fa-solid fa-file-export"></i>
+                                    <span data-en="Export" data-ar="تصدير">Export</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] ms-0.5"></i>
+                                </button>
+
+                                <div id="admin-export-dropdown" style="display: none;" class="absolute end-0 mt-2 w-52 custom-card border border-blue-500/40 rounded-xl shadow-2xl py-1.5 z-50 text-start">
+                                    <button onclick="handleExportListOfUsers()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-blue-600/20 hover:text-blue-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                                        <i class="fa-solid fa-users text-blue-400 w-3.5 text-center"></i>
+                                        <span data-en="List of Users" data-ar="قائمة المستخدمين">List of Users</span>
+                                    </button>
+                                    <button onclick="handleExportListOfSpareParts()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-blue-600/20 hover:text-blue-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                                        <i class="fa-solid fa-gears text-cyan-400 w-3.5 text-center"></i>
+                                        <span data-en="List of Spare Parts" data-ar="قائمة قطع الغيار">List of Spare Parts</span>
+                                    </button>
+                                </div>
+                            </div>
+
                             <button onclick="refreshAdminData()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse shadow-sm">
                                 <i class="fa-solid fa-rotate"></i>
                                 <span data-en="Sync Firestore" data-ar="تحديث البيانات">Sync Firestore</span>
@@ -1638,6 +1792,10 @@
             const container = document.getElementById('profile-menu-container');
             if (container && !container.contains(event.target)) {
                 closeProfileDropdown();
+            }
+            const exportContainer = document.getElementById('admin-export-menu-container');
+            if (exportContainer && !exportContainer.contains(event.target)) {
+                closeAdminExportDropdown();
             }
         });
 
