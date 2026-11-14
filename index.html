@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.1.7</title>
+    <title>Spare.jo - Find & Compare V6.1.8</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Admin Analytics Pie Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <!-- Firebase App (Core) SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <!-- Firebase Auth SDK Compat -->
@@ -399,8 +401,11 @@
         let isAdminAuthenticated = false;
         let adminEmail = '';
         let adminUsersCache = [];
+        let adminPartsCache = [];
         let adminSortColumn = 'createdAt';
         let adminSortDirection = 'desc';
+        let isAdminChartsVisible = false;
+        let adminChartInstances = {};
         let recentSearchLogs = [
             { time: '2 mins ago', type: 'VIN', query: '1HGCR2F83HA001234', location: 'Amman', status: 'Matched (14 parts)' },
             { time: '9 mins ago', type: 'Make/Model', query: 'Toyota Camry 2025', location: 'Irbid', status: 'Matched (32 parts)' },
@@ -449,7 +454,7 @@
             const main = document.getElementById('main-content');
             if (!main) return;
             if (mode === 'admin') {
-                main.className = "flex-1 flex flex-col justify-start px-4 md:px-6 py-3 w-full h-full overflow-y-auto md:overflow-hidden";
+                main.className = "flex-1 flex flex-col justify-start px-4 md:px-6 py-3 w-full h-full overflow-y-auto";
             } else {
                 main.className = "flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0 overflow-hidden";
             }
@@ -535,8 +540,179 @@
         function handleAdminLogout() {
             isAdminAuthenticated = false;
             adminEmail = '';
+            isAdminChartsVisible = false;
+            destroyAdminCharts();
             updateAdminHeaderUI();
             showHomeView();
+        }
+
+        // ==========================================
+        // ADMIN ANALYTICS PIE CHARTS (GAUGE ICON TOGGLE)
+        // ==========================================
+        function destroyAdminCharts() {
+            Object.keys(adminChartInstances).forEach(key => {
+                if (adminChartInstances[key]) {
+                    adminChartInstances[key].destroy();
+                    delete adminChartInstances[key];
+                }
+            });
+        }
+
+        function toggleAdminAnalyticsCharts() {
+            isAdminChartsVisible = !isAdminChartsVisible;
+            const panel = document.getElementById('admin-pie-charts-panel');
+            const gaugeBtn = document.getElementById('admin-gauge-toggle-btn');
+
+            if (!panel) return;
+
+            if (isAdminChartsVisible) {
+                panel.style.display = 'block';
+                if (gaugeBtn) {
+                    gaugeBtn.classList.add('ring-2', 'ring-amber-400', 'bg-amber-500/30', 'scale-105');
+                }
+                renderAdminPieCharts();
+            } else {
+                panel.style.display = 'none';
+                if (gaugeBtn) {
+                    gaugeBtn.classList.remove('ring-2', 'ring-amber-400', 'bg-amber-500/30', 'scale-105');
+                }
+                destroyAdminCharts();
+            }
+        }
+
+        function buildSinglePieChart(canvasId, labels, dataValues, bgColors) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            if (adminChartInstances[canvasId]) {
+                adminChartInstances[canvasId].destroy();
+            }
+
+            const isLight = document.getElementById('app-body')?.classList.contains('light');
+            const legendColor = isLight ? '#334155' : '#cbd5e1';
+            const borderColor = isLight ? '#ffffff' : '#131e38';
+
+            adminChartInstances[canvasId] = new Chart(canvas.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: bgColors,
+                        borderColor: borderColor,
+                        borderWidth: 2,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: legendColor,
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                padding: 8,
+                                font: { size: 10, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: isLight ? '#0f172a' : '#070d1f',
+                            titleFont: { size: 11 },
+                            bodyFont: { size: 11 },
+                            padding: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAdminPieCharts() {
+            if (!isAdminChartsVisible) return;
+
+            const isAr = currentLang === 'ar';
+
+            // 1. Account Type Distribution (Customers vs Companies)
+            const totalUsers = adminUsersCache.length;
+            const companyCount = adminUsersCache.filter(u => u.type === 'company').length;
+            const customerCount = totalUsers - companyCount;
+            buildSinglePieChart(
+                'chart-account-types',
+                isAr ? ['عملاء (أفراد)', 'شركات (B2B)'] : ['Customers (B2C)', 'Companies (B2B)'],
+                totalUsers > 0 ? [customerCount, companyCount] : [1, 0],
+                ['#3b82f6', '#f59e0b']
+            );
+
+            // 2. Account Verification Status (Verified vs Pending)
+            const verifiedCount = adminUsersCache.filter(u => isUserVerified(u)).length;
+            const pendingCount = totalUsers - verifiedCount;
+            buildSinglePieChart(
+                'chart-verification-status',
+                isAr ? ['مُوثّق', 'بانتظار التوثيق'] : ['Verified', 'Pending Verification'],
+                totalUsers > 0 ? [verifiedCount, pendingCount] : [1, 0],
+                ['#10b981', '#f97316']
+            );
+
+            // Active Parts Source
+            const activeParts = adminPartsCache.length > 0 ? adminPartsCache : fallbackSparePartsCatalog;
+
+            // 3. Spare Parts by Grade (Genuine, OEM, Aftermarket)
+            const gradeCounts = { Genuine: 0, OEM: 0, Aftermarket: 0 };
+            activeParts.forEach(p => {
+                const g = (p.grade || 'OEM').trim();
+                if (g.toLowerCase() === 'genuine') gradeCounts.Genuine++;
+                else if (g.toLowerCase() === 'aftermarket') gradeCounts.Aftermarket++;
+                else gradeCounts.OEM++;
+            });
+            buildSinglePieChart(
+                'chart-parts-grade',
+                isAr ? ['أصلية (Genuine)', 'مصنع أصلي (OEM)', 'بديلة (Aftermarket)'] : ['Genuine', 'OEM', 'Aftermarket'],
+                [gradeCounts.Genuine, gradeCounts.OEM, gradeCounts.Aftermarket],
+                ['#06b6d4', '#6366f1', '#ec4899']
+            );
+
+            // 4. Spare Parts by Vehicle Make
+            const makeMap = {};
+            activeParts.forEach(p => {
+                const mk = p.make || 'Other';
+                makeMap[mk] = (makeMap[mk] || 0) + 1;
+            });
+            const makeLabels = Object.keys(makeMap);
+            const makeValues = Object.values(makeMap);
+            buildSinglePieChart(
+                'chart-parts-make',
+                makeLabels,
+                makeValues,
+                ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#14b8a6']
+            );
+
+            // 5. Search Query Breakdown (VIN, Make/Model, OEM #, etc.)
+            const queryTypeMap = {};
+            recentSearchLogs.forEach(log => {
+                const t = log.type || 'VIN';
+                queryTypeMap[t] = (queryTypeMap[t] || 0) + 1;
+            });
+            buildSinglePieChart(
+                'chart-search-types',
+                Object.keys(queryTypeMap),
+                Object.values(queryTypeMap),
+                ['#a855f7', '#3b82f6', '#06b6d4', '#f59e0b', '#10b981']
+            );
+
+            // 6. Regional Activity Split (Amman, Irbid, Zarqa, etc.)
+            const regionMap = {};
+            recentSearchLogs.forEach(log => {
+                const loc = log.location || 'Amman';
+                regionMap[loc] = (regionMap[loc] || 0) + 1;
+            });
+            buildSinglePieChart(
+                'chart-regional-activity',
+                Object.keys(regionMap),
+                Object.values(regionMap),
+                ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#6366f1']
+            );
         }
 
         // ==========================================
@@ -615,6 +791,7 @@
                 status: 'CSV Downloaded'
             });
             renderAdminActivityFeed();
+            if (isAdminChartsVisible) renderAdminPieCharts();
         }
 
         async function handleExportListOfSpareParts() {
@@ -659,6 +836,7 @@
                 status: 'CSV Downloaded'
             });
             renderAdminActivityFeed();
+            if (isAdminChartsVisible) renderAdminPieCharts();
         }
 
         function getSortIconHTML(colKey) {
@@ -736,13 +914,13 @@
 
         function getAdminDashboardHTML() {
             return `
-                <div class="w-full h-full flex flex-col gap-3 min-h-0">
+                <div class="w-full flex flex-col gap-3 min-h-0">
                     <!-- Extended Top Monitor Banner -->
                     <div class="custom-card border border-amber-500/30 rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0 relative z-30">
                         <div class="flex items-center space-x-3.5 rtl:space-x-reverse">
-                            <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg shrink-0">
+                            <button type="button" id="admin-gauge-toggle-btn" onclick="toggleAdminAnalyticsCharts()" title="Toggle 6 Analytics Pie Charts" aria-label="Toggle Analytics Pie Charts" class="w-11 h-11 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg shrink-0 cursor-pointer transition shadow-sm ${isAdminChartsVisible ? 'ring-2 ring-amber-400 bg-amber-500/30' : ''}">
                                 <i class="fa-solid fa-gauge-high"></i>
-                            </div>
+                            </button>
                             <div>
                                 <div class="flex items-center space-x-2.5 rtl:space-x-reverse">
                                     <h1 class="text-base md:text-lg font-black tracking-tight" data-en="Spare.jo Platform Monitor" data-ar="مراقبة منصة Spare.jo">Spare.jo Platform Monitor</h1>
@@ -751,7 +929,7 @@
                                         <span data-en="LIVE" data-ar="مباشر">LIVE</span>
                                     </span>
                                 </div>
-                                <p class="text-[11px] text-gray-400">${adminEmail} • <span data-en="Full System Telemetry & User Directory" data-ar="قياسات النظام الكاملة ودليل المستخدمين">Full System Telemetry & User Directory</span></p>
+                                <p class="text-[11px] text-gray-400">${adminEmail} • <span data-en="Click gauge icon for 6 analytics pie charts" data-ar="انقر على أيقونة العداد لعرض 6 مخططات دائرية">Click gauge icon for 6 analytics pie charts</span></p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2 rtl:space-x-reverse self-end sm:self-auto">
@@ -834,8 +1012,72 @@
                         </div>
                     </div>
 
+                    <!-- Collapsible 6 Pie Charts Analytics Panel (Toggled by Gauge Icon) -->
+                    <div id="admin-pie-charts-panel" style="display: ${isAdminChartsVisible ? 'block' : 'none'};" class="custom-card border border-amber-500/30 rounded-2xl p-4 shrink-0">
+                        <div class="flex items-center justify-between border-b border-blue-900/40 pb-2.5 mb-3">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fa-solid fa-chart-pie text-amber-400 text-xs"></i>
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400" data-en="Platform Visual Analytics (6 Live Breakdowns)" data-ar="التحليلات المرئية للمنصة (6 مخططات حية)">Platform Visual Analytics (6 Live Breakdowns)</h2>
+                            </div>
+                            <button onclick="toggleAdminAnalyticsCharts()" class="text-[11px] text-gray-400 hover:text-white flex items-center space-x-1 rtl:space-x-reverse cursor-pointer">
+                                <i class="fa-solid fa-xmark"></i>
+                                <span data-en="Hide Charts" data-ar="إخفاء المخططات">Hide Charts</span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+                            <!-- Pie 1: Account Type Distribution -->
+                            <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/15 flex flex-col items-center">
+                                <h3 class="text-[11px] font-bold text-center mb-2 truncate w-full" data-en="1. Account Types" data-ar="1. أنواع الحسابات">1. Account Types</h3>
+                                <div class="w-full h-40 relative">
+                                    <canvas id="chart-account-types"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Pie 2: Account Verification Status -->
+                            <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/15 flex flex-col items-center">
+                                <h3 class="text-[11px] font-bold text-center mb-2 truncate w-full" data-en="2. Verification Status" data-ar="2. حالة التوثيق">2. Verification Status</h3>
+                                <div class="w-full h-40 relative">
+                                    <canvas id="chart-verification-status"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Pie 3: Spare Parts by Grade -->
+                            <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/15 flex flex-col items-center">
+                                <h3 class="text-[11px] font-bold text-center mb-2 truncate w-full" data-en="3. Parts by Grade" data-ar="3. القطع حسب الفئة">3. Parts by Grade</h3>
+                                <div class="w-full h-40 relative">
+                                    <canvas id="chart-parts-grade"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Pie 4: Spare Parts by Make -->
+                            <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/15 flex flex-col items-center">
+                                <h3 class="text-[11px] font-bold text-center mb-2 truncate w-full" data-en="4. Parts by Make" data-ar="4. القطع حسب الصانع">4. Parts by Make</h3>
+                                <div class="w-full h-40 relative">
+                                    <canvas id="chart-parts-make"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Pie 5: Search Query Breakdown -->
+                            <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/15 flex flex-col items-center">
+                                <h3 class="text-[11px] font-bold text-center mb-2 truncate w-full" data-en="5. Search Query Types" data-ar="5. أنواع البحث">5. Search Query Types</h3>
+                                <div class="w-full h-40 relative">
+                                    <canvas id="chart-search-types"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Pie 6: Regional Activity Split -->
+                            <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/15 flex flex-col items-center">
+                                <h3 class="text-[11px] font-bold text-center mb-2 truncate w-full" data-en="6. Regional Activity" data-ar="6. النشاط حسب المنطقة">6. Regional Activity</h3>
+                                <div class="w-full h-40 relative">
+                                    <canvas id="chart-regional-activity"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Extended Full-Height Split Panels -->
-                    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
+                    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[300px]">
                         <!-- Registered Platform Accounts Table (8 cols) -->
                         <div class="lg:col-span-8 custom-card border rounded-2xl p-4 flex flex-col min-h-[280px] overflow-hidden">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-900/40 pb-3 shrink-0">
@@ -908,6 +1150,9 @@
             applyTranslations();
             renderAdminActivityFeed();
             await refreshAdminData();
+            if (isAdminChartsVisible) {
+                renderAdminPieCharts();
+            }
         }
 
         function updateAdminKPIs() {
@@ -937,9 +1182,11 @@
 
                 try {
                     const partsSnap = await db.collection('parts').get();
+                    adminPartsCache = [];
                     const kpiParts = document.getElementById('kpi-parts-count');
-                    if (kpiParts && !partsSnap.empty) {
-                        kpiParts.innerText = partsSnap.size.toLocaleString();
+                    if (!partsSnap.empty) {
+                        partsSnap.forEach(doc => adminPartsCache.push({ id: doc.id, ...doc.data() }));
+                        if (kpiParts) kpiParts.innerText = partsSnap.size.toLocaleString();
                     }
                 } catch (_) {
                     // Keep default ecosystem inventory metric if parts collection isn't populated yet
@@ -947,6 +1194,9 @@
 
                 updateAdminKPIs();
                 filterAdminUsersTable();
+                if (isAdminChartsVisible) {
+                    renderAdminPieCharts();
+                }
             } catch (error) {
                 tbody.innerHTML = `
                     <tr>
@@ -1142,6 +1392,7 @@
 
                 updateAdminKPIs();
                 filterAdminUsersTable();
+                if (isAdminChartsVisible) renderAdminPieCharts();
                 closeAdminEditUserModal();
                 alert(currentLang === 'ar' ? 'تم تحديث بيانات المستخدم بنجاح.' : 'User account updated successfully.');
             } catch (error) {
@@ -1175,6 +1426,7 @@
 
                 updateAdminKPIs();
                 filterAdminUsersTable();
+                if (isAdminChartsVisible) renderAdminPieCharts();
                 alert(currentLang === 'ar' ? 'تم حذف المستخدم بنجاح.' : 'User account deleted successfully.');
             } catch (error) {
                 alert('Error deleting user: ' + error.message);
@@ -2292,6 +2544,9 @@
                 body.classList.remove('light'); body.classList.add('dark');
                 if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
             }
+            if (currentView === 'admin-dashboard' && isAdminChartsVisible) {
+                renderAdminPieCharts();
+            }
         }
 
         function toggleLanguage() {
@@ -2306,6 +2561,9 @@
                 if (langBtn) langBtn.innerText = 'English';
             }
             applyTranslations();
+            if (currentView === 'admin-dashboard' && isAdminChartsVisible) {
+                renderAdminPieCharts();
+            }
         }
 
         function applyTranslations() {
