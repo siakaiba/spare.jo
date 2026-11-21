@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.2.7</title>
+    <title>Spare.jo - Find & Compare V6.2.14</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Admin Analytics Pie Charts -->
@@ -87,8 +87,29 @@
             border-color: #cbd5e1;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-        body.light .custom-card h3, body.light .custom-card div, body.light h1, body.light h2, body.light td, body.light span:not(.text-blue-500):not(.text-blue-400):not(.text-emerald-400):not(.text-amber-400):not(.text-red-400):not(.text-cyan-400) {
+        body.light .custom-card h3, body.light .custom-card div, body.light h1, body.light h2, body.light td, body.light span:not(.text-blue-500):not(.text-blue-400):not(.text-emerald-400):not(.text-amber-400):not(.text-yellow-400):not(.text-red-400):not(.text-cyan-400) {
             color: #0f172a;
+        }
+        /* High-contrast readable tones in Light Mode for yellow/amber/emerald/blue accents */
+        body.light .text-amber-400,
+        body.light .text-yellow-400 {
+            color: #b45309 !important;
+        }
+        body.light .text-emerald-400 {
+            color: #047857 !important;
+        }
+        body.light .text-blue-400 {
+            color: #1d4ed8 !important;
+        }
+        body.light .text-cyan-400 {
+            color: #0e7490 !important;
+        }
+        body.light .text-red-400 {
+            color: #b91c1c !important;
+        }
+        body.light .bg-blue-950\/20 {
+            background-color: #f8fafc !important;
+            border-color: #cbd5e1 !important;
         }
         body.light .custom-input {
             background-color: #f8fafc;
@@ -115,18 +136,21 @@
         }
         body.light #profile-dropdown,
         body.light #admin-actions-dropdown,
-        body.light #admin-export-submenu {
+        body.light #admin-export-submenu,
+        body.light #admin-alerts-dropdown {
             background-color: #ffffff;
             border-color: #cbd5e1;
         }
         body.light #profile-dropdown button.dropdown-normal-item,
         body.light #admin-actions-dropdown button.dropdown-normal-item,
-        body.light #admin-export-submenu button.dropdown-normal-item {
+        body.light #admin-export-submenu button.dropdown-normal-item,
+        body.light #admin-alerts-dropdown button.dropdown-normal-item {
             color: #0f172a;
         }
         body.light #profile-dropdown button.dropdown-normal-item:hover,
         body.light #admin-actions-dropdown button.dropdown-normal-item:hover,
-        body.light #admin-export-submenu button.dropdown-normal-item:hover {
+        body.light #admin-export-submenu button.dropdown-normal-item:hover,
+        body.light #admin-alerts-dropdown button.dropdown-normal-item:hover {
             background-color: #f1f5f9;
         }
 
@@ -137,11 +161,17 @@
             background-color: rgba(16, 185, 129, 0.08) !important;
             font-weight: 700;
         }
+        body.light input[type="date"].cr-validity-valid {
+            color: #047857 !important;
+        }
         input[type="date"].cr-validity-expired {
             color: #ef4444 !important;
             border-color: rgba(239, 68, 68, 0.6) !important;
             background-color: rgba(239, 68, 68, 0.08) !important;
             font-weight: 700;
+        }
+        body.light input[type="date"].cr-validity-expired {
+            color: #b91c1c !important;
         }
     </style>
 </head>
@@ -290,17 +320,23 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <select id="cr-cert-status-filter" onchange="filterCrCertificatesTable()" aria-label="Filter Status" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-amber-400 cursor-pointer">
-                        <option value="all" data-en="Status: All" data-ar="الحالة: الكل">Status: All</option>
-                        <option value="verified" data-en="Verified" data-ar="مُوثّق">Verified</option>
-                        <option value="pending" data-en="Pending Verification" data-ar="بانتظار التوثيق">Pending Verification</option>
+                    <select id="cr-cert-file-filter" onchange="filterCrCertificatesTable()" aria-label="Filter CR File" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-amber-400 cursor-pointer">
+                        <option value="all" data-en="CR: All" data-ar="السجل: الكل">CR: All</option>
+                        <option value="uploaded" data-en="CR Uploaded" data-ar="تم رفع السجل">CR Uploaded</option>
+                        <option value="not_provided" data-en="CR Not Uploaded" data-ar="السجل غير مرفوع">CR Not Uploaded</option>
                     </select>
                     <select id="cr-cert-validity-filter" onchange="filterCrCertificatesTable()" aria-label="Filter CR Validity" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-amber-400 cursor-pointer">
                         <option value="all" data-en="CR Validity: All" data-ar="صلاحية السجل: الكل">CR Validity: All</option>
                         <option value="valid" data-en="Valid" data-ar="ساري المفعول">Valid</option>
                         <option value="expired" data-en="Expired" data-ar="منتهي الصلاحية">Expired</option>
+                        <option value="none" data-en="Not Set" data-ar="غير محدد">Not Set</option>
                     </select>
-                    <input type="text" id="cr-cert-filter-input" onkeyup="filterCrCertificatesTable()" placeholder="Search company, CR #, file..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-48 focus:outline-none focus:border-amber-400">
+                    <select id="cr-cert-status-filter" onchange="filterCrCertificatesTable()" aria-label="Filter Status" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-amber-400 cursor-pointer">
+                        <option value="all" data-en="Status: All" data-ar="الحالة: الكل">Status: All</option>
+                        <option value="verified" data-en="Verified" data-ar="مُوثّق">Verified</option>
+                        <option value="pending" data-en="Pending Verification" data-ar="بانتظار التوثيق">Pending Verification</option>
+                    </select>
+                    <input type="text" id="cr-cert-filter-input" onkeyup="filterCrCertificatesTable()" placeholder="Search company, CR #, file..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-44 focus:outline-none focus:border-amber-400">
                 </div>
             </div>
 
@@ -324,7 +360,7 @@
 
             <div class="pt-2 border-t border-blue-900/40 flex items-center justify-between text-[11px] text-gray-400 shrink-0">
                 <span id="cr-cert-summary-label">0 company records</span>
-                <button type="button" onclick="closeCrCertificatesModal()" class="px-4 py-1.5 custom-card border hover:border-blue-500 text-xs font-semibold rounded-xl transition cursor-pointer" data-en="Close" data-ar="إغلاق">Close</button>
+                <button type="button" onclick="closeCrCertificatesModal()" class="px-4 py-1.5 custom-card border hover:border-blue-500 text-xs font-semibold rounded-xl transition cursor-pointer" data-en="Close" data-ar="إلغاء">Close</button>
             </div>
         </div>
     </div>
@@ -388,7 +424,7 @@
                     </div>
                     <div class="flex items-center justify-between text-[11px] gap-2">
                         <span class="text-gray-400 shrink-0" data-en="CR Copy File:" data-ar="نسخة السجل التجاري:">CR Copy File:</span>
-                        <div id="edit-user-cr-doc-info" class="text-blue-400 font-semibold flex items-center space-x-2 rtl:space-x-reverse truncate">Not uploaded</div>
+                        <div id="edit-user-cr-doc-info" class="text-blue-400 font-semibold flex items-center space-x-2 rtl:space-x-reverse truncate">CR Not Uploaded</div>
                     </div>
                 </div>
 
@@ -418,6 +454,9 @@
             </form>
         </div>
     </div>
+
+    <!-- Hidden File Input for Admin CR Document Upload from Registered Accounts Table -->
+    <input type="file" id="hidden-admin-cr-upload-input" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleAdminCrFileSelected(event)">
 
     <!-- Hidden File Input for Gallery Upload -->
     <input type="file" id="hidden-vin-file-input" accept="image/*" class="hidden" onchange="handleFileSelected(event)">
@@ -492,11 +531,13 @@
         let adminEmail = '';
         let adminUsersCache = [];
         let adminPartsCache = [];
-        let adminSortColumn = 'createdAt';
-        let adminSortDirection = 'desc';
+        let adminSortColumn = 'name';
+        let adminSortDirection = 'asc';
         let adminFilterType = 'all';
-        let adminFilterStatus = 'all';
         let adminFilterCrValidity = 'all';
+        let adminFilterStatus = 'all';
+        let adminFilterCrFile = 'all';
+        let pendingCrUploadUserId = null;
         let isAdminChartsVisible = false;
         let adminChartInstances = {};
         let presenceHeartbeatInterval = null;
@@ -635,6 +676,133 @@
         }
 
         // ==========================================
+        // ADMIN NOTIFICATION BELL ALERTS
+        // ==========================================
+        function getAdminAlertStats() {
+            const unverifiedCount = adminUsersCache.filter(u => !isUserVerified(u)).length;
+            const companies = adminUsersCache.filter(u => u.type === 'company');
+            const missingCrCount = companies.filter(c => !c.crDocumentData).length;
+            const expiredCrCount = companies.filter(c => getCrValidityState(c.crValidity) === 'expired').length;
+            return {
+                unverifiedCount,
+                missingCrCount,
+                expiredCrCount,
+                totalAlerts: unverifiedCount + missingCrCount + expiredCrCount
+            };
+        }
+
+        function updateAdminAlertsUI() {
+            const { unverifiedCount, missingCrCount, expiredCrCount, totalAlerts } = getAdminAlertStats();
+
+            const badgeEl = document.getElementById('admin-bell-badge');
+            const bellIconEl = document.getElementById('admin-bell-icon');
+            const unverifiedEl = document.getElementById('alert-count-unverified');
+            const missingCrEl = document.getElementById('alert-count-missing-cr');
+            const expiredCrEl = document.getElementById('alert-count-expired');
+
+            if (badgeEl) {
+                badgeEl.innerText = totalAlerts;
+                if (totalAlerts > 0) {
+                    badgeEl.classList.remove('bg-slate-600', 'text-gray-200');
+                    badgeEl.classList.add('bg-red-500', 'text-white');
+                } else {
+                    badgeEl.classList.remove('bg-red-500', 'text-white');
+                    badgeEl.classList.add('bg-slate-600', 'text-gray-200');
+                }
+            }
+
+            if (bellIconEl) {
+                if (totalAlerts > 0) {
+                    bellIconEl.classList.add('text-amber-400');
+                } else {
+                    bellIconEl.classList.remove('text-amber-400');
+                }
+            }
+
+            if (unverifiedEl) unverifiedEl.innerText = unverifiedCount;
+            if (missingCrEl) missingCrEl.innerText = missingCrCount;
+            if (expiredCrEl) expiredCrEl.innerText = expiredCrCount;
+        }
+
+        function toggleAdminAlertsDropdown(event) {
+            if (event) event.stopPropagation();
+            closeAdminActionsDropdown();
+            const dropdown = document.getElementById('admin-alerts-dropdown');
+            if (!dropdown) return;
+            const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
+            if (isHidden) {
+                updateAdminAlertsUI();
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function closeAdminAlertsDropdown() {
+            const dropdown = document.getElementById('admin-alerts-dropdown');
+            if (dropdown) dropdown.style.display = 'none';
+        }
+
+        function applyAdminAlertQuickFilter(alertType) {
+            closeAdminAlertsDropdown();
+
+            const typeSelect = document.getElementById('admin-type-filter');
+            const crValiditySelect = document.getElementById('admin-cr-validity-filter');
+            const statusSelect = document.getElementById('admin-status-filter');
+            const crFileSelect = document.getElementById('admin-cr-file-filter');
+            const searchInput = document.getElementById('admin-user-filter');
+
+            if (searchInput) searchInput.value = '';
+
+            if (alertType === 'unverified') {
+                adminFilterType = 'all';
+                adminFilterCrValidity = 'all';
+                adminFilterStatus = 'pending';
+                adminFilterCrFile = 'all';
+            } else if (alertType === 'missing_cr') {
+                adminFilterType = 'company';
+                adminFilterCrValidity = 'all';
+                adminFilterStatus = 'all';
+                adminFilterCrFile = 'not_provided';
+            } else if (alertType === 'expired_cr') {
+                adminFilterType = 'company';
+                adminFilterCrValidity = 'expired';
+                adminFilterStatus = 'all';
+                adminFilterCrFile = 'all';
+            }
+
+            if (typeSelect) typeSelect.value = adminFilterType;
+            if (crValiditySelect) crValiditySelect.value = adminFilterCrValidity;
+            if (statusSelect) statusSelect.value = adminFilterStatus;
+            if (crFileSelect) crFileSelect.value = adminFilterCrFile;
+
+            filterAdminUsersTable();
+        }
+
+        function clearAdminTableFilters() {
+            closeAdminAlertsDropdown();
+
+            adminFilterType = 'all';
+            adminFilterCrFile = 'all';
+            adminFilterCrValidity = 'all';
+            adminFilterStatus = 'all';
+
+            const typeSelect = document.getElementById('admin-type-filter');
+            const crFileSelect = document.getElementById('admin-cr-file-filter');
+            const crValiditySelect = document.getElementById('admin-cr-validity-filter');
+            const statusSelect = document.getElementById('admin-status-filter');
+            const searchInput = document.getElementById('admin-user-filter');
+
+            if (typeSelect) typeSelect.value = 'all';
+            if (crFileSelect) crFileSelect.value = 'all';
+            if (crValiditySelect) crValiditySelect.value = 'all';
+            if (statusSelect) statusSelect.value = 'all';
+            if (searchInput) searchInput.value = '';
+
+            filterAdminUsersTable();
+        }
+
+        // ==========================================
         // ADMIN AUTHENTICATION & EXTENDED DASHBOARD
         // ==========================================
         function updateAdminHeaderUI() {
@@ -713,12 +881,93 @@
 
         function handleAdminLogout() {
             closeAdminActionsDropdown();
+            closeAdminAlertsDropdown();
             isAdminAuthenticated = false;
             adminEmail = '';
             isAdminChartsVisible = false;
             destroyAdminCharts();
             updateAdminHeaderUI();
             showHomeView();
+        }
+
+        // ==========================================
+        // ADMIN DIRECT CR FILE UPLOAD FROM REGISTERED ACCOUNTS TABLE
+        // ==========================================
+        function triggerAdminCrFileUpload(userId) {
+            pendingCrUploadUserId = userId;
+            const fileInput = document.getElementById('hidden-admin-cr-upload-input');
+            if (fileInput) {
+                fileInput.value = '';
+                fileInput.click();
+            }
+        }
+
+        async function handleAdminCrFileSelected(event) {
+            const file = event.target.files ? event.target.files[0] : null;
+            const userId = pendingCrUploadUserId;
+            event.target.value = '';
+            pendingCrUploadUserId = null;
+
+            if (!file || !userId) return;
+
+            if (file.size > 900 * 1024) {
+                alert(currentLang === 'ar'
+                    ? 'حجم ملف السجل التجاري كبير جداً. يرجى رفع ملف PDF أو صورة أقل من 900 كيلوبايت.'
+                    : 'Commercial Registration file is too large. Please upload a PDF or image under 900 KB.');
+                return;
+            }
+
+            try {
+                const base64Data = await readFileAsDataURL(file);
+                const nowIso = new Date().toISOString();
+
+                await db.collection('users').doc(userId).update({
+                    crDocumentName: file.name,
+                    crDocumentData: base64Data,
+                    updatedAt: nowIso
+                });
+
+                const idx = adminUsersCache.findIndex(u => u.id === userId);
+                if (idx !== -1) {
+                    adminUsersCache[idx].crDocumentName = file.name;
+                    adminUsersCache[idx].crDocumentData = base64Data;
+                    adminUsersCache[idx].updatedAt = nowIso;
+
+                    const companyName = `${adminUsersCache[idx].firstName || ''} ${adminUsersCache[idx].lastName || ''}`.trim() || adminUsersCache[idx].email;
+                    recentSearchLogs.unshift({
+                        time: 'Just now',
+                        type: 'CR UPLOAD',
+                        query: companyName,
+                        location: 'Console',
+                        status: `Uploaded ${file.name}`
+                    });
+                }
+
+                updateAdminAlertsUI();
+                filterAdminUsersTable();
+
+                const crModal = document.getElementById('cr-certificates-modal');
+                if (crModal && crModal.style.display === 'flex') {
+                    renderCrCertificatesTable();
+                }
+
+                const editModal = document.getElementById('admin-edit-user-modal');
+                if (editModal && editModal.style.display === 'flex' && document.getElementById('edit-user-id').value === userId) {
+                    const docInfo = document.getElementById('edit-user-cr-doc-info');
+                    if (docInfo) {
+                        docInfo.innerHTML = `
+                            <button type="button" onclick="viewCompanyCrDocument('${userId}')" class="underline hover:text-blue-300 cursor-pointer truncate max-w-[160px]"><i class="fa-solid fa-file-check mr-1"></i>${file.name}</button>
+                            <button type="button" onclick="deleteCompanyCrDocument('${userId}')" title="Delete CR Copy" class="px-2 py-0.5 rounded bg-red-500/15 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 text-[10px] font-semibold transition cursor-pointer shrink-0"><i class="fa-solid fa-trash-can mr-1"></i>Delete CR</button>
+                        `;
+                    }
+                }
+
+                alert(currentLang === 'ar'
+                    ? `تم رفع ملف السجل التجاري "${file.name}" بنجاح.`
+                    : `CR file "${file.name}" uploaded successfully.`);
+            } catch (error) {
+                alert('Error uploading CR file: ' + error.message);
+            }
         }
 
         // ==========================================
@@ -747,6 +996,7 @@
                     });
                 }
 
+                updateAdminAlertsUI();
                 filterAdminUsersTable();
                 const crModal = document.getElementById('cr-certificates-modal');
                 if (crModal && crModal.style.display === 'flex') {
@@ -795,6 +1045,7 @@
                     status: 'CR Certificate Deleted'
                 });
 
+                updateAdminAlertsUI();
                 filterAdminUsersTable();
 
                 const crModal = document.getElementById('cr-certificates-modal');
@@ -805,7 +1056,7 @@
                 const editModal = document.getElementById('admin-edit-user-modal');
                 if (editModal && editModal.style.display === 'flex' && document.getElementById('edit-user-id').value === userId) {
                     const docInfo = document.getElementById('edit-user-cr-doc-info');
-                    if (docInfo) docInfo.innerText = 'Not uploaded';
+                    if (docInfo) docInfo.innerText = 'CR Not Uploaded';
                 }
 
                 alert(currentLang === 'ar' ? 'تم حذف شهادة السجل التجاري بنجاح.' : 'CR certificate deleted successfully.');
@@ -823,9 +1074,11 @@
             const filterInput = document.getElementById('cr-cert-filter-input');
             const statusFilter = document.getElementById('cr-cert-status-filter');
             const validityFilter = document.getElementById('cr-cert-validity-filter');
+            const fileFilter = document.getElementById('cr-cert-file-filter');
             if (filterInput) filterInput.value = '';
             if (statusFilter) statusFilter.value = 'all';
             if (validityFilter) validityFilter.value = 'all';
+            if (fileFilter) fileFilter.value = 'all';
             if (modal) modal.style.display = 'flex';
             renderCrCertificatesTable();
             applyTranslations();
@@ -862,6 +1115,7 @@
             const term = (document.getElementById('cr-cert-filter-input')?.value || '').toLowerCase();
             const statusFilter = document.getElementById('cr-cert-status-filter')?.value || 'all';
             const validityFilter = document.getElementById('cr-cert-validity-filter')?.value || 'all';
+            const fileFilter = document.getElementById('cr-cert-file-filter')?.value || 'all';
             const companies = adminUsersCache.filter(u => u.type === 'company');
 
             const filtered = companies.filter(c => {
@@ -872,6 +1126,11 @@
                 const validityState = getCrValidityState(c.crValidity);
                 if (validityFilter === 'valid' && validityState !== 'valid') return false;
                 if (validityFilter === 'expired' && validityState !== 'expired') return false;
+                if (validityFilter === 'none' && validityState !== 'none') return false;
+
+                const hasUploadedCr = Boolean(c.crDocumentData);
+                if (fileFilter === 'uploaded' && !hasUploadedCr) return false;
+                if (fileFilter === 'not_provided' && hasUploadedCr) return false;
 
                 if (!term) return true;
 
@@ -918,7 +1177,7 @@
 
                 const fileDisplay = hasDoc
                     ? `<button type="button" onclick="viewCompanyCrDocument('${c.id}')" class="text-blue-400 hover:text-blue-300 underline font-semibold flex items-center space-x-1.5 rtl:space-x-reverse cursor-pointer"><i class="fa-solid fa-file-pdf text-amber-400"></i><span class="truncate max-w-[160px]">${c.crDocumentName || 'CR_Certificate'}</span></button>`
-                    : `<span class="text-gray-500 italic" data-en="Not uploaded" data-ar="غير مرفوع">Not uploaded</span>`;
+                    : `<span class="text-gray-500 italic" data-en="CR Not Uploaded" data-ar="السجل غير مرفوع">CR Not Uploaded</span>`;
 
                 const actionsHtml = hasDoc
                     ? `<div class="inline-flex items-center space-x-1.5 rtl:space-x-reverse">
@@ -926,14 +1185,24 @@
                            <i class="fa-solid fa-download"></i>
                            <span data-en="Download" data-ar="تحميل">Download</span>
                          </button>
+                         <button onclick="triggerAdminCrFileUpload('${c.id}')" title="Replace CR File" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 text-[11px] font-semibold transition cursor-pointer inline-flex items-center space-x-1 rtl:space-x-reverse">
+                           <i class="fa-solid fa-upload"></i>
+                           <span data-en="Replace" data-ar="استبدال">Replace</span>
+                         </button>
                          <button onclick="deleteCompanyCrDocument('${c.id}')" title="Delete CR File" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 text-[11px] font-semibold transition cursor-pointer inline-flex items-center space-x-1 rtl:space-x-reverse">
                            <i class="fa-solid fa-trash-can"></i>
                            <span data-en="Delete" data-ar="حذف">Delete</span>
                          </button>
                        </div>`
-                    : `<button onclick="closeCrCertificatesModal(); openAdminEditUserModal('${c.id}')" class="px-2.5 py-1 rounded-lg bg-blue-600/15 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-[11px] font-semibold transition cursor-pointer">
-                         <span data-en="Manage Account" data-ar="إدارة الحساب">Manage Account</span>
-                       </button>`;
+                    : `<div class="inline-flex items-center space-x-1.5 rtl:space-x-reverse">
+                         <button onclick="triggerAdminCrFileUpload('${c.id}')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 text-[11px] font-semibold transition cursor-pointer inline-flex items-center space-x-1 rtl:space-x-reverse">
+                           <i class="fa-solid fa-upload"></i>
+                           <span data-en="Upload CR" data-ar="رفع السجل">Upload CR</span>
+                         </button>
+                         <button onclick="closeCrCertificatesModal(); openAdminEditUserModal('${c.id}')" class="px-2.5 py-1 rounded-lg bg-blue-600/15 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-[11px] font-semibold transition cursor-pointer">
+                           <span data-en="Manage Account" data-ar="إدارة الحساب">Manage Account</span>
+                         </button>
+                       </div>`;
 
                 return `
                     <tr class="hover:bg-blue-600/5 transition">
@@ -1136,6 +1405,7 @@
         // ==========================================
         function toggleAdminActionsDropdown(event) {
             if (event) event.stopPropagation();
+            closeAdminAlertsDropdown();
             const dropdown = document.getElementById('admin-actions-dropdown');
             if (!dropdown) return;
             const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
@@ -1245,7 +1515,7 @@
                     isCompany ? (u.crNumber || '') : '',
                     isCompany ? (u.crValidity || '') : '',
                     validityLabel,
-                    isCompany ? (u.crDocumentData ? 'Yes' : 'No') : 'N/A',
+                    isCompany ? (u.crDocumentData ? 'Yes' : 'CR Not Uploaded') : 'N/A',
                     isCompany ? (u.crDocumentName || '') : '',
                     statusLabel,
                     presence.stateLabel,
@@ -1328,7 +1598,7 @@
                     c.crValidity || '',
                     validityLabel,
                     statusLabel,
-                    hasDoc ? 'Yes' : 'No',
+                    hasDoc ? 'Yes' : 'CR Not Uploaded',
                     c.crDocumentName || '',
                     c.email || '',
                     c.phone || '',
@@ -1415,7 +1685,7 @@
                     case 'name':
                         valA = `${a.firstName || ''} ${a.lastName || ''}`.trim().toLowerCase();
                         valB = `${b.firstName || ''} ${b.lastName || ''}`.trim().toLowerCase();
-                        break;
+                        return valA.localeCompare(valB, undefined, { sensitivity: 'base' }) * dir;
                     case 'type':
                         valA = (a.type || 'customer').toLowerCase();
                         valB = (b.type || 'customer').toLowerCase();
@@ -1458,16 +1728,19 @@
 
         function handleAdminColumnFilterChange() {
             const typeSelect = document.getElementById('admin-type-filter');
-            const statusSelect = document.getElementById('admin-status-filter');
+            const crFileSelect = document.getElementById('admin-cr-file-filter');
             const crValiditySelect = document.getElementById('admin-cr-validity-filter');
+            const statusSelect = document.getElementById('admin-status-filter');
             adminFilterType = typeSelect ? typeSelect.value : 'all';
-            adminFilterStatus = statusSelect ? statusSelect.value : 'all';
+            adminFilterCrFile = crFileSelect ? crFileSelect.value : 'all';
             adminFilterCrValidity = crValiditySelect ? crValiditySelect.value : 'all';
+            adminFilterStatus = statusSelect ? statusSelect.value : 'all';
             filterAdminUsersTable();
         }
 
         function getAdminDashboardHTML() {
             const companyCount = adminUsersCache.filter(u => u.type === 'company').length;
+            const { unverifiedCount, missingCrCount, expiredCrCount, totalAlerts } = getAdminAlertStats();
             return `
                 <div class="w-full flex flex-col gap-3 min-h-0">
                     <!-- Extended Top Monitor Banner -->
@@ -1488,73 +1761,142 @@
                             </div>
                         </div>
 
-                        <!-- Unified Admin Actions Dropdown Button with Left-Expanding Export Submenu -->
-                        <div class="relative self-end sm:self-auto" id="admin-actions-menu-container">
-                            <button onclick="toggleAdminActionsDropdown(event)" class="px-4 py-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 text-xs font-bold rounded-xl transition cursor-pointer flex items-center space-x-2 rtl:space-x-reverse shadow-sm">
-                                <i class="fa-solid fa-sliders"></i>
-                                <span data-en="Admin Actions" data-ar="إجراءات الإدارة">Admin Actions</span>
-                                <i class="fa-solid fa-chevron-down text-[10px] ms-0.5"></i>
-                            </button>
-
-                            <div id="admin-actions-dropdown" style="display: none;" class="absolute end-0 mt-2 w-60 custom-card border border-amber-500/40 rounded-xl shadow-2xl py-1.5 z-50 text-start">
-                                <!-- 1. CR Certificates -->
-                                <button onclick="openCrCertificatesModal()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-amber-500/15 hover:text-amber-400 transition flex items-center justify-between cursor-pointer">
-                                    <span class="flex items-center space-x-2.5 rtl:space-x-reverse">
-                                        <i class="fa-solid fa-file-contract text-amber-400 w-3.5 text-center"></i>
-                                        <span data-en="CR Certificates" data-ar="شهادات السجل">CR Certificates</span>
-                                    </span>
-                                    <span id="cr-btn-badge" class="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">${companyCount}</span>
+                        <!-- Right Banner Controls: Unified Admin Actions Dropdown FIRST, then Notification Bell Alert Button AFTER -->
+                        <div class="flex items-center space-x-2.5 rtl:space-x-reverse self-end sm:self-auto">
+                            <!-- Unified Admin Actions Dropdown Button with Left-Expanding Export Submenu -->
+                            <div class="relative" id="admin-actions-menu-container">
+                                <button onclick="toggleAdminActionsDropdown(event)" class="px-4 py-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/40 text-xs font-bold rounded-xl transition cursor-pointer flex items-center space-x-2 rtl:space-x-reverse shadow-sm">
+                                    <i class="fa-solid fa-sliders"></i>
+                                    <span data-en="Admin Actions" data-ar="إجراءات الإدارة">Admin Actions</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] ms-0.5"></i>
                                 </button>
 
-                                <div class="border-t border-blue-900/40 my-1"></div>
-
-                                <!-- 2. Expandable Export Data Trigger (Opens Additional List on the Left) -->
-                                <div class="relative">
-                                    <button type="button" id="admin-export-trigger-btn" onclick="toggleAdminExportSubmenu(event)" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center justify-between cursor-pointer font-semibold">
+                                <div id="admin-actions-dropdown" style="display: none;" class="absolute end-0 mt-2 w-60 custom-card border border-amber-500/40 rounded-xl shadow-2xl py-1.5 z-50 text-start">
+                                    <!-- 1. CR Certificates -->
+                                    <button onclick="openCrCertificatesModal()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-amber-500/15 hover:text-amber-400 transition flex items-center justify-between cursor-pointer">
                                         <span class="flex items-center space-x-2.5 rtl:space-x-reverse">
-                                            <i class="fa-solid fa-chevron-left rtl:rotate-180 text-[10px] text-emerald-400 w-3.5 text-center"></i>
-                                            <i class="fa-solid fa-file-export text-emerald-400 w-3.5 text-center"></i>
-                                            <span data-en="Export Data (CSV)" data-ar="تصدير البيانات (CSV)">Export Data (CSV)</span>
+                                            <i class="fa-solid fa-file-contract text-amber-400 w-3.5 text-center"></i>
+                                            <span data-en="CR Certificates" data-ar="شهادات السجل">CR Certificates</span>
                                         </span>
+                                        <span id="cr-btn-badge" class="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">${companyCount}</span>
                                     </button>
 
-                                    <!-- Left-Side Flyout List -->
-                                    <div id="admin-export-submenu" style="display: none;" class="sm:absolute sm:end-full sm:top-0 sm:me-1.5 mt-1 sm:mt-0 w-56 custom-card border border-emerald-500/40 rounded-xl shadow-2xl py-1.5 z-50 text-start">
-                                        <button onclick="handleExportAllAccounts()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer font-semibold">
-                                            <i class="fa-solid fa-address-book text-emerald-400 w-3.5 text-center"></i>
-                                            <span data-en="Export All Accounts" data-ar="تصدير جميع الحسابات">Export All Accounts</span>
+                                    <div class="border-t border-blue-900/40 my-1"></div>
+
+                                    <!-- 2. Expandable Export Data Trigger (Opens Additional List on the Left) -->
+                                    <div class="relative">
+                                        <button type="button" id="admin-export-trigger-btn" onclick="toggleAdminExportSubmenu(event)" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center justify-between cursor-pointer font-semibold">
+                                            <span class="flex items-center space-x-2.5 rtl:space-x-reverse">
+                                                <i class="fa-solid fa-chevron-left rtl:rotate-180 text-[10px] text-emerald-400 w-3.5 text-center"></i>
+                                                <i class="fa-solid fa-file-export text-emerald-400 w-3.5 text-center"></i>
+                                                <span data-en="Export Data (CSV)" data-ar="تصدير البيانات (CSV)">Export Data (CSV)</span>
+                                            </span>
                                         </button>
 
-                                        <button onclick="handleExportAllCRs()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
-                                            <i class="fa-solid fa-building-shield text-amber-400 w-3.5 text-center"></i>
-                                            <span data-en="Export All CRs" data-ar="تصدير جميع السجلات التجارية">Export All CRs</span>
+                                        <!-- Left-Side Flyout List -->
+                                        <div id="admin-export-submenu" style="display: none;" class="sm:absolute sm:end-full sm:top-0 sm:me-1.5 mt-1 sm:mt-0 w-56 custom-card border border-emerald-500/40 rounded-xl shadow-2xl py-1.5 z-50 text-start">
+                                            <button onclick="handleExportAllAccounts()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer font-semibold">
+                                                <i class="fa-solid fa-address-book text-emerald-400 w-3.5 text-center"></i>
+                                                <span data-en="Export All Accounts" data-ar="تصدير جميع الحسابات">Export All Accounts</span>
+                                            </button>
+
+                                            <button onclick="handleExportAllCRs()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                                                <i class="fa-solid fa-building-shield text-amber-400 w-3.5 text-center"></i>
+                                                <span data-en="Export All CRs" data-ar="تصدير جميع السجلات التجارية">Export All CRs</span>
+                                            </button>
+
+                                            <button onclick="handleExportListOfUsers()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                                                <i class="fa-solid fa-users text-blue-400 w-3.5 text-center"></i>
+                                                <span data-en="Export List of Users" data-ar="تصدير قائمة المستخدمين">Export List of Users</span>
+                                            </button>
+
+                                            <button onclick="handleExportListOfSpareParts()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                                                <i class="fa-solid fa-gears text-cyan-400 w-3.5 text-center"></i>
+                                                <span data-en="Export Spare Parts" data-ar="تصدير قائمة قطع الغيار">Export Spare Parts</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="border-t border-blue-900/40 my-1"></div>
+
+                                    <!-- 3. Sync Firestore -->
+                                    <button onclick="closeAdminActionsDropdown(); refreshAdminData();" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-blue-600/20 hover:text-blue-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
+                                        <i class="fa-solid fa-rotate text-blue-400 w-3.5 text-center"></i>
+                                        <span data-en="Sync Firestore" data-ar="تحديث البيانات">Sync Firestore</span>
+                                    </button>
+
+                                    <!-- 4. Exit Admin -->
+                                    <button onclick="handleAdminLogout()" class="w-full text-start px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/15 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer font-semibold">
+                                        <i class="fa-solid fa-right-from-bracket w-3.5 text-center"></i>
+                                        <span data-en="Exit Admin" data-ar="خروج الإدارة">Exit Admin</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Notification Bell Alert Button & Dropdown (Placed AFTER Admin Actions) -->
+                            <div class="relative" id="admin-alerts-menu-container">
+                                <button type="button" onclick="toggleAdminAlertsDropdown(event)" id="admin-bell-btn" title="Alerts" aria-label="Alerts" class="relative w-9 h-9 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 flex items-center justify-center text-xs transition cursor-pointer shadow-sm">
+                                    <i id="admin-bell-icon" class="fa-solid fa-bell ${totalAlerts > 0 ? 'text-amber-400' : 'text-gray-300'} text-sm"></i>
+                                    <span id="admin-bell-badge" class="absolute -top-1.5 -end-1.5 min-w-[18px] h-[18px] px-1 rounded-full ${totalAlerts > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-gray-200'} text-[10px] font-extrabold flex items-center justify-center shadow">${totalAlerts}</span>
+                                </button>
+
+                                <!-- Notification Alerts Popover -->
+                                <div id="admin-alerts-dropdown" style="display: none;" class="absolute end-0 mt-2 w-72 sm:w-80 custom-card border border-amber-500/40 rounded-xl shadow-2xl py-2 z-50 text-start">
+                                    <div class="px-3.5 py-2 border-b border-blue-900/40 flex items-center justify-between gap-2">
+                                        <span class="text-xs font-extrabold text-amber-400 flex items-center space-x-1.5 rtl:space-x-reverse">
+                                            <i class="fa-solid fa-bell"></i>
+                                            <span data-en="Alerts" data-ar="التنبيهات">Alerts</span>
+                                        </span>
+                                        <button type="button" onclick="clearAdminTableFilters()" class="px-2 py-0.5 rounded-md bg-blue-600/15 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-[10px] font-bold transition cursor-pointer inline-flex items-center space-x-1 rtl:space-x-reverse">
+                                            <i class="fa-solid fa-filter-circle-xmark text-[9px]"></i>
+                                            <span data-en="Clear Filter" data-ar="مسح التصفية">Clear Filter</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="divide-y divide-blue-900/30">
+                                        <!-- Alert 1: Unverified Accounts -->
+                                        <button type="button" onclick="applyAdminAlertQuickFilter('unverified')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-amber-500/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                                            <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
+                                                <span class="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-user-clock text-[11px]"></i>
+                                                </span>
+                                                <div class="min-w-0">
+                                                    <div class="font-bold text-gray-200 truncate" data-en="Accounts Not Verified Yet" data-ar="حسابات غير موثقة بعد">Accounts Not Verified Yet</div>
+                                                    <div class="text-[10px] text-gray-400 truncate" data-en="Pending admin verification" data-ar="بانتظار توثيق الإدارة">Pending admin verification</div>
+                                                </div>
+                                            </div>
+                                            <span id="alert-count-unverified" class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-black shrink-0">${unverifiedCount}</span>
                                         </button>
 
-                                        <button onclick="handleExportListOfUsers()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
-                                            <i class="fa-solid fa-users text-blue-400 w-3.5 text-center"></i>
-                                            <span data-en="Export List of Users" data-ar="تصدير قائمة المستخدمين">Export List of Users</span>
+                                        <!-- Alert 2: Companies Missing CR Upload -->
+                                        <button type="button" onclick="applyAdminAlertQuickFilter('missing_cr')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-blue-600/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                                            <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
+                                                <span class="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-file-circle-exclamation text-[11px]"></i>
+                                                </span>
+                                                <div class="min-w-0">
+                                                    <div class="font-bold text-gray-200 truncate" data-en="Companies Without CR File" data-ar="شركات لم ترفع السجل التجاري">Companies Without CR File</div>
+                                                    <div class="text-[10px] text-gray-400 truncate" data-en="CR Not Uploaded" data-ar="السجل غير مرفوع">CR Not Uploaded</div>
+                                                </div>
+                                            </div>
+                                            <span id="alert-count-missing-cr" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/40 text-xs font-black shrink-0">${missingCrCount}</span>
                                         </button>
 
-                                        <button onclick="handleExportListOfSpareParts()" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-emerald-600/20 hover:text-emerald-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
-                                            <i class="fa-solid fa-gears text-cyan-400 w-3.5 text-center"></i>
-                                            <span data-en="Export Spare Parts" data-ar="تصدير قائمة قطع الغيار">Export Spare Parts</span>
+                                        <!-- Alert 3: Companies with Expired CRs -->
+                                        <button type="button" onclick="applyAdminAlertQuickFilter('expired_cr')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-red-500/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                                            <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
+                                                <span class="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-calendar-xmark text-[11px]"></i>
+                                                </span>
+                                                <div class="min-w-0">
+                                                    <div class="font-bold text-gray-200 truncate" data-en="Companies With Expired CR" data-ar="شركات سجلها التجاري منتهي">Companies With Expired CR</div>
+                                                    <div class="text-[10px] text-gray-400 truncate" data-en="CR validity date has passed" data-ar="انتهت صلاحية السجل التجاري">CR validity date has passed</div>
+                                                </div>
+                                            </div>
+                                            <span id="alert-count-expired" class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-black shrink-0">${expiredCrCount}</span>
                                         </button>
                                     </div>
                                 </div>
-
-                                <div class="border-t border-blue-900/40 my-1"></div>
-
-                                <!-- 3. Sync Firestore -->
-                                <button onclick="closeAdminActionsDropdown(); refreshAdminData();" class="dropdown-normal-item w-full text-start px-3.5 py-2 text-xs text-gray-200 hover:bg-blue-600/20 hover:text-blue-400 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer">
-                                    <i class="fa-solid fa-rotate text-blue-400 w-3.5 text-center"></i>
-                                    <span data-en="Sync Firestore" data-ar="تحديث البيانات">Sync Firestore</span>
-                                </button>
-
-                                <!-- 4. Exit Admin -->
-                                <button onclick="handleAdminLogout()" class="w-full text-start px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/15 transition flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer font-semibold">
-                                    <i class="fa-solid fa-right-from-bracket w-3.5 text-center"></i>
-                                    <span data-en="Exit Admin" data-ar="خروج الإدارة">Exit Admin</span>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -1682,12 +2024,12 @@
 
                     <!-- Extended Full-Height Split Panels -->
                     <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[300px]">
-                        <!-- Registered Platform Accounts Table (8 cols) -->
+                        <!-- Registered Accounts Table (8 cols) -->
                         <div class="lg:col-span-8 custom-card border rounded-2xl p-4 flex flex-col min-h-[280px] overflow-hidden">
                             <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-2 border-b border-blue-900/40 pb-3 shrink-0">
                                 <h2 class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center space-x-2 rtl:space-x-reverse shrink-0">
                                     <i class="fa-solid fa-database"></i>
-                                    <span data-en="Registered Platform Accounts" data-ar="حسابات المنصة المسجلة">Registered Platform Accounts</span>
+                                    <span data-en="Registered Accounts" data-ar="الحسابات المسجلة">Registered Accounts</span>
                                 </h2>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <!-- Filter by Account Type -->
@@ -1697,6 +2039,21 @@
                                         <option value="company" ${adminFilterType === 'company' ? 'selected' : ''} data-en="Companies" data-ar="الشركات">Companies</option>
                                     </select>
 
+                                    <!-- Filter by CR File Upload State (Immediately AFTER Type Filter) -->
+                                    <select id="admin-cr-file-filter" onchange="handleAdminColumnFilterChange()" aria-label="Filter CR File Status" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-blue-500 cursor-pointer">
+                                        <option value="all" ${adminFilterCrFile === 'all' ? 'selected' : ''} data-en="CR: All" data-ar="السجل: الكل">CR: All</option>
+                                        <option value="uploaded" ${adminFilterCrFile === 'uploaded' ? 'selected' : ''} data-en="CR Uploaded" data-ar="تم رفع السجل">CR Uploaded</option>
+                                        <option value="not_provided" ${adminFilterCrFile === 'not_provided' ? 'selected' : ''} data-en="CR Not Uploaded" data-ar="السجل غير مرفوع">CR Not Uploaded</option>
+                                    </select>
+
+                                    <!-- Filter by CR Validity -->
+                                    <select id="admin-cr-validity-filter" onchange="handleAdminColumnFilterChange()" aria-label="Filter CR Validity" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-blue-500 cursor-pointer">
+                                        <option value="all" ${adminFilterCrValidity === 'all' ? 'selected' : ''} data-en="CR Validity: All" data-ar="صلاحية السجل: الكل">CR Validity: All</option>
+                                        <option value="valid" ${adminFilterCrValidity === 'valid' ? 'selected' : ''} data-en="Valid" data-ar="ساري المفعول">Valid</option>
+                                        <option value="expired" ${adminFilterCrValidity === 'expired' ? 'selected' : ''} data-en="Expired" data-ar="منتهي الصلاحية">Expired</option>
+                                        <option value="none" ${adminFilterCrValidity === 'none' ? 'selected' : ''} data-en="Not Set" data-ar="غير محدد">Not Set</option>
+                                    </select>
+
                                     <!-- Filter by Account Status -->
                                     <select id="admin-status-filter" onchange="handleAdminColumnFilterChange()" aria-label="Filter Account Status" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-blue-500 cursor-pointer">
                                         <option value="all" ${adminFilterStatus === 'all' ? 'selected' : ''} data-en="Status: All" data-ar="الحالة: الكل">Status: All</option>
@@ -1704,15 +2061,8 @@
                                         <option value="pending" ${adminFilterStatus === 'pending' ? 'selected' : ''} data-en="Pending Verification" data-ar="بانتظار التوثيق">Pending Verification</option>
                                     </select>
 
-                                    <!-- Filter by CR Validity (Expired, Valid) -->
-                                    <select id="admin-cr-validity-filter" onchange="handleAdminColumnFilterChange()" aria-label="Filter CR Validity" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-blue-500 cursor-pointer">
-                                        <option value="all" ${adminFilterCrValidity === 'all' ? 'selected' : ''} data-en="CR Validity: All" data-ar="صلاحية السجل: الكل">CR Validity: All</option>
-                                        <option value="valid" ${adminFilterCrValidity === 'valid' ? 'selected' : ''} data-en="Valid" data-ar="ساري المفعول">Valid</option>
-                                        <option value="expired" ${adminFilterCrValidity === 'expired' ? 'selected' : ''} data-en="Expired" data-ar="منتهي الصلاحية">Expired</option>
-                                    </select>
-
                                     <!-- Text Search Filter -->
-                                    <input type="text" id="admin-user-filter" onkeyup="filterAdminUsersTable()" placeholder="Search name, email, phone, CR #..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-48 focus:outline-none focus:border-blue-500">
+                                    <input type="text" id="admin-user-filter" onkeyup="filterAdminUsersTable()" placeholder="Search name, email, phone, CR #..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-44 focus:outline-none focus:border-blue-500">
                                 </div>
                             </div>
 
@@ -1784,6 +2134,7 @@
             applyTranslations();
             renderActiveUsersFeed();
             updateAdminPartsKPIs();
+            updateAdminAlertsUI();
             await refreshAdminData();
             if (isAdminChartsVisible) {
                 renderAdminPieCharts();
@@ -1859,6 +2210,7 @@
 
                 updateAdminKPIs();
                 updateAdminPartsKPIs();
+                updateAdminAlertsUI();
                 filterAdminUsersTable();
                 renderActiveUsersFeed();
                 if (isAdminChartsVisible) {
@@ -1911,18 +2263,31 @@
                     : 'bg-blue-500/15 text-blue-400 border-blue-500/30';
                 const typeLabel = isCompany ? 'Company' : 'Customer';
 
-                // Dedicated CR column (external-tab icon removed)
+                // Dedicated CR column with fixed-width two-slot layout so Replace/Upload buttons align vertically across every row
                 let crCell = `<span class="text-gray-600 text-[11px]"></span>`;
                 if (isCompany) {
+                    const uploadBtnTitle = u.crDocumentData
+                        ? (currentLang === 'ar' ? 'استبدال ملف السجل التجاري' : 'Replace CR File')
+                        : (currentLang === 'ar' ? 'رفع ملف السجل التجاري' : 'Upload CR File');
+                    const uploadBtnHtml = `
+                        <button type="button" onclick="triggerAdminCrFileUpload('${u.id}')" title="${uploadBtnTitle}" class="w-[74px] justify-center px-1.5 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer inline-flex items-center space-x-1 rtl:space-x-reverse shrink-0">
+                            <i class="fa-solid fa-upload text-[9px]"></i>
+                            <span data-en="${u.crDocumentData ? 'Replace' : 'Upload'}" data-ar="${u.crDocumentData ? 'استبدال' : 'رفع'}">${u.crDocumentData ? 'Replace' : 'Upload'}</span>
+                        </button>`;
+
+                    let crNumberSlot = `<span class="w-[78px] shrink-0"></span>`;
                     if (u.crDocumentData) {
-                        crCell = `<button type="button" onclick="viewCompanyCrDocument('${u.id}')" title="Click to view CR certificate" class="font-mono text-[11px] text-amber-400 hover:text-amber-300 underline decoration-amber-400/60 underline-offset-2 font-semibold cursor-pointer">
+                        crNumberSlot = `<button type="button" onclick="viewCompanyCrDocument('${u.id}')" title="Click to view CR certificate (${u.crDocumentName || 'CR File'})" class="w-[78px] text-start truncate font-mono text-[11px] text-amber-400 hover:text-amber-300 underline decoration-amber-400/60 underline-offset-2 font-semibold cursor-pointer shrink-0">
                             ${u.crNumber || 'View CR'}
                         </button>`;
                     } else if (u.crNumber) {
-                        crCell = `<span class="font-mono text-[11px] text-amber-400 font-semibold">${u.crNumber}</span>`;
-                    } else {
-                        crCell = `<span class="text-[10px] text-gray-500 italic">No CR #</span>`;
+                        crNumberSlot = `<span class="w-[78px] text-start truncate font-mono text-[11px] text-amber-400 font-semibold shrink-0">${u.crNumber}</span>`;
                     }
+
+                    crCell = `<div class="w-[158px] flex items-center justify-between gap-1.5">
+                        ${crNumberSlot}
+                        ${uploadBtnHtml}
+                    </div>`;
                 }
 
                 // CR Validity column: red if expired, green if valid
@@ -2035,11 +2400,15 @@
             if (docInfo) {
                 if (userObj.crDocumentData) {
                     docInfo.innerHTML = `
-                        <button type="button" onclick="viewCompanyCrDocument('${userObj.id}')" class="underline hover:text-blue-300 cursor-pointer truncate max-w-[160px]"><i class="fa-solid fa-file-check mr-1"></i>${userObj.crDocumentName || 'View CR Copy'}</button>
+                        <button type="button" onclick="viewCompanyCrDocument('${userObj.id}')" class="underline hover:text-blue-300 cursor-pointer truncate max-w-[130px]"><i class="fa-solid fa-file-check mr-1"></i>${userObj.crDocumentName || 'View CR Copy'}</button>
+                        <button type="button" onclick="triggerAdminCrFileUpload('${userObj.id}')" title="Replace CR Copy" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer shrink-0"><i class="fa-solid fa-upload mr-1"></i>Replace</button>
                         <button type="button" onclick="deleteCompanyCrDocument('${userObj.id}')" title="Delete CR Copy" class="px-2 py-0.5 rounded bg-red-500/15 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 text-[10px] font-semibold transition cursor-pointer shrink-0"><i class="fa-solid fa-trash-can mr-1"></i>Delete CR</button>
                     `;
                 } else {
-                    docInfo.innerText = userObj.crDocumentName || 'Not uploaded';
+                    docInfo.innerHTML = `
+                        <span class="text-gray-400 text-[10px] italic">CR Not Uploaded</span>
+                        <button type="button" onclick="triggerAdminCrFileUpload('${userObj.id}')" title="Upload CR Copy" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-950 border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer shrink-0"><i class="fa-solid fa-upload mr-1"></i>Upload CR</button>
+                    `;
                 }
             }
 
@@ -2105,6 +2474,7 @@
                 }
 
                 updateAdminKPIs();
+                updateAdminAlertsUI();
                 filterAdminUsersTable();
                 renderActiveUsersFeed();
                 if (isAdminChartsVisible) renderAdminPieCharts();
@@ -2131,6 +2501,7 @@
                 adminUsersCache = adminUsersCache.filter(u => u.id !== userId);
 
                 updateAdminKPIs();
+                updateAdminAlertsUI();
                 filterAdminUsersTable();
                 renderActiveUsersFeed();
                 if (isAdminChartsVisible) renderAdminPieCharts();
@@ -2145,13 +2516,29 @@
         function filterAdminUsersTable() {
             const term = (document.getElementById('admin-user-filter')?.value || '').toLowerCase();
             const typeFilter = document.getElementById('admin-type-filter')?.value || adminFilterType;
-            const statusFilter = document.getElementById('admin-status-filter')?.value || adminFilterStatus;
+            const crFileFilter = document.getElementById('admin-cr-file-filter')?.value || adminFilterCrFile;
             const crValidityFilter = document.getElementById('admin-cr-validity-filter')?.value || adminFilterCrValidity;
+            const statusFilter = document.getElementById('admin-status-filter')?.value || adminFilterStatus;
 
             const filtered = adminUsersCache.filter(u => {
                 const userType = u.type === 'company' ? 'company' : 'customer';
                 if (typeFilter !== 'all' && userType !== typeFilter) {
                     return false;
+                }
+
+                if (crFileFilter !== 'all') {
+                    if (userType !== 'company') return false;
+                    const hasUploadedCr = Boolean(u.crDocumentData);
+                    if (crFileFilter === 'uploaded' && !hasUploadedCr) return false;
+                    if (crFileFilter === 'not_provided' && hasUploadedCr) return false;
+                }
+
+                if (crValidityFilter !== 'all') {
+                    if (userType !== 'company') return false;
+                    const validityState = getCrValidityState(u.crValidity);
+                    if (crValidityFilter === 'valid' && validityState !== 'valid') return false;
+                    if (crValidityFilter === 'expired' && validityState !== 'expired') return false;
+                    if (crValidityFilter === 'none' && validityState !== 'none') return false;
                 }
 
                 const verified = isUserVerified(u);
@@ -2160,13 +2547,6 @@
                 }
                 if (statusFilter === 'pending' && verified) {
                     return false;
-                }
-
-                if (crValidityFilter !== 'all') {
-                    if (userType !== 'company') return false;
-                    const validityState = getCrValidityState(u.crValidity);
-                    if (crValidityFilter === 'valid' && validityState !== 'valid') return false;
-                    if (crValidityFilter === 'expired' && validityState !== 'expired') return false;
                 }
 
                 if (!term) return true;
@@ -2251,19 +2631,19 @@
                 const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User';
                 const isCompany = user.type === 'company';
                 const typeBadge = isCompany
-                    ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 text-[9px] font-bold">Company</span>`
-                    : `<span class="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 text-[9px] font-bold">Customer</span>`;
+                    ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[9px] font-bold">Company</span>`
+                    : `<span class="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[9px] font-bold">Customer</span>`;
 
                 const dotClass = presence.isOnlineNow
-                    ? 'bg-emerald-400 animate-ping'
-                    : (presence.isRecentlyActive ? 'bg-amber-400' : 'bg-gray-500');
+                    ? 'bg-emerald-500 animate-ping'
+                    : (presence.isRecentlyActive ? 'bg-amber-500' : 'bg-gray-500');
                 const staticDotClass = presence.isOnlineNow
-                    ? 'bg-emerald-400'
-                    : (presence.isRecentlyActive ? 'bg-amber-400' : 'bg-gray-500');
+                    ? 'bg-emerald-500'
+                    : (presence.isRecentlyActive ? 'bg-amber-500' : 'bg-gray-500');
 
                 const statusTextClass = presence.isOnlineNow
                     ? 'text-emerald-400 font-semibold'
-                    : (presence.isRecentlyActive ? 'text-amber-400' : 'text-gray-400');
+                    : (presence.isRecentlyActive ? 'text-amber-400 font-semibold' : 'text-gray-400');
 
                 const activityNote = user.lastActivity || (isCompany ? 'B2B Supplier Portal' : 'Marketplace Session');
 
@@ -2614,10 +2994,10 @@
                     <div class="space-y-2">
                         <h3 class="font-bold text-white" data-en="2. Frequently Asked Questions (FAQ)" data-ar="2. الأسئلة الشائعة (FAQ)">2. Frequently Asked Questions (FAQ)</h3>
                         <p data-en="• How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts." data-ar="• كيف أجد قطعة باستخدام رقم الهيكل (VIN)؟ أدخل رقم هيكل سيارتك المكون من 17 خانة في مربع البحث في الصفحة الرئيسية لتصفية القطع الأصلية وقطع OEM والبديلة المتوافقة تلقائياً.">
-• How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts.
+- How do I find a part using my VIN? Enter your vehicle's 17-digit Chassis Number (VIN) into the search box on the homepage to automatically filter compatible genuine, OEM, and aftermarket parts.
                         </p>
                         <p data-en="• What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops (requires Commercial Registration Number & copy). Customer Accounts are for retail car owners and DIY enthusiasts." data-ar="• ما الفرق بين حساب الشركة وحساب العميل؟ حسابات الشركات مخصصة للمستوردين وتجار الجملة والورشات المحترفة (يتطلب رقم السجل التجاري ونسخة منه). حسابات العملاء مخصصة لمالكي السيارات الأفراد وهواة الصيانة.">
-• What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops (requires Commercial Registration Number & copy). Customer Accounts are for retail car owners and DIY enthusiasts.
+- What is the difference between Company and Customer accounts? Company Accounts are for B2B importers, wholesalers, and professional workshops (requires Commercial Registration Number & copy). Customer Accounts are for retail car owners and DIY enthusiasts.
                         </p>
                     </div>
 
@@ -2877,6 +3257,10 @@
             const adminActionsContainer = document.getElementById('admin-actions-menu-container');
             if (adminActionsContainer && !adminActionsContainer.contains(event.target)) {
                 closeAdminActionsDropdown();
+            }
+            const adminAlertsContainer = document.getElementById('admin-alerts-menu-container');
+            if (adminAlertsContainer && !adminAlertsContainer.contains(event.target)) {
+                closeAdminAlertsDropdown();
             }
         });
 
@@ -3359,25 +3743,29 @@
                 }
 
                 await updateUserPresenceHeartbeat(user.uid, true, 'Signed In');
-                alert('Successfully signed in!');
+
                 closeAuthModal();
                 showCustomerDashboard();
             } catch (error) {
-                alert('Invalid email or password.');
+                alert("Sign In Error: Invalid email or password.");
             }
         }
 
-        function closeAuthModal() { document.getElementById('auth-modal-overlay').style.display = 'none'; }
+        function closeAuthModal() {
+            const overlay = document.getElementById('auth-modal-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
         function toggleCategoryGrid() {
             isGridVisible = !isGridVisible;
-            const gridContainer = document.getElementById('categories-grid-container');
-            const toggleIcon = document.getElementById('grid-toggle-icon');
+            const container = document.getElementById('categories-grid-container');
+            const icon = document.getElementById('grid-toggle-icon');
             if (isGridVisible) {
-                gridContainer.classList.remove('hidden'); gridContainer.classList.add('grid');
-                toggleIcon.className = 'fa-solid fa-chevron-up text-blue-400 text-[10px]';
+                container.classList.remove('hidden'); container.classList.add('grid');
+                icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-up');
             } else {
-                gridContainer.classList.remove('grid'); gridContainer.classList.add('hidden');
-                toggleIcon.className = 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
+                container.classList.add('hidden'); container.classList.remove('grid');
+                icon.classList.remove('fa-chevron-up'); icon.classList.add('fa-chevron-down');
             }
         }
 
@@ -3386,55 +3774,55 @@
             const themeIcon = document.getElementById('theme-icon');
             if (body.classList.contains('dark')) {
                 body.classList.remove('dark'); body.classList.add('light');
-                if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+                themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun');
             } else {
                 body.classList.remove('light'); body.classList.add('dark');
-                if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+                themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon');
             }
             if (currentView === 'admin-dashboard' && isAdminChartsVisible) {
                 renderAdminPieCharts();
             }
         }
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            const htmlTag = document.documentElement;
+        function applyTranslations() {
             const langBtn = document.getElementById('lang-btn');
+            const htmlTag = document.documentElement;
             if (currentLang === 'ar') {
-                htmlTag.setAttribute('dir', 'rtl'); htmlTag.setAttribute('lang', 'ar');
-                if (langBtn) langBtn.innerText = 'العربية';
+                htmlTag.setAttribute('lang', 'ar'); htmlTag.setAttribute('dir', 'rtl');
+                langBtn.innerText = 'English';
+                document.querySelectorAll('[data-ar]').forEach(el => el.innerText = el.getAttribute('data-ar'));
             } else {
-                htmlTag.setAttribute('dir', 'ltr'); htmlTag.setAttribute('lang', 'en');
-                if (langBtn) langBtn.innerText = 'English';
+                htmlTag.setAttribute('lang', 'en'); htmlTag.setAttribute('dir', 'ltr');
+                langBtn.innerText = 'العربية';
+                document.querySelectorAll('[data-en]').forEach(el => el.innerText = el.getAttribute('data-en'));
             }
+        }
+
+        function toggleLanguage() {
+            currentLang = (currentLang === 'en') ? 'ar' : 'en';
             applyTranslations();
+            if (currentView === 'home') renderSearchPane();
             if (currentView === 'admin-dashboard') {
+                updateAdminAlertsUI();
+                filterAdminUsersTable();
                 renderActiveUsersFeed();
                 if (isAdminChartsVisible) renderAdminPieCharts();
             }
         }
 
-        function applyTranslations() {
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.placeholder = currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)';
-            }
-            document.querySelectorAll('[data-en]').forEach(el => {
-                const translation = el.getAttribute(`data-${currentLang}`);
-                if (translation) { el.innerText = translation; }
-            });
-        }
-
-        function updateDateTime() {
+        function updateAmmanDateTime() {
             const now = new Date();
-            const locale = currentLang === 'ar' ? 'ar-JO' : 'en-US';
-            document.getElementById('header-date').innerText = now.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-            document.getElementById('header-time').innerText = now.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true });
+            const dateStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Amman', weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Amman', hour: '2-digit', minute: '2-digit', hour12: true });
+            const dateEl = document.getElementById('header-date');
+            const timeEl = document.getElementById('header-time');
+            if (dateEl) dateEl.innerText = dateStr;
+            if (timeEl) timeEl.innerText = timeStr;
         }
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
 
         showHomeView();
+        updateAmmanDateTime();
+        setInterval(updateAmmanDateTime, 1000);
     </script>
 </body>
 </html>
