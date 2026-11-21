@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.2.14</title>
+    <title>Spare.jo - Find & Compare V6.2.16</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for Admin Analytics Pie Charts -->
@@ -192,10 +192,10 @@
         </div>
 
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
-            <!-- Admin Login / Monitor Button (Next to Theme Button) -->
-            <button onclick="handleAdminButtonAction()" id="admin-header-btn" title="Admin Portal" aria-label="Admin Portal" class="header-action-btn h-9 md:h-8 px-2.5 rounded-lg border flex items-center justify-center space-x-1.5 rtl:space-x-reverse text-xs transition cursor-pointer shadow-sm font-semibold">
+            <!-- Admin Panel Button (Consistent across all pages) -->
+            <button onclick="handleAdminButtonAction()" id="admin-header-btn" title="Admin Panel" aria-label="Admin Panel" class="header-action-btn h-9 md:h-8 px-2.5 rounded-lg border flex items-center justify-center space-x-1.5 rtl:space-x-reverse text-xs transition cursor-pointer shadow-sm font-semibold">
                 <i class="fa-solid fa-shield-halved text-amber-400"></i>
-                <span class="hidden sm:inline text-[11px]" id="admin-btn-label" data-en="Admin" data-ar="الإدارة">Admin</span>
+                <span class="hidden sm:inline text-[11px]" id="admin-btn-label" data-en="Admin Panel" data-ar="لوحة الإدارة">Admin Panel</span>
             </button>
 
             <!-- Light / Dark Theme Toggle -->
@@ -691,14 +691,81 @@
             };
         }
 
-        function updateAdminAlertsUI() {
+        function renderAdminAlertsListHTML() {
             const { unverifiedCount, missingCrCount, expiredCrCount, totalAlerts } = getAdminAlertStats();
+
+            if (totalAlerts === 0) {
+                return `
+                    <div class="px-4 py-5 text-center space-y-1">
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                        <div class="text-xs font-semibold text-gray-300" data-en="No active alerts" data-ar="لا توجد تنبيهات نشطة">No active alerts</div>
+                        <div class="text-[10px] text-gray-400" data-en="All accounts and company CRs are up to date." data-ar="جميع الحسابات والسجلات التجارية محدثة.">All accounts and company CRs are up to date.</div>
+                    </div>
+                `;
+            }
+
+            let itemsHTML = '';
+
+            if (unverifiedCount > 0) {
+                itemsHTML += `
+                    <button type="button" onclick="applyAdminAlertQuickFilter('unverified')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-amber-500/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                        <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
+                            <span class="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-user-clock text-[11px]"></i>
+                            </span>
+                            <div class="min-w-0">
+                                <div class="font-bold text-gray-200 truncate" data-en="Accounts Not Verified Yet" data-ar="حسابات غير موثقة بعد">Accounts Not Verified Yet</div>
+                                <div class="text-[10px] text-gray-400 truncate" data-en="Pending admin verification" data-ar="بانتظار توثيق الإدارة">Pending admin verification</div>
+                            </div>
+                        </div>
+                        <span id="alert-count-unverified" class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-black shrink-0">${unverifiedCount}</span>
+                    </button>
+                `;
+            }
+
+            if (missingCrCount > 0) {
+                itemsHTML += `
+                    <button type="button" onclick="applyAdminAlertQuickFilter('missing_cr')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-blue-600/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                        <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
+                            <span class="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-file-circle-exclamation text-[11px]"></i>
+                            </span>
+                            <div class="min-w-0">
+                                <div class="font-bold text-gray-200 truncate" data-en="Companies Without CR File" data-ar="شركات لم ترفع السجل التجاري">Companies Without CR File</div>
+                                <div class="text-[10px] text-gray-400 truncate" data-en="CR Not Uploaded" data-ar="السجل غير مرفوع">CR Not Uploaded</div>
+                            </div>
+                        </div>
+                        <span id="alert-count-missing-cr" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/40 text-xs font-black shrink-0">${missingCrCount}</span>
+                    </button>
+                `;
+            }
+
+            if (expiredCrCount > 0) {
+                itemsHTML += `
+                    <button type="button" onclick="applyAdminAlertQuickFilter('expired_cr')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-red-500/10 transition flex items-center justify-between gap-2 cursor-pointer">
+                        <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
+                            <span class="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-calendar-xmark text-[11px]"></i>
+                            </span>
+                            <div class="min-w-0">
+                                <div class="font-bold text-gray-200 truncate" data-en="Companies With Expired CR" data-ar="شركات سجلها التجاري منتهي">Companies With Expired CR</div>
+                                <div class="text-[10px] text-gray-400 truncate" data-en="CR validity date has passed" data-ar="انتهت صلاحية السجل التجاري">CR validity date has passed</div>
+                            </div>
+                        </div>
+                        <span id="alert-count-expired" class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-black shrink-0">${expiredCrCount}</span>
+                    </button>
+                `;
+            }
+
+            return itemsHTML;
+        }
+
+        function updateAdminAlertsUI() {
+            const { totalAlerts } = getAdminAlertStats();
 
             const badgeEl = document.getElementById('admin-bell-badge');
             const bellIconEl = document.getElementById('admin-bell-icon');
-            const unverifiedEl = document.getElementById('alert-count-unverified');
-            const missingCrEl = document.getElementById('alert-count-missing-cr');
-            const expiredCrEl = document.getElementById('alert-count-expired');
+            const listContainerEl = document.getElementById('admin-alerts-list-container');
 
             if (badgeEl) {
                 badgeEl.innerText = totalAlerts;
@@ -714,14 +781,17 @@
             if (bellIconEl) {
                 if (totalAlerts > 0) {
                     bellIconEl.classList.add('text-amber-400');
+                    bellIconEl.classList.remove('text-gray-300');
                 } else {
                     bellIconEl.classList.remove('text-amber-400');
+                    bellIconEl.classList.add('text-gray-300');
                 }
             }
 
-            if (unverifiedEl) unverifiedEl.innerText = unverifiedCount;
-            if (missingCrEl) missingCrEl.innerText = missingCrCount;
-            if (expiredCrEl) expiredCrEl.innerText = expiredCrCount;
+            if (listContainerEl) {
+                listContainerEl.innerHTML = renderAdminAlertsListHTML();
+                applyTranslations();
+            }
         }
 
         function toggleAdminAlertsDropdown(event) {
@@ -812,13 +882,11 @@
 
             if (isAdminAuthenticated) {
                 adminBtn.classList.add('border-amber-500', 'bg-amber-500/20');
-                adminLabel.setAttribute('data-en', 'Admin Panel');
-                adminLabel.setAttribute('data-ar', 'لوحة الإدارة');
             } else {
                 adminBtn.classList.remove('border-amber-500', 'bg-amber-500/20');
-                adminLabel.setAttribute('data-en', 'Admin');
-                adminLabel.setAttribute('data-ar', 'الإدارة');
             }
+            adminLabel.setAttribute('data-en', 'Admin Panel');
+            adminLabel.setAttribute('data-ar', 'لوحة الإدارة');
             applyTranslations();
         }
 
@@ -1740,7 +1808,7 @@
 
         function getAdminDashboardHTML() {
             const companyCount = adminUsersCache.filter(u => u.type === 'company').length;
-            const { unverifiedCount, missingCrCount, expiredCrCount, totalAlerts } = getAdminAlertStats();
+            const { totalAlerts } = getAdminAlertStats();
             return `
                 <div class="w-full flex flex-col gap-3 min-h-0">
                     <!-- Extended Top Monitor Banner -->
@@ -1853,48 +1921,8 @@
                                         </button>
                                     </div>
 
-                                    <div class="divide-y divide-blue-900/30">
-                                        <!-- Alert 1: Unverified Accounts -->
-                                        <button type="button" onclick="applyAdminAlertQuickFilter('unverified')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-amber-500/10 transition flex items-center justify-between gap-2 cursor-pointer">
-                                            <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
-                                                <span class="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
-                                                    <i class="fa-solid fa-user-clock text-[11px]"></i>
-                                                </span>
-                                                <div class="min-w-0">
-                                                    <div class="font-bold text-gray-200 truncate" data-en="Accounts Not Verified Yet" data-ar="حسابات غير موثقة بعد">Accounts Not Verified Yet</div>
-                                                    <div class="text-[10px] text-gray-400 truncate" data-en="Pending admin verification" data-ar="بانتظار توثيق الإدارة">Pending admin verification</div>
-                                                </div>
-                                            </div>
-                                            <span id="alert-count-unverified" class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-black shrink-0">${unverifiedCount}</span>
-                                        </button>
-
-                                        <!-- Alert 2: Companies Missing CR Upload -->
-                                        <button type="button" onclick="applyAdminAlertQuickFilter('missing_cr')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-blue-600/10 transition flex items-center justify-between gap-2 cursor-pointer">
-                                            <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
-                                                <span class="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
-                                                    <i class="fa-solid fa-file-circle-exclamation text-[11px]"></i>
-                                                </span>
-                                                <div class="min-w-0">
-                                                    <div class="font-bold text-gray-200 truncate" data-en="Companies Without CR File" data-ar="شركات لم ترفع السجل التجاري">Companies Without CR File</div>
-                                                    <div class="text-[10px] text-gray-400 truncate" data-en="CR Not Uploaded" data-ar="السجل غير مرفوع">CR Not Uploaded</div>
-                                                </div>
-                                            </div>
-                                            <span id="alert-count-missing-cr" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/40 text-xs font-black shrink-0">${missingCrCount}</span>
-                                        </button>
-
-                                        <!-- Alert 3: Companies with Expired CRs -->
-                                        <button type="button" onclick="applyAdminAlertQuickFilter('expired_cr')" class="dropdown-normal-item w-full text-start px-3.5 py-2.5 text-xs hover:bg-red-500/10 transition flex items-center justify-between gap-2 cursor-pointer">
-                                            <div class="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
-                                                <span class="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
-                                                    <i class="fa-solid fa-calendar-xmark text-[11px]"></i>
-                                                </span>
-                                                <div class="min-w-0">
-                                                    <div class="font-bold text-gray-200 truncate" data-en="Companies With Expired CR" data-ar="شركات سجلها التجاري منتهي">Companies With Expired CR</div>
-                                                    <div class="text-[10px] text-gray-400 truncate" data-en="CR validity date has passed" data-ar="انتهت صلاحية السجل التجاري">CR validity date has passed</div>
-                                                </div>
-                                            </div>
-                                            <span id="alert-count-expired" class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-black shrink-0">${expiredCrCount}</span>
-                                        </button>
+                                    <div id="admin-alerts-list-container" class="divide-y divide-blue-900/30">
+                                        ${renderAdminAlertsListHTML()}
                                     </div>
                                 </div>
                             </div>
@@ -1996,7 +2024,7 @@
                                 </div>
                             </div>
 
-                            <!-- Pie 4: Spare Parts by Make -->
+                            <!-- Pie 4: Spare Parts by Vehicle Make -->
                             <div class="p-3 rounded-xl border border-blue-900/30 bg-blue-950/15 flex flex-col items-center">
                                 <h3 class="text-[11px] font-bold text-center mb-2 truncate w-full" data-en="4. Parts by Make" data-ar="4. القطع حسب الصانع">4. Parts by Make</h3>
                                 <div class="w-full h-40 relative">
@@ -2631,19 +2659,19 @@
                 const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User';
                 const isCompany = user.type === 'company';
                 const typeBadge = isCompany
-                    ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[9px] font-bold">Company</span>`
+                    ? `<span class="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[9px] font-bold">Company</span>`
                     : `<span class="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[9px] font-bold">Customer</span>`;
 
                 const dotClass = presence.isOnlineNow
                     ? 'bg-emerald-500 animate-ping'
-                    : (presence.isRecentlyActive ? 'bg-amber-500' : 'bg-gray-500');
+                    : 'bg-gray-500';
                 const staticDotClass = presence.isOnlineNow
                     ? 'bg-emerald-500'
-                    : (presence.isRecentlyActive ? 'bg-amber-500' : 'bg-gray-500');
+                    : 'bg-gray-500';
 
                 const statusTextClass = presence.isOnlineNow
                     ? 'text-emerald-400 font-semibold'
-                    : (presence.isRecentlyActive ? 'text-amber-400 font-semibold' : 'text-gray-400');
+                    : 'text-gray-400';
 
                 const activityNote = user.lastActivity || (isCompany ? 'B2B Supplier Portal' : 'Marketplace Session');
 
@@ -2655,10 +2683,10 @@
                                     <span class="absolute inline-flex h-full w-full rounded-full ${dotClass} opacity-75"></span>
                                     <span class="relative inline-flex rounded-full h-2 w-2 ${staticDotClass}"></span>
                                 </span>
-                                <span class="font-bold truncate">${fullName}</span>
+                                <span class="font-bold truncate text-gray-200">${fullName}</span>
                                 ${typeBadge}
                             </div>
-                            <div class="text-[11px] text-gray-400 truncate">${user.email || ''} • <span class="${statusTextClass}">${activityNote}</span></div>
+                            <div class="text-[11px] text-gray-400 truncate">${user.email || ''} • <span class="text-gray-300">${activityNote}</span></div>
                         </div>
                         <span class="text-[10px] ${statusTextClass} shrink-0">${presence.timeText}</span>
                     </div>
@@ -3082,7 +3110,7 @@
                         </div>
                         <div class="space-y-1.5">
                             <h3 class="text-sm font-bold text-white" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</h3>
-                            <p class="text-[11px] text-gray-400" data-en="Direct inquiries, partnerships & commercial registration support." data-ar="الاستفسارات المباشرة والشراكات ودعم تسجيل الشركات.">Direct inquiries, partnerships & commercial registration support.</p>
+                            <p class="text-[11px] text-gray-400" data-en="Direct inquiries & commercial registration support." data-ar="الاستفسارات المباشرة ودعم تسجيل الشركات.">Direct inquiries & commercial registration support.</p>
                             <div class="inline-flex items-center justify-center space-x-2 rtl:space-x-reverse pt-1">
                                 <span class="text-xs font-mono font-bold text-blue-400 select-all">Spare.jo@outlook.com</span>
                                 <button onclick="copyOfficialEmail()" class="text-gray-400 hover:text-white text-xs cursor-pointer transition p-1 rounded hover:bg-blue-600/20" title="Copy Email">
@@ -3099,7 +3127,7 @@
                         </div>
                         <div class="space-y-1">
                             <h3 class="text-sm font-bold text-white" data-en="WhatsApp Chat" data-ar="محادثة واتساب">WhatsApp Chat</h3>
-                            <p class="text-[11px] text-gray-400" data-en="Instant inquiry & part matching support (+962 7 9511 5122)." data-ar="استفسار فوري ودعم مطابقة القطع (+962 7 9511 5122).">Instant inquiry & part matching support (+962 7 9511 5122).</p>
+                            <p class="text-[11px] text-gray-400" data-en="Inquiries & Support (+962 7 9511 5122)." data-ar="الاستفسارات والدعم (+962 7 9511 5122).">Inquiries & Support (+962 7 9511 5122).</p>
                         </div>
                         <a href="https://wa.me/962795115122" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 text-xs font-semibold inline-flex items-center space-x-1 rtl:space-x-reverse">
                             <span data-en="Chat Now" data-ar="تحدث الآن">Chat Now</span>
@@ -3129,7 +3157,7 @@
                         </div>
                         <div class="space-y-1">
                             <h3 class="text-sm font-bold text-white" data-en="LinkedIn" data-ar="لينكد إن">LinkedIn</h3>
-                            <p class="text-[11px] text-gray-400" data-en="Connect with our B2B ecosystem and professional updates." data-ar="تواصل مع منظومة الأعمال B2B والتحديثات المهنية.">Connect with our B2B ecosystem and professional updates.</p>
+                            <p class="text-[11px] text-gray-400" data-en="Follow our ecosystem and professional updates." data-ar="تابع منظومتنا والتحديثات المهنية.">Follow our ecosystem and professional updates.</p>
                         </div>
                         <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 text-xs font-semibold inline-flex items-center space-x-1 rtl:space-x-reverse">
                             <span data-en="Visit Page" data-ar="زيارة الصفحة">Visit Page</span>
@@ -3734,12 +3762,11 @@
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, pass);
                 const user = userCredential.user;
-
                 const docSnap = await db.collection('users').doc(user.uid).get();
                 if (docSnap.exists) {
                     loggedInUser = docSnap.data();
                 } else {
-                    loggedInUser = { email: user.email, firstName: user.email.split('@')[0], lastName: '', verified: false, verificationStatus: 'pending' };
+                    loggedInUser = { email: user.email, firstName: email.split('@')[0], lastName: '', type: accountType, verified: false, verificationStatus: 'pending' };
                 }
 
                 await updateUserPresenceHeartbeat(user.uid, true, 'Signed In');
@@ -3747,37 +3774,38 @@
                 closeAuthModal();
                 showCustomerDashboard();
             } catch (error) {
-                alert("Sign In Error: Invalid email or password.");
+                alert("Sign In Error: " + error.message);
             }
         }
 
-        function closeAuthModal() {
-            const overlay = document.getElementById('auth-modal-overlay');
-            if (overlay) overlay.style.display = 'none';
-        }
+        function closeAuthModal() { document.getElementById('auth-modal-overlay').style.display = 'none'; }
 
         function toggleCategoryGrid() {
-            isGridVisible = !isGridVisible;
             const container = document.getElementById('categories-grid-container');
             const icon = document.getElementById('grid-toggle-icon');
-            if (isGridVisible) {
-                container.classList.remove('hidden'); container.classList.add('grid');
-                icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-up');
-            } else {
-                container.classList.add('hidden'); container.classList.remove('grid');
-                icon.classList.remove('fa-chevron-up'); icon.classList.add('fa-chevron-down');
-            }
+            isGridVisible = !isGridVisible;
+            if (isGridVisible) { container.classList.remove('hidden'); container.classList.add('grid'); icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); }
+            else { container.classList.add('hidden'); container.classList.remove('grid'); icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); }
+        }
+
+        function updateLiveClock() {
+            const now = new Date();
+            const dateEl = document.getElementById('header-date');
+            const timeEl = document.getElementById('header-time');
+            if (!dateEl || !timeEl) return;
+            dateEl.innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+            timeEl.innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
         }
 
         function toggleTheme() {
             const body = document.getElementById('app-body');
-            const themeIcon = document.getElementById('theme-icon');
+            const icon = document.getElementById('theme-icon');
             if (body.classList.contains('dark')) {
                 body.classList.remove('dark'); body.classList.add('light');
-                themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun');
+                icon.classList.remove('fa-moon'); icon.classList.add('fa-sun', 'text-amber-500');
             } else {
                 body.classList.remove('light'); body.classList.add('dark');
-                themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon');
+                icon.classList.remove('fa-sun', 'text-amber-500'); icon.classList.add('fa-moon');
             }
             if (currentView === 'admin-dashboard' && isAdminChartsVisible) {
                 renderAdminPieCharts();
@@ -3785,22 +3813,18 @@
         }
 
         function applyTranslations() {
-            const langBtn = document.getElementById('lang-btn');
-            const htmlTag = document.documentElement;
-            if (currentLang === 'ar') {
-                htmlTag.setAttribute('lang', 'ar'); htmlTag.setAttribute('dir', 'rtl');
-                langBtn.innerText = 'English';
-                document.querySelectorAll('[data-ar]').forEach(el => el.innerText = el.getAttribute('data-ar'));
-            } else {
-                htmlTag.setAttribute('lang', 'en'); htmlTag.setAttribute('dir', 'ltr');
-                langBtn.innerText = 'العربية';
-                document.querySelectorAll('[data-en]').forEach(el => el.innerText = el.getAttribute('data-en'));
-            }
+            const elements = document.querySelectorAll('[data-en][data-ar]');
+            elements.forEach(el => {
+                if (el.tagName !== 'INPUT') el.innerText = el.getAttribute('data-' + currentLang);
+            });
+            const html = document.documentElement;
+            const btn = document.getElementById('lang-btn');
+            if (currentLang === 'ar') { html.setAttribute('dir', 'rtl'); html.setAttribute('lang', 'ar'); btn.innerText = 'English'; }
+            else { html.setAttribute('dir', 'ltr'); html.setAttribute('lang', 'en'); btn.innerText = 'العربية'; }
         }
 
         function toggleLanguage() {
-            currentLang = (currentLang === 'en') ? 'ar' : 'en';
-            applyTranslations();
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
             if (currentView === 'home') renderSearchPane();
             if (currentView === 'admin-dashboard') {
                 updateAdminAlertsUI();
@@ -3808,21 +3832,17 @@
                 renderActiveUsersFeed();
                 if (isAdminChartsVisible) renderAdminPieCharts();
             }
+            if (document.getElementById('cr-certificates-modal')?.style.display === 'flex') {
+                renderCrCertificatesTable();
+            }
+            applyTranslations();
         }
 
-        function updateAmmanDateTime() {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('en-US', { timeZone: 'Asia/Amman', weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-            const timeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Amman', hour: '2-digit', minute: '2-digit', hour12: true });
-            const dateEl = document.getElementById('header-date');
-            const timeEl = document.getElementById('header-time');
-            if (dateEl) dateEl.innerText = dateStr;
-            if (timeEl) timeEl.innerText = timeStr;
-        }
-
-        showHomeView();
-        updateAmmanDateTime();
-        setInterval(updateAmmanDateTime, 1000);
+        window.onload = function() {
+            showHomeView();
+            updateLiveClock();
+            setInterval(updateLiveClock, 1000);
+        };
     </script>
 </body>
 </html>
