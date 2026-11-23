@@ -192,13 +192,8 @@
                     </div>
                 </div>
 
-                <!-- In-Modal Category Filter, Text Filter & Compare Button -->
+                <!-- In-Modal Category Filter, Text Filter & Back Button -->
                 <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" id="compare-now-btn" onclick="openCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold cursor-pointer transition shadow-md inline-flex items-center space-x-1.5 rtl:space-x-reverse">
-                        <i class="fa-solid fa-scale-balanced"></i>
-                        <span id="compare-now-btn-label">Compare Now!</span>
-                    </button>
-
                     <button type="button" id="back-to-results-btn" onclick="exitCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/40 text-xs font-bold cursor-pointer transition inline-flex items-center space-x-1.5 rtl:space-x-reverse">
                         <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
                         <span data-en="Back to All Results" data-ar="العودة لجميع النتائج">Back to All Results</span>
@@ -255,7 +250,11 @@
                     <button type="button" id="clear-compare-selection-btn" onclick="clearCompareSelection()" style="display: none;" class="px-3 py-1.5 rounded-xl border border-amber-500/40 text-amber-400 hover:bg-amber-500/15 text-xs font-bold cursor-pointer transition">
                         <span data-en="Clear Selection" data-ar="إلغاء التحديد">Clear Selection</span>
                     </button>
-                    <button type="button" onclick="closeCustomerSearchResultsModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md">
+                    <button type="button" id="compare-now-btn" onclick="openCompareViewInModal()" style="display: none;" class="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold cursor-pointer transition shadow-md inline-flex items-center space-x-1.5 rtl:space-x-reverse">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span id="compare-now-btn-label">Compare Now!</span>
+                    </button>
+                    <button type="button" id="close-search-results-footer-btn" onclick="closeCustomerSearchResultsModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md">
                         <span data-en="Close Results" data-ar="إلغاء / إغلاق النتائج">Close Results</span>
                     </button>
                 </div>
@@ -2412,6 +2411,7 @@
             const count = selectedCompareKeys.size;
             const compareBtn = document.getElementById('compare-now-btn');
             const compareBtnLabel = document.getElementById('compare-now-btn-label');
+            const closeFooterBtn = document.getElementById('close-search-results-footer-btn');
             const clearBtn = document.getElementById('clear-compare-selection-btn');
             const backBtn = document.getElementById('back-to-results-btn');
             const categorySelect = document.getElementById('modal-search-category-filter');
@@ -2420,6 +2420,7 @@
 
             if (isCompareModeActive) {
                 if (compareBtn) compareBtn.style.display = 'none';
+                if (closeFooterBtn) closeFooterBtn.style.display = 'inline-block';
                 if (backBtn) backBtn.style.display = 'inline-flex';
                 if (clearBtn) clearBtn.style.display = 'none';
                 if (categorySelect) categorySelect.style.display = 'none';
@@ -2429,16 +2430,19 @@
                 if (categorySelect) categorySelect.style.display = 'inline-block';
                 if (refineInput) refineInput.style.display = 'inline-block';
 
-                if (compareBtn && compareBtnLabel) {
-                    if (count >= 2) {
+                if (count >= 2) {
+                    if (compareBtn && compareBtnLabel) {
                         compareBtn.style.display = 'inline-flex';
                         compareBtnLabel.innerText = currentLang === 'ar'
                             ? `قارن الآن! (${count})`
                             : `Compare Now! (${count})`;
-                    } else {
-                        compareBtn.style.display = 'none';
                     }
+                    if (closeFooterBtn) closeFooterBtn.style.display = 'none';
+                } else {
+                    if (compareBtn) compareBtn.style.display = 'none';
+                    if (closeFooterBtn) closeFooterBtn.style.display = 'inline-block';
                 }
+
                 if (clearBtn) {
                     clearBtn.style.display = count > 0 ? 'inline-block' : 'none';
                 }
@@ -3369,20 +3373,21 @@
 
                     <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
                         <h3 class="font-extrabold text-emerald-400 uppercase tracking-wider flex items-center space-x-2 rtl:space-x-reverse">
-                            <i class="fa-solid fa-users"></i>
+                            <i class="fa-solid fa-user-check"></i>
                             <span data-en="Accounts & Portals" data-ar="الحسابات والبوابات">Accounts & Portals</span>
                         </h3>
                         <ul class="space-y-1.5 text-gray-300">
-                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="Customer Sign In & Registration" data-ar="تسجيل دخول وإنشاء حساب عميل">Customer Sign In & Registration</span></a></li>
-                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="B2B Company & Workshop Portal" data-ar="بوابة الشركات والورش التجارية">B2B Company & Workshop Portal</span></a></li>
-                            <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition">• <span data-en="Platform Admin Monitor" data-ar="لوحة مراقبة وإدارة المنصة">Platform Admin Monitor</span></a></li>
+                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="Account Portal (Sign In / Register)" data-ar="بوابة الحسابات (دخول / تسجيل)">Account Portal (Sign In / Register)</span></a></li>
+                            <li><a href="#" onclick="showAccountSelectionView(); openAuthModal('company', 'signup'); return false;" class="hover:text-emerald-400 transition">• <span data-en="B2B Company & Importer Registration" data-ar="تسجيل الشركات والمستوردين (B2B)">B2B Company & Importer Registration</span></a></li>
+                            <li><a href="#" onclick="showAccountSelectionView(); openAuthModal('customer', 'signup'); return false;" class="hover:text-emerald-400 transition">• <span data-en="Individual Driver Registration" data-ar="تسجيل حسابات الأفراد والسائقين">Individual Driver Registration</span></a></li>
+                            <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition">• <span data-en="Admin Operations Console" data-ar="لوحة تحكم الإدارة والعمليات">Admin Operations Console</span></a></li>
                         </ul>
                     </div>
 
                     <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
                         <h3 class="font-extrabold text-amber-400 uppercase tracking-wider flex items-center space-x-2 rtl:space-x-reverse">
                             <i class="fa-solid fa-scale-balanced"></i>
-                            <span data-en="Company & Legal" data-ar="الشركة والمعلومات القانونية">Company & Legal</span>
+                            <span data-en="Information & Legal" data-ar="المعلومات والشؤون القانونية">Information & Legal</span>
                         </h3>
                         <ul class="space-y-1.5 text-gray-300">
                             <li><a href="#" onclick="showAboutView(); return false;" class="hover:text-amber-400 transition">• <span data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</span></a></li>
@@ -3399,172 +3404,186 @@
 
         function showContactView() {
             const html = `
-                <div class="space-y-4">
-                    <p class="text-gray-300 text-xs" data-en="Have a question about parts sourcing, B2B supplier onboarding, or technical partnerships in Jordan? Reach out to our team directly or send a message below." data-ar="هل لديك استفسار حول توفير قطع الغيار أو تسجيل الشركات الموردة أو الشراكات التقنية في الأردن؟ تواصل مع فريقنا مباشرة أو أرسل رسالة أدناه.">
-                        Have a question about parts sourcing, B2B supplier onboarding, or technical partnerships in Jordan? Reach out to our team directly or send a message below.
-                    </p>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <a href="mailto:Spare.jo@outlook.com" class="p-3.5 rounded-xl border border-blue-500/30 bg-blue-600/10 hover:border-blue-400 transition flex items-center space-x-3 rtl:space-x-reverse">
-                            <div class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-envelope"></i></div>
-                            <div class="min-w-0">
-                                <div class="text-[10px] text-gray-400 uppercase font-bold" data-en="Official Email" data-ar="البريد الرسمي">Official Email</div>
-                                <div class="text-xs font-bold text-blue-300 truncate">Spare.jo@outlook.com</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-3">
+                        <h3 class="font-extrabold text-blue-400 text-sm" data-en="Direct Channels" data-ar="قنوات التواصل المباشر">Direct Channels</h3>
+                        <div class="space-y-2.5">
+                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
+                                <i class="fa-solid fa-envelope text-blue-400 mt-0.5"></i>
+                                <div>
+                                    <div class="font-bold text-white" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
+                                    <a href="mailto:Spare.jo@outlook.com" class="text-blue-400 hover:underline font-mono">Spare.jo@outlook.com</a>
+                                </div>
                             </div>
-                        </a>
-
-                        <a href="https://wa.me/962795115122" target="_blank" class="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-600/10 hover:border-emerald-400 transition flex items-center space-x-3 rtl:space-x-reverse">
-                            <div class="w-9 h-9 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0"><i class="fa-brands fa-whatsapp text-base"></i></div>
-                            <div class="min-w-0">
-                                <div class="text-[10px] text-gray-400 uppercase font-bold" data-en="Phone / WhatsApp" data-ar="الهاتف / واتساب">Phone / WhatsApp</div>
-                                <div class="text-xs font-bold text-emerald-300 font-mono" dir="ltr">+962 7 9511 5122</div>
+                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
+                                <i class="fa-brands fa-whatsapp text-emerald-400 mt-0.5"></i>
+                                <div>
+                                    <div class="font-bold text-white" data-en="WhatsApp Business & Parts Desk" data-ar="واتساب الأعمال وخدمة القطع">WhatsApp Business & Parts Desk</div>
+                                    <a href="https://wa.me/962795115122" target="_blank" class="text-emerald-400 hover:underline font-mono" dir="ltr">+962 7 9511 5122</a>
+                                </div>
                             </div>
-                        </a>
-
-                        <div class="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center space-x-3 rtl:space-x-reverse">
-                            <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-location-dot"></i></div>
-                            <div class="min-w-0">
-                                <div class="text-[10px] text-gray-400 uppercase font-bold" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</div>
-                                <div class="text-xs font-bold text-amber-300 truncate" data-en="Amman, Jordan" data-ar="عمّان، الأردن">Amman, Jordan</div>
+                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
+                                <i class="fa-solid fa-location-dot text-amber-400 mt-0.5"></i>
+                                <div>
+                                    <div class="font-bold text-white" data-en="Operations Headquarters" data-ar="المقر الرئيسي للعمليات">Operations Headquarters</div>
+                                    <div class="text-gray-400" data-en="Amman — Bayader Wadi Al-Seer Industrial District, Hashemite Kingdom of Jordan" data-ar="عمّان — المنطقة الصناعية، بيادر وادي السير، المملكة الأردنية الهاشمية">Amman — Bayader Wadi Al-Seer Industrial District, Hashemite Kingdom of Jordan</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
+                                <i class="fa-regular fa-clock text-cyan-400 mt-0.5"></i>
+                                <div>
+                                    <div class="font-bold text-white" data-en="Working Hours" data-ar="ساعات العمل">Working Hours</div>
+                                    <div class="text-gray-400" data-en="Saturday – Thursday: 08:30 AM – 06:30 PM (Amman Time)" data-ar="السبت – الخميس: 08:30 صباحاً – 06:30 مساءً (بتوقيت عمّان)">Saturday – Thursday: 08:30 AM – 06:30 PM (Amman Time)</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <form onsubmit="handleContactFormSubmit(event)" class="space-y-3 pt-2 border-t border-blue-900/40">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <form onsubmit="handleContactMessageSubmit(event)" class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
+                        <h3 class="font-extrabold text-blue-400 text-sm" data-en="Send Us a Message" data-ar="أرسل لنا رسالة">Send Us a Message</h3>
+                        <div>
+                            <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Your Name / Workshop" data-ar="الاسم / اسم الورشة">Your Name / Workshop</label>
+                            <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Ahmad Al-Khatib">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Your Name / Company" data-ar="الاسم / اسم الشركة">Your Name / Company</label>
-                                <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="e.g., Ahmad Al-Masri">
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Phone / WhatsApp" data-ar="رقم الهاتف / واتساب">Phone / WhatsApp</label>
+                                <input type="text" id="contact-phone" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="079XXXXXXX">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Email or Phone" data-ar="البريد الإلكتروني أو الهاتف">Email or Phone</label>
-                                <input type="text" id="contact-reply" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com / +962 7...">
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Inquiry Type" data-ar="نوع الاستفسار">Inquiry Type</label>
+                                <select id="contact-topic" class="custom-input w-full px-2.5 py-2 border rounded-lg text-xs">
+                                    <option value="part">Part Sourcing</option>
+                                    <option value="b2b">B2B Supplier Onboarding</option>
+                                    <option value="support">Technical Support</option>
+                                </select>
                             </div>
                         </div>
                         <div>
                             <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Message" data-ar="الرسالة">Message</label>
-                            <textarea id="contact-message" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="How can our team assist you?"></textarea>
+                            <textarea id="contact-msg" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Write your inquiry or part details..."></textarea>
                         </div>
-                        <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md transition cursor-pointer inline-flex items-center space-x-2 rtl:space-x-reverse">
+                        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md flex items-center justify-center space-x-2 rtl:space-x-reverse">
                             <i class="fa-solid fa-paper-plane"></i>
                             <span data-en="Send Inquiry" data-ar="إرسال الرسالة">Send Inquiry</span>
                         </button>
                     </form>
                 </div>
             `;
-            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get In Touch', 'تواصل مع فريقنا', 'fa-solid fa-envelope-open-text', html);
+            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get in Touch', 'تواصل مع فريقنا', 'fa-solid fa-envelope-open-text', html);
         }
 
-        function handleContactFormSubmit(event) {
+        function handleContactMessageSubmit(event) {
             event.preventDefault();
-            showToast('Thank you! Your inquiry has been received by Spare.jo support.', 'شكراً لك! تم استلام رسالتك من قبل فريق دعم Spare.jo.', 'success');
+            showToast('Your message has been sent to the Spare.jo team. We will reply shortly!', 'تم إرسال رسالتك إلى فريق Spare.jo. سنتواصل معك قريباً!', 'success');
             event.target.reset();
         }
 
+        function toggleCategoryGrid() {
+            const container = document.getElementById('categories-grid-container');
+            const icon = document.getElementById('grid-toggle-icon');
+            if (!container) return;
+            isGridVisible = !isGridVisible;
+            if (isGridVisible) trackSectionVisit('Popular Categories Grid');
+            container.classList.toggle('hidden', !isGridVisible);
+            container.classList.toggle('grid', isGridVisible);
+            if (icon) icon.className = isGridVisible ? 'fa-solid fa-chevron-up text-blue-400 text-[10px]' : 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
+        }
+
         function updateProfileButtonUI() {
+            const profileBtn = document.getElementById('profile-btn');
             const icon = document.getElementById('profile-icon-i');
-            const initials = document.getElementById('profile-initials');
-            if (!icon || !initials) return;
+            const initialsSpan = document.getElementById('profile-initials');
+            if (!profileBtn) return;
             if (loggedInUser) {
-                icon.style.display = 'none'; initials.style.display = 'inline';
-                initials.innerText = (loggedInUser.firstName || loggedInUser.email || 'U').charAt(0).toUpperCase();
-                document.getElementById('dropdown-user-name').innerText = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim();
+                const name = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim() || loggedInUser.email || 'User';
+                const parts = name.split(/\s+/);
+                const initials = ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase() || 'U';
+                if (icon) icon.style.display = 'none';
+                if (initialsSpan) { initialsSpan.style.display = 'inline'; initialsSpan.innerText = initials; }
+                document.getElementById('dropdown-user-name').innerText = name;
                 document.getElementById('dropdown-user-email').innerText = loggedInUser.email || '';
             } else {
-                icon.style.display = 'inline'; initials.style.display = 'none';
+                if (icon) icon.style.display = 'inline';
+                if (initialsSpan) initialsSpan.style.display = 'none';
             }
         }
 
         function handleProfileButtonAction(event) {
             event.stopPropagation();
-            if (!loggedInUser) return showAccountSelectionView();
-            const d = document.getElementById('profile-dropdown');
-            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+            if (!loggedInUser) showAccountSelectionView();
+            else {
+                const dd = document.getElementById('profile-dropdown');
+                dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+            }
         }
 
         async function selectDropdownOption(action) {
             document.getElementById('profile-dropdown').style.display = 'none';
-            if (action === 'signout' && auth) { await auth.signOut(); showHomeView(); }
-        }
-
-        function toggleCategoryGrid() {
-            isGridVisible = !isGridVisible;
-            const grid = document.getElementById('categories-grid-container');
-            const icon = document.getElementById('grid-toggle-icon');
-            if (grid) { grid.classList.toggle('hidden', !isGridVisible); grid.classList.toggle('grid', isGridVisible); }
-            if (icon) icon.className = `fa-solid ${isGridVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-blue-400 text-[10px]`;
+            if (action === 'signout') {
+                if (auth) await auth.signOut();
+                loggedInUser = null; updateProfileButtonUI(); showHomeView();
+            } else if (action === 'profile') {
+                trackSectionVisit('User Profile');
+                showToast(`Signed in as ${loggedInUser?.email || 'User'}`, '', 'info');
+            }
         }
 
         function toggleTheme() {
             currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
             localStorage.setItem('spare_theme', currentTheme);
-            applyTheme();
-        }
-
-        function applyTheme() {
-            const body = document.getElementById('app-body');
-            const icon = document.getElementById('theme-icon');
-            body.classList.remove('dark', 'light'); body.classList.add(currentTheme);
-            document.documentElement.classList.toggle('dark', currentTheme === 'dark');
-            if (icon) icon.className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-amber-500';
+            document.getElementById('app-body').className = `${currentTheme} flex flex-col min-h-screen justify-between select-none`;
+            document.getElementById('theme-icon').className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-yellow-500';
         }
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ar' : 'en';
             localStorage.setItem('spare_lang', currentLang);
-            applyLanguageSettings();
-            if (currentView === 'home') renderSearchPane();
-            const resultsModal = document.getElementById('customer-search-results-modal');
-            if (resultsModal && resultsModal.style.display === 'flex') {
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
+            if (currentView === 'home') showHomeView();
+            else applyTranslations();
+            if (document.getElementById('customer-search-results-modal')?.style.display === 'flex') {
                 populateModalCategoryDropdown(currentCustomerSearchMatches);
                 if (isCompareModeActive) openCompareViewInModal();
                 else filterModalSearchResults();
             }
-        }
-
-        function applyLanguageSettings() {
-            document.documentElement.lang = currentLang;
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('lang-btn').innerText = currentLang === 'en' ? 'العربية' : 'English';
-            applyTranslations();
-            updateClock();
+            updateDateTime();
         }
 
         function applyTranslations() {
             document.querySelectorAll('[data-en][data-ar]').forEach(el => {
-                const txt = el.getAttribute(`data-${currentLang}`);
-                if (txt) el.innerText = txt;
+                el.innerText = el.getAttribute(currentLang === 'ar' ? 'data-ar' : 'data-en');
             });
         }
 
-        function updateClock() {
+        function updateDateTime() {
             const now = new Date();
             const locale = currentLang === 'ar' ? 'ar-JO' : 'en-GB';
-            const dEl = document.getElementById('header-date');
-            const tEl = document.getElementById('header-time');
-            if (dEl) dEl.innerText = now.toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-            if (tEl) tEl.innerText = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            const dateEl = document.getElementById('header-date');
+            const timeEl = document.getElementById('header-time');
+            if (dateEl) dateEl.innerText = now.toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+            if (timeEl) timeEl.innerText = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         }
 
         document.addEventListener('click', (e) => {
-            if (!document.getElementById('profile-menu-container')?.contains(e.target)) document.getElementById('profile-dropdown').style.display = 'none';
             if (!document.getElementById('admin-actions-menu-container')?.contains(e.target)) closeAdminActionsDropdown();
             if (!document.getElementById('admin-alerts-menu-container')?.contains(e.target)) closeAdminAlertsDropdown();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const resultsModal = document.getElementById('customer-search-results-modal');
-                if (resultsModal && resultsModal.style.display === 'flex') closeCustomerSearchResultsModal();
+            if (!document.getElementById('profile-menu-container')?.contains(e.target)) {
+                const pd = document.getElementById('profile-dropdown'); if (pd) pd.style.display = 'none';
             }
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            applyTheme();
-            applyLanguageSettings();
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('app-body').className = `${currentTheme} flex flex-col min-h-screen justify-between select-none`;
+            document.getElementById('theme-icon').className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-yellow-500';
+            document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
             showHomeView();
-            updateClock();
-            setInterval(updateClock, 1000);
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
             initFirebaseServices();
         });
     </script>
