@@ -188,11 +188,11 @@
                             <h3 id="modal-search-results-title" class="text-sm md:text-lg font-black text-white">Search Results</h3>
                             <span id="modal-search-results-count" class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">0 Matches</span>
                         </div>
-                        <p class="text-[11px] text-gray-400" data-en="Live spare parts inventory across verified suppliers and workshops in Jordan." data-ar="مخزون قطع الغيار المباشر لدى الموردين والورش المعتمدة في الأردن.">Live spare parts inventory across verified suppliers and workshops in Jordan.</p>
+                        <p class="text-[11px] text-gray-400" data-en="Live spare parts inventory across verified suppliers and workshops in Jordan. Click Unit Price column to sort." data-ar="مخزون قطع الغيار المباشر لدى الموردين والورش المعتمدة في الأردن. اضغط على عمود السعر للترتيب.">Live spare parts inventory across verified suppliers and workshops in Jordan. Click Unit Price column to sort.</p>
                     </div>
                 </div>
 
-                <!-- In-Modal Quick Filters, Price Sort & Compare Button -->
+                <!-- In-Modal Category Filter, Text Filter & Compare Button -->
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" id="compare-now-btn" onclick="openCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold cursor-pointer transition shadow-md inline-flex items-center space-x-1.5 rtl:space-x-reverse">
                         <i class="fa-solid fa-scale-balanced"></i>
@@ -204,20 +204,11 @@
                         <span data-en="Back to All Results" data-ar="العودة لجميع النتائج">Back to All Results</span>
                     </button>
 
-                    <select id="modal-search-price-sort" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
-                        <option value="default" data-en="Sort by Price: Default" data-ar="ترتيب حسب السعر: الافتراضي">Sort by Price: Default</option>
-                        <option value="asc" data-en="Price: Low to High" data-ar="السعر: من الأقل إلى الأعلى">Price: Low to High</option>
-                        <option value="desc" data-en="Price: High to Low" data-ar="السعر: من الأعلى إلى الأقل">Price: High to Low</option>
+                    <select id="modal-search-category-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
+                        <option value="all" data-en="Category: All" data-ar="الفئة: الكل">Category: All</option>
                     </select>
 
-                    <select id="modal-search-grade-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
-                        <option value="all" data-en="Grade: All" data-ar="الفئة: الكل">Grade: All</option>
-                        <option value="genuine">Genuine</option>
-                        <option value="oem">OEM</option>
-                        <option value="aftermarket">Aftermarket</option>
-                    </select>
-
-                    <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter results by OEM, maker, supplier..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-48">
+                    <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter results by OEM, maker, supplier..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-52">
                 </div>
             </div>
 
@@ -237,9 +228,12 @@
                             <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Grade" data-ar="الفئة">Grade</th>
                             <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Vehicle / VIN Fitment" data-ar="المركبة / رقم الهيكل">Vehicle / VIN Fitment</th>
                             <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Supplier" data-ar="المورد">Supplier</th>
-                            <th onclick="cyclePriceSortFromHeader()" title="Click to sort by price" class="py-2.5 px-2.5 text-end whitespace-nowrap cursor-pointer hover:text-amber-400 transition select-none">
-                                <span data-en="Unit Price & Stock" data-ar="السعر والمخزون">Unit Price & Stock</span>
-                                <i id="price-sort-header-icon" class="fa-solid fa-sort ms-1 text-[10px] text-blue-400"></i>
+                            <th id="price-sort-column-th" onclick="cyclePriceSortFromHeader()" title="Click to sort by price (Low to High / High to Low)" class="py-2.5 px-2.5 text-end whitespace-nowrap cursor-pointer hover:text-amber-400 hover:bg-blue-900/30 transition select-none">
+                                <div class="inline-flex items-center justify-end space-x-1 rtl:space-x-reverse">
+                                    <span data-en="Unit Price & Stock" data-ar="السعر والمخزون">Unit Price & Stock</span>
+                                    <span id="price-sort-badge" class="text-[9px] font-extrabold text-amber-400"></span>
+                                    <i id="price-sort-header-icon" class="fa-solid fa-sort text-[10px] text-blue-400"></i>
+                                </div>
                             </th>
                             <th class="py-2.5 px-3 text-end whitespace-nowrap" data-en="Action" data-ar="طلب">Action</th>
                         </tr>
@@ -262,7 +256,7 @@
                         <span data-en="Clear Selection" data-ar="إلغاء التحديد">Clear Selection</span>
                     </button>
                     <button type="button" onclick="closeCustomerSearchResultsModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md">
-                        <span data-en="Close Results" data-ar="إغلاق النتائج">Close Results</span>
+                        <span data-en="Close Results" data-ar="إلغاء / إغلاق النتائج">Close Results</span>
                     </button>
                 </div>
             </div>
@@ -578,6 +572,7 @@
         let activeInventoryCompanyId = null;
         let currentCustomerSearchMatches = [];
         let currentFilteredSearchMatches = [];
+        let modalPriceSortOrder = 'default';
         let selectedCompareKeys = new Set();
         let isCompareModeActive = false;
         let baseModalSearchTitle = 'Search Results';
@@ -2350,7 +2345,7 @@
         }
 
         // ==========================================
-        // HOME SEARCH, PRICE SORT & COMPARE ENGINE
+        // HOME SEARCH, CATEGORY FILTER & COMPARE ENGINE
         // ==========================================
         function getPartUniqueKey(part, fallbackIndex = 0) {
             if (part?.id) return String(part.id);
@@ -2380,14 +2375,46 @@
             return fromUsers.length > 0 ? fromUsers : fallbackSparePartsCatalog;
         }
 
+        function populateModalCategoryDropdown(matches) {
+            const catSelect = document.getElementById('modal-search-category-filter');
+            if (!catSelect) return;
+            const previousVal = catSelect.value || 'all';
+
+            const categoryMap = new Map();
+            popularCategoriesData.forEach(c => {
+                categoryMap.set(c.en.toLowerCase(), { en: c.en, ar: c.ar });
+            });
+            (Array.isArray(matches) ? matches : []).forEach(p => {
+                const catEn = String(p.categoryEn || p.category || '').trim();
+                const catAr = String(p.categoryAr || catEn).trim();
+                if (catEn && !categoryMap.has(catEn.toLowerCase())) {
+                    categoryMap.set(catEn.toLowerCase(), { en: catEn, ar: catAr });
+                }
+            });
+
+            const sortedCats = Array.from(categoryMap.values()).sort((a, b) => a.en.localeCompare(b.en));
+            const allLabel = currentLang === 'ar' ? 'القسم: الكل' : 'Category: All';
+            let optionsHTML = `<option value="all">${allLabel}</option>`;
+            sortedCats.forEach(c => {
+                const label = currentLang === 'ar' ? (c.ar || c.en) : c.en;
+                optionsHTML += `<option value="${escapeHtmlAttr(c.en.toLowerCase())}">${escapeHtmlAttr(label)}</option>`;
+            });
+
+            catSelect.innerHTML = optionsHTML;
+            if (Array.from(catSelect.options).some(o => o.value === previousVal)) {
+                catSelect.value = previousVal;
+            } else {
+                catSelect.value = 'all';
+            }
+        }
+
         function updateCompareControlsUI() {
             const count = selectedCompareKeys.size;
             const compareBtn = document.getElementById('compare-now-btn');
             const compareBtnLabel = document.getElementById('compare-now-btn-label');
             const clearBtn = document.getElementById('clear-compare-selection-btn');
             const backBtn = document.getElementById('back-to-results-btn');
-            const sortSelect = document.getElementById('modal-search-price-sort');
-            const gradeSelect = document.getElementById('modal-search-grade-filter');
+            const categorySelect = document.getElementById('modal-search-category-filter');
             const refineInput = document.getElementById('modal-search-refine-input');
             const selectAllCb = document.getElementById('select-all-compare-checkbox');
 
@@ -2395,13 +2422,11 @@
                 if (compareBtn) compareBtn.style.display = 'none';
                 if (backBtn) backBtn.style.display = 'inline-flex';
                 if (clearBtn) clearBtn.style.display = 'none';
-                if (sortSelect) sortSelect.style.display = 'none';
-                if (gradeSelect) gradeSelect.style.display = 'none';
+                if (categorySelect) categorySelect.style.display = 'none';
                 if (refineInput) refineInput.style.display = 'none';
             } else {
                 if (backBtn) backBtn.style.display = 'none';
-                if (sortSelect) sortSelect.style.display = 'inline-block';
-                if (gradeSelect) gradeSelect.style.display = 'inline-block';
+                if (categorySelect) categorySelect.style.display = 'inline-block';
                 if (refineInput) refineInput.style.display = 'inline-block';
 
                 if (compareBtn && compareBtnLabel) {
@@ -2459,21 +2484,34 @@
         }
 
         function cyclePriceSortFromHeader() {
-            const sortSelect = document.getElementById('modal-search-price-sort');
-            if (!sortSelect) return;
-            const nextVal = sortSelect.value === 'default' ? 'asc' : (sortSelect.value === 'asc' ? 'desc' : 'default');
-            sortSelect.value = nextVal;
+            modalPriceSortOrder = modalPriceSortOrder === 'default'
+                ? 'asc'
+                : (modalPriceSortOrder === 'asc' ? 'desc' : 'default');
             filterModalSearchResults();
         }
 
         function updatePriceSortHeaderIcon(sortOrder) {
             const icon = document.getElementById('price-sort-header-icon');
-            if (!icon) return;
-            icon.className = sortOrder === 'asc'
-                ? 'fa-solid fa-arrow-up-short-wide ms-1 text-[10px] text-amber-400'
-                : (sortOrder === 'desc'
-                    ? 'fa-solid fa-arrow-down-wide-short ms-1 text-[10px] text-amber-400'
-                    : 'fa-solid fa-sort ms-1 text-[10px] text-blue-400');
+            const badge = document.getElementById('price-sort-badge');
+            const th = document.getElementById('price-sort-column-th');
+            if (icon) {
+                icon.className = sortOrder === 'asc'
+                    ? 'fa-solid fa-arrow-up-short-wide text-[11px] text-amber-400'
+                    : (sortOrder === 'desc'
+                        ? 'fa-solid fa-arrow-down-wide-short text-[11px] text-amber-400'
+                        : 'fa-solid fa-sort text-[10px] text-blue-400');
+            }
+            if (badge) {
+                badge.innerText = sortOrder === 'asc'
+                    ? (currentLang === 'ar' ? '(الأقل)' : '(LOW → HIGH)')
+                    : (sortOrder === 'desc'
+                        ? (currentLang === 'ar' ? '(الأعلى)' : '(HIGH → LOW)')
+                        : '');
+            }
+            if (th) {
+                th.classList.toggle('text-amber-400', sortOrder !== 'default');
+                th.classList.toggle('bg-blue-900/25', sortOrder !== 'default');
+            }
         }
 
         function renderSearchResultsRowsInModal(matches) {
@@ -2493,7 +2531,7 @@
                                 <i class="fa-solid fa-box-open"></i>
                             </div>
                             <div class="text-sm font-bold text-gray-200">${currentLang === 'ar' ? 'لم يتم العثور على قطع مطابقة في مخزون الشركات حالياً' : 'No matching spare parts found in supplier inventories'}</div>
-                            <div class="text-[11px] max-w-md mx-auto">${currentLang === 'ar' ? 'جرب تعديل كلمات البحث أو الفئة أو تواصل مع فريق الدعم المباشر عبر واتساب لتوفير القطعة.' : 'Try adjusting your search keywords or grade filter, or message our WhatsApp parts desk for manual sourcing.'}</div>
+                            <div class="text-[11px] max-w-md mx-auto">${currentLang === 'ar' ? 'جرب تعديل كلمات البحث أو الفئة أو تواصل مع فريق الدعم المباشر عبر واتساب لتوفير القطعة.' : 'Try adjusting your search keywords or category filter, or message our WhatsApp parts desk for manual sourcing.'}</div>
                         </td>
                     </tr>
                 `;
@@ -2582,7 +2620,6 @@
                     : `Comparing ${selectedParts.length} Options`;
             }
 
-            // Sort compared items from lowest price to highest price so the best deal appears first
             const sortedSelected = [...selectedParts].sort((a, b) =>
                 parseNumericValue(a.unitPriceJOD ?? a.priceJOD) - parseNumericValue(b.unitPriceJOD ?? b.priceJOD)
             );
@@ -2709,29 +2746,31 @@
         }
 
         function filterModalSearchResults() {
-            const sortOrder = document.getElementById('modal-search-price-sort')?.value || 'default';
-            const gradeVal = (document.getElementById('modal-search-grade-filter')?.value || 'all').toLowerCase();
+            const selectedCat = (document.getElementById('modal-search-category-filter')?.value || 'all').toLowerCase();
             const refineTerm = (document.getElementById('modal-search-refine-input')?.value || '').toLowerCase().trim();
 
-            updatePriceSortHeaderIcon(sortOrder);
+            updatePriceSortHeaderIcon(modalPriceSortOrder);
 
             let filtered = currentCustomerSearchMatches.filter(p => {
-                if (gradeVal !== 'all') {
-                    const partGrade = String(p.grade || '').toLowerCase();
-                    if (!partGrade.includes(gradeVal)) return false;
+                if (selectedCat !== 'all') {
+                    const partCatEn = String(p.categoryEn || p.category || '').toLowerCase();
+                    const partCatAr = String(p.categoryAr || '').toLowerCase();
+                    if (partCatEn !== selectedCat && !partCatEn.includes(selectedCat) && !partCatAr.includes(selectedCat)) {
+                        return false;
+                    }
                 }
                 if (refineTerm) {
-                    const haystack = `${p.partNameEn || p.name || ''} ${p.categoryEn || ''} ${p.categoryAr || ''} ${p.partNumber || ''} ${p.partId || ''} ${p.carMaker || p.make || ''} ${p.carModel || p.model || ''} ${p.vinNumber || ''} ${p.companyName || p.supplier || ''}`.toLowerCase();
+                    const haystack = `${p.partNameEn || p.name || ''} ${p.categoryEn || ''} ${p.categoryAr || ''} ${p.grade || ''} ${p.partNumber || ''} ${p.partId || ''} ${p.carMaker || p.make || ''} ${p.carModel || p.model || ''} ${p.vinNumber || ''} ${p.companyName || p.supplier || ''}`.toLowerCase();
                     if (!haystack.includes(refineTerm)) return false;
                 }
                 return true;
             });
 
-            if (sortOrder === 'asc') {
+            if (modalPriceSortOrder === 'asc') {
                 filtered = [...filtered].sort((a, b) =>
                     parseNumericValue(a.unitPriceJOD ?? a.priceJOD) - parseNumericValue(b.unitPriceJOD ?? b.priceJOD)
                 );
-            } else if (sortOrder === 'desc') {
+            } else if (modalPriceSortOrder === 'desc') {
                 filtered = [...filtered].sort((a, b) =>
                     parseNumericValue(b.unitPriceJOD ?? b.priceJOD) - parseNumericValue(a.unitPriceJOD ?? a.priceJOD)
                 );
@@ -2745,6 +2784,7 @@
             baseModalSearchTitle = querySummary;
             selectedCompareKeys.clear();
             isCompareModeActive = false;
+            modalPriceSortOrder = 'default';
 
             currentCustomerSearchMatches = (Array.isArray(matches) ? matches : []).map((item, idx) => ({
                 ...item,
@@ -2754,18 +2794,18 @@
 
             const modal = document.getElementById('customer-search-results-modal');
             const titleEl = document.getElementById('modal-search-results-title');
-            const sortSelectEl = document.getElementById('modal-search-price-sort');
-            const gradeFilterEl = document.getElementById('modal-search-grade-filter');
             const refineInputEl = document.getElementById('modal-search-refine-input');
             const tableWrapper = document.getElementById('modal-search-table-wrapper');
             const compareWrapper = document.getElementById('modal-search-compare-wrapper');
 
             if (titleEl) titleEl.innerText = querySummary;
-            if (sortSelectEl) sortSelectEl.value = 'default';
-            if (gradeFilterEl) gradeFilterEl.value = 'all';
             if (refineInputEl) refineInputEl.value = '';
             if (compareWrapper) compareWrapper.style.display = 'none';
             if (tableWrapper) tableWrapper.style.display = 'block';
+
+            populateModalCategoryDropdown(currentCustomerSearchMatches);
+            const catSelect = document.getElementById('modal-search-category-filter');
+            if (catSelect) catSelect.value = 'all';
 
             updatePriceSortHeaderIcon('default');
             renderSearchResultsRowsInModal(currentFilteredSearchMatches);
@@ -3329,24 +3369,24 @@
 
                     <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
                         <h3 class="font-extrabold text-emerald-400 uppercase tracking-wider flex items-center space-x-2 rtl:space-x-reverse">
-                            <i class="fa-solid fa-users-gear"></i>
+                            <i class="fa-solid fa-users"></i>
                             <span data-en="Accounts & Portals" data-ar="الحسابات والبوابات">Accounts & Portals</span>
                         </h3>
                         <ul class="space-y-1.5 text-gray-300">
-                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="Customer Sign In / Register (B2C & C2C)" data-ar="دخول وتسجيل الأفراد">Customer Sign In / Register (B2C & C2C)</span></a></li>
-                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="Company & Workshop Portal (B2B)" data-ar="بوابة الشركات والورش (B2B)">Company & Workshop Portal (B2B)</span></a></li>
-                            <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition">• <span data-en="Spare.jo Admin Console" data-ar="لوحة تحكم الإدارة">Spare.jo Admin Console</span></a></li>
+                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="Customer Sign In & Registration" data-ar="تسجيل دخول وإنشاء حساب عميل">Customer Sign In & Registration</span></a></li>
+                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="B2B Company & Workshop Portal" data-ar="بوابة الشركات والورش التجارية">B2B Company & Workshop Portal</span></a></li>
+                            <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition">• <span data-en="Platform Admin Monitor" data-ar="لوحة مراقبة وإدارة المنصة">Platform Admin Monitor</span></a></li>
                         </ul>
                     </div>
 
                     <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
                         <h3 class="font-extrabold text-amber-400 uppercase tracking-wider flex items-center space-x-2 rtl:space-x-reverse">
-                            <i class="fa-solid fa-compass"></i>
+                            <i class="fa-solid fa-scale-balanced"></i>
                             <span data-en="Company & Legal" data-ar="الشركة والمعلومات القانونية">Company & Legal</span>
                         </h3>
                         <ul class="space-y-1.5 text-gray-300">
                             <li><a href="#" onclick="showAboutView(); return false;" class="hover:text-amber-400 transition">• <span data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</span></a></li>
-                            <li><a href="#" onclick="showPrivacyView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</span></a></li>
+                            <li><a href="#" onclick="showPrivacyView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Privacy & Cookies Policy" data-ar="سياسة الخصوصية وملفات الارتباط">Privacy & Cookies Policy</span></a></li>
                             <li><a href="#" onclick="showTermsView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</span></a></li>
                             <li><a href="#" onclick="showSupportView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Support & Help Center" data-ar="الدعم والمساعدة">Support & Help Center</span></a></li>
                             <li><a href="#" onclick="showContactView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Contact Us" data-ar="اتصل بنا">Contact Us</span></a></li>
@@ -3357,137 +3397,94 @@
             renderFooterPageWrapper('Site Map', 'خريطة الموقع', 'Platform Directory', 'دليل صفحات المنصة', 'fa-solid fa-sitemap', html);
         }
 
-        function handleContactFormSubmit(event) {
-            event.preventDefault();
-            const name = document.getElementById('contact-name')?.value.trim() || '';
-            const email = document.getElementById('contact-email')?.value.trim() || '';
-            const subject = document.getElementById('contact-subject')?.value || 'General Inquiry';
-            const message = document.getElementById('contact-message')?.value.trim() || '';
-            showToast(
-                `Thank you ${name}! Your message regarding "${subject}" has been received.`,
-                `شكراً لك ${name}! تم استلام رسالتك بخصوص "${subject}".`,
-                'success'
-            );
-            event.target.reset();
-        }
-
         function showContactView() {
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-5 text-xs">
-                    <div class="md:col-span-5 space-y-3">
-                        <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-3">
-                            <h3 class="font-extrabold text-blue-400 text-sm" data-en="Direct Channels" data-ar="قنوات التواصل المباشر">Direct Channels</h3>
-                            
-                            <div class="flex items-start space-x-3 rtl:space-x-reverse">
-                                <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0"><i class="fa-brands fa-whatsapp"></i></div>
-                                <div>
-                                    <div class="text-[10px] text-gray-400 uppercase font-semibold" data-en="WhatsApp & Phone" data-ar="واتساب والهاتف">WhatsApp & Phone</div>
-                                    <a href="https://wa.me/962795115122" target="_blank" class="font-mono font-bold text-emerald-400 hover:underline" dir="ltr">+962 7 9511 5122</a>
-                                </div>
-                            </div>
+                <div class="space-y-4">
+                    <p class="text-gray-300 text-xs" data-en="Have a question about parts sourcing, B2B supplier onboarding, or technical partnerships in Jordan? Reach out to our team directly or send a message below." data-ar="هل لديك استفسار حول توفير قطع الغيار أو تسجيل الشركات الموردة أو الشراكات التقنية في الأردن؟ تواصل مع فريقنا مباشرة أو أرسل رسالة أدناه.">
+                        Have a question about parts sourcing, B2B supplier onboarding, or technical partnerships in Jordan? Reach out to our team directly or send a message below.
+                    </p>
 
-                            <div class="flex items-start space-x-3 rtl:space-x-reverse">
-                                <div class="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-regular fa-envelope"></i></div>
-                                <div>
-                                    <div class="text-[10px] text-gray-400 uppercase font-semibold" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
-                                    <a href="mailto:Spare.jo@outlook.com" class="font-mono font-bold text-blue-400 hover:underline">Spare.jo@outlook.com</a>
-                                </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <a href="mailto:Spare.jo@outlook.com" class="p-3.5 rounded-xl border border-blue-500/30 bg-blue-600/10 hover:border-blue-400 transition flex items-center space-x-3 rtl:space-x-reverse">
+                            <div class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-envelope"></i></div>
+                            <div class="min-w-0">
+                                <div class="text-[10px] text-gray-400 uppercase font-bold" data-en="Official Email" data-ar="البريد الرسمي">Official Email</div>
+                                <div class="text-xs font-bold text-blue-300 truncate">Spare.jo@outlook.com</div>
                             </div>
+                        </a>
 
-                            <div class="flex items-start space-x-3 rtl:space-x-reverse">
-                                <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-location-dot"></i></div>
-                                <div>
-                                    <div class="text-[10px] text-gray-400 uppercase font-semibold" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</div>
-                                    <div class="font-semibold text-gray-200" data-en="Amman, Hashemite Kingdom of Jordan" data-ar="عمّان، المملكة الأردنية الهاشمية">Amman, Hashemite Kingdom of Jordan</div>
-                                    <div class="text-[10px] text-gray-400" data-en="Serving all 12 Governorates (Sat–Thu, 9:00 AM – 6:00 PM)" data-ar="نخدم جميع المحافظات الـ 12 (السبت–الخميس، 9 صباحاً – 6 مساءً)">Serving all 12 Governorates (Sat–Thu, 9:00 AM – 6:00 PM)</div>
-                                </div>
+                        <a href="https://wa.me/962795115122" target="_blank" class="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-600/10 hover:border-emerald-400 transition flex items-center space-x-3 rtl:space-x-reverse">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0"><i class="fa-brands fa-whatsapp text-base"></i></div>
+                            <div class="min-w-0">
+                                <div class="text-[10px] text-gray-400 uppercase font-bold" data-en="Phone / WhatsApp" data-ar="الهاتف / واتساب">Phone / WhatsApp</div>
+                                <div class="text-xs font-bold text-emerald-300 font-mono" dir="ltr">+962 7 9511 5122</div>
+                            </div>
+                        </a>
+
+                        <div class="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center space-x-3 rtl:space-x-reverse">
+                            <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-location-dot"></i></div>
+                            <div class="min-w-0">
+                                <div class="text-[10px] text-gray-400 uppercase font-bold" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</div>
+                                <div class="text-xs font-bold text-amber-300 truncate" data-en="Amman, Jordan" data-ar="عمّان، الأردن">Amman, Jordan</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-7">
-                        <form onsubmit="handleContactFormSubmit(event)" class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-3">
-                            <h3 class="font-extrabold text-white text-sm" data-en="Send Us a Message" data-ar="أرسل لنا رسالة">Send Us a Message</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                <div>
-                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
-                                    <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Ahmad Al-Masri">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
-                                    <input type="email" id="contact-email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
-                                </div>
+                    <form onsubmit="handleContactFormSubmit(event)" class="space-y-3 pt-2 border-t border-blue-900/40">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Your Name / Company" data-ar="الاسم / اسم الشركة">Your Name / Company</label>
+                                <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="e.g., Ahmad Al-Masri">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Topic" data-ar="الموضوع">Topic</label>
-                                <select id="contact-subject" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
-                                    <option value="Spare Part Sourcing">Spare Part Sourcing / VIN Help</option>
-                                    <option value="B2B Company Onboarding">B2B Company / Importer Onboarding</option>
-                                    <option value="Technical Support">Technical Support</option>
-                                    <option value="Partnership & Media">Partnership & Media</option>
-                                </select>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Email or Phone" data-ar="البريد الإلكتروني أو الهاتف">Email or Phone</label>
+                                <input type="text" id="contact-reply" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com / +962 7...">
                             </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Message" data-ar="الرسالة">Message</label>
-                                <textarea id="contact-message" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="How can our team assist you?"></textarea>
-                            </div>
-                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
-                                <i class="fa-solid fa-paper-plane"></i>
-                                <span data-en="Submit Inquiry" data-ar="إرسال الرسالة">Submit Inquiry</span>
-                            </button>
-                        </form>
-                    </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Message" data-ar="الرسالة">Message</label>
+                            <textarea id="contact-message" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="How can our team assist you?"></textarea>
+                        </div>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md transition cursor-pointer inline-flex items-center space-x-2 rtl:space-x-reverse">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span data-en="Send Inquiry" data-ar="إرسال الرسالة">Send Inquiry</span>
+                        </button>
+                    </form>
                 </div>
             `;
-            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get in Touch', 'تواصل معنا', 'fa-solid fa-envelope-open-text', html);
+            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get In Touch', 'تواصل مع فريقنا', 'fa-solid fa-envelope-open-text', html);
+        }
+
+        function handleContactFormSubmit(event) {
+            event.preventDefault();
+            showToast('Thank you! Your inquiry has been received by Spare.jo support.', 'شكراً لك! تم استلام رسالتك من قبل فريق دعم Spare.jo.', 'success');
+            event.target.reset();
+        }
+
+        function updateProfileButtonUI() {
+            const icon = document.getElementById('profile-icon-i');
+            const initials = document.getElementById('profile-initials');
+            if (!icon || !initials) return;
+            if (loggedInUser) {
+                icon.style.display = 'none'; initials.style.display = 'inline';
+                initials.innerText = (loggedInUser.firstName || loggedInUser.email || 'U').charAt(0).toUpperCase();
+                document.getElementById('dropdown-user-name').innerText = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim();
+                document.getElementById('dropdown-user-email').innerText = loggedInUser.email || '';
+            } else {
+                icon.style.display = 'inline'; initials.style.display = 'none';
+            }
         }
 
         function handleProfileButtonAction(event) {
-            if (event) event.stopPropagation();
-            if (loggedInUser) toggleProfileDropdown();
-            else showAccountSelectionView();
-        }
-        function toggleProfileDropdown() {
-            const dropdown = document.getElementById('profile-dropdown');
-            dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'block' : 'none';
-        }
-        function closeProfileDropdown() { document.getElementById('profile-dropdown').style.display = 'none'; }
-
-        function updateProfileButtonUI() {
-            const iconI = document.getElementById('profile-icon-i');
-            const initialsSpan = document.getElementById('profile-initials');
-            const dropdownName = document.getElementById('dropdown-user-name');
-            const dropdownEmail = document.getElementById('dropdown-user-email');
-            if (!iconI || !initialsSpan) return;
-            if (loggedInUser) {
-                iconI.style.display = 'none';
-                initialsSpan.style.display = 'inline';
-                const f = (loggedInUser.firstName || 'U').trim();
-                const l = (loggedInUser.lastName || '').trim();
-                initialsSpan.innerText = l ? `${f[0]}${l[0]}`.toUpperCase() : f.substring(0, 2).toUpperCase();
-                if (dropdownName) dropdownName.innerText = `${f} ${l}`.trim();
-                if (dropdownEmail) dropdownEmail.innerText = loggedInUser.email || '';
-            } else {
-                iconI.style.display = 'inline';
-                initialsSpan.style.display = 'none';
-            }
+            event.stopPropagation();
+            if (!loggedInUser) return showAccountSelectionView();
+            const d = document.getElementById('profile-dropdown');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
         }
 
         async function selectDropdownOption(action) {
-            closeProfileDropdown();
-            if (action === 'signout') {
-                if (auth) await auth.signOut();
-                loggedInUser = null; updateProfileButtonUI(); showHomeView();
-            } else if (action === 'profile') {
-                showToast(`Signed in as ${loggedInUser?.firstName || 'User'} (${loggedInUser?.email || ''})`, '', 'info');
-            } else if (action === 'delete') {
-                if (auth?.currentUser && confirm('Permanently delete your account?')) {
-                    const uid = auth.currentUser.uid;
-                    if (db) await db.collection('users').doc(uid).delete();
-                    await auth.currentUser.delete();
-                    loggedInUser = null; updateProfileButtonUI(); showHomeView();
-                }
-            }
+            document.getElementById('profile-dropdown').style.display = 'none';
+            if (action === 'signout' && auth) { await auth.signOut(); showHomeView(); }
         }
 
         function toggleCategoryGrid() {
@@ -3495,40 +3492,7 @@
             const grid = document.getElementById('categories-grid-container');
             const icon = document.getElementById('grid-toggle-icon');
             if (grid) { grid.classList.toggle('hidden', !isGridVisible); grid.classList.toggle('grid', isGridVisible); }
-            if (icon) icon.className = isGridVisible ? 'fa-solid fa-chevron-up text-blue-400 text-[10px]' : 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
-        }
-
-        function applyTranslations() {
-            const htmlEl = document.documentElement;
-            const langBtn = document.getElementById('lang-btn');
-            htmlEl.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            htmlEl.lang = currentLang;
-            if (langBtn) langBtn.innerText = currentLang === 'ar' ? 'English' : 'العربية';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`) || el.getAttribute('data-en');
-            });
-            const refineInput = document.getElementById('modal-search-refine-input');
-            if (refineInput) {
-                refineInput.placeholder = currentLang === 'ar'
-                    ? 'تصفية النتائج حسب الرقم أو الصانع أو المورد...'
-                    : 'Filter results by OEM, maker, supplier...';
-            }
-            if (isCompareModeActive) {
-                openCompareViewInModal();
-            } else {
-                updateCompareControlsUI();
-            }
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            localStorage.setItem('spare_lang', currentLang);
-            applyTranslations();
-            if (currentView === 'home') renderSearchPane();
-            if (document.getElementById('customer-search-results-modal')?.style.display === 'flex' && !isCompareModeActive) {
-                renderSearchResultsRowsInModal(currentFilteredSearchMatches);
-            }
-            updateDateTime();
+            if (icon) icon.className = `fa-solid ${isGridVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-blue-400 text-[10px]`;
         }
 
         function toggleTheme() {
@@ -3538,35 +3502,69 @@
         }
 
         function applyTheme() {
-            const bodyEl = document.getElementById('app-body');
-            const htmlEl = document.documentElement;
-            const themeIcon = document.getElementById('theme-icon');
-            bodyEl.classList.toggle('light', currentTheme === 'light');
-            bodyEl.classList.toggle('dark', currentTheme !== 'light');
-            htmlEl.classList.toggle('dark', currentTheme !== 'light');
-            if (themeIcon) themeIcon.className = currentTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            const body = document.getElementById('app-body');
+            const icon = document.getElementById('theme-icon');
+            body.classList.remove('dark', 'light'); body.classList.add(currentTheme);
+            document.documentElement.classList.toggle('dark', currentTheme === 'dark');
+            if (icon) icon.className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-amber-500';
         }
 
-        function updateDateTime() {
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            localStorage.setItem('spare_lang', currentLang);
+            applyLanguageSettings();
+            if (currentView === 'home') renderSearchPane();
+            const resultsModal = document.getElementById('customer-search-results-modal');
+            if (resultsModal && resultsModal.style.display === 'flex') {
+                populateModalCategoryDropdown(currentCustomerSearchMatches);
+                if (isCompareModeActive) openCompareViewInModal();
+                else filterModalSearchResults();
+            }
+        }
+
+        function applyLanguageSettings() {
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('lang-btn').innerText = currentLang === 'en' ? 'العربية' : 'English';
+            applyTranslations();
+            updateClock();
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+                const txt = el.getAttribute(`data-${currentLang}`);
+                if (txt) el.innerText = txt;
+            });
+        }
+
+        function updateClock() {
             const now = new Date();
             const locale = currentLang === 'ar' ? 'ar-JO' : 'en-GB';
             const dEl = document.getElementById('header-date');
             const tEl = document.getElementById('header-time');
-            if (dEl) dEl.innerText = now.toLocaleDateString(locale, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Amman' });
-            if (tEl) tEl.innerText = `• ${now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Amman' })} (Amman)`;
+            if (dEl) dEl.innerText = now.toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+            if (tEl) tEl.innerText = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
         }
 
-        document.addEventListener('click', (event) => {
-            if (!document.getElementById('profile-menu-container')?.contains(event.target)) closeProfileDropdown();
-            if (!document.getElementById('admin-actions-menu-container')?.contains(event.target)) closeAdminActionsDropdown();
-            if (!document.getElementById('admin-alerts-menu-container')?.contains(event.target)) closeAdminAlertsDropdown();
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('profile-menu-container')?.contains(e.target)) document.getElementById('profile-dropdown').style.display = 'none';
+            if (!document.getElementById('admin-actions-menu-container')?.contains(e.target)) closeAdminActionsDropdown();
+            if (!document.getElementById('admin-alerts-menu-container')?.contains(e.target)) closeAdminAlertsDropdown();
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const resultsModal = document.getElementById('customer-search-results-modal');
+                if (resultsModal && resultsModal.style.display === 'flex') closeCustomerSearchResultsModal();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
             applyTheme();
+            applyLanguageSettings();
             showHomeView();
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
+            updateClock();
+            setInterval(updateClock, 1000);
             initFirebaseServices();
         });
     </script>
