@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.5.0</title>
+    <title>Spare.jo - Find & Compare V6.6.0</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,6 +169,71 @@
             <span class="text-blue-500 font-medium" id="header-time">--</span>
         </div>
     </footer>
+
+    <!-- Customer Search Results Pop-Up Modal -->
+    <div id="customer-search-results-modal" onclick="if(event.target === this) closeCustomerSearchResultsModal()" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 md:p-5" style="display: none;">
+        <div class="animate-modal-pop custom-card border border-blue-500/40 rounded-2xl p-4 md:p-6 max-w-6xl w-full shadow-2xl relative flex flex-col max-h-[88vh] space-y-3.5">
+            <button type="button" onclick="closeCustomerSearchResultsModal()" aria-label="Close Search Results" class="absolute top-4 end-4 w-8 h-8 rounded-lg border border-blue-900/50 hover:border-blue-400 text-gray-400 hover:text-white flex items-center justify-center text-sm cursor-pointer transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-blue-900/40 pb-3 pe-10 shrink-0">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <div class="w-11 h-11 rounded-xl bg-blue-600/15 border border-blue-500/40 flex items-center justify-center text-blue-400 text-lg shrink-0">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 id="modal-search-results-title" class="text-sm md:text-lg font-black text-white">Search Results</h3>
+                            <span id="modal-search-results-count" class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">0 Matches</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400" data-en="Live spare parts inventory across verified suppliers and workshops in Jordan." data-ar="مخزون قطع الغيار المباشر لدى الموردين والورش المعتمدة في الأردن.">Live spare parts inventory across verified suppliers and workshops in Jordan.</p>
+                    </div>
+                </div>
+
+                <!-- In-Modal Quick Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="modal-search-grade-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
+                        <option value="all" data-en="Grade: All" data-ar="الفئة: الكل">Grade: All</option>
+                        <option value="genuine">Genuine</option>
+                        <option value="oem">OEM</option>
+                        <option value="aftermarket">Aftermarket</option>
+                    </select>
+                    <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter results by OEM, maker, supplier..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-52">
+                </div>
+            </div>
+
+            <!-- Results Table Container -->
+            <div class="flex-1 overflow-auto border border-blue-900/40 rounded-xl">
+                <table class="w-full text-start text-xs border-collapse">
+                    <thead class="text-[10px] text-gray-300 uppercase border-b border-blue-900/50 bg-[#0d162c] sticky top-0 z-10">
+                        <tr>
+                            <th class="py-2.5 px-3 text-start whitespace-nowrap" data-en="Spare Part" data-ar="قطعة الغيار">Spare Part</th>
+                            <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Part Number / OEM #" data-ar="الرقم التسلسلي">Part Number / OEM #</th>
+                            <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Grade" data-ar="الفئة">Grade</th>
+                            <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Vehicle / VIN Fitment" data-ar="المركبة / رقم الهيكل">Vehicle / VIN Fitment</th>
+                            <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Supplier" data-ar="المورد">Supplier</th>
+                            <th class="py-2.5 px-2.5 text-end whitespace-nowrap" data-en="Unit Price & Stock" data-ar="السعر والمخزون">Unit Price & Stock</th>
+                            <th class="py-2.5 px-3 text-end whitespace-nowrap" data-en="Action" data-ar="طلب">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-search-results-tbody" class="divide-y divide-blue-900/25"></tbody>
+                </table>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-2 border-t border-blue-900/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-gray-400 shrink-0">
+                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                    <i class="fa-solid fa-shield-check text-emerald-400"></i>
+                    <span data-en="Prices are quoted in Jordanian Dinars (JOD). Confirm chassis fitment directly with the supplier." data-ar="الأسعار معروضة بالدينار الأردني (JOD). يرجى تأكيد المطابقة مع المورد مباشرة.">Prices are quoted in Jordanian Dinars (JOD). Confirm chassis fitment directly with the supplier.</span>
+                </div>
+                <button type="button" onclick="closeCustomerSearchResultsModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md">
+                    <span data-en="Close Results" data-ar="إغلاق النتائج">Close Results</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Admin Login Modal -->
     <div id="admin-login-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4" style="display: none;">
@@ -477,6 +542,7 @@
         let adminUsersCache = [];
         let adminPartsCache = [];
         let activeInventoryCompanyId = null;
+        let currentCustomerSearchMatches = [];
         let adminSortColumn = 'name';
         let adminSortDirection = 'asc';
         let adminFilterType = 'all';
@@ -2244,7 +2310,7 @@
         }
 
         // ==========================================
-        // HOME SEARCH & LIVE RESULTS ENGINE
+        // HOME SEARCH & POP-UP RESULTS MODAL ENGINE
         // ==========================================
         async function getSearchablePartsPool() {
             if (db && adminPartsCache.length === 0) {
@@ -2269,23 +2335,24 @@
             return fromUsers.length > 0 ? fromUsers : fallbackSparePartsCatalog;
         }
 
-        function renderCustomerSearchResults(matches, querySummary) {
-            const wrapper = document.getElementById('home-search-results-wrapper');
-            const titleEl = document.getElementById('home-search-results-title');
-            const countEl = document.getElementById('home-search-results-count');
-            const tbody = document.getElementById('home-search-results-tbody');
-            if (!wrapper || !tbody) return;
+        function renderSearchResultsRowsInModal(matches) {
+            const countEl = document.getElementById('modal-search-results-count');
+            const tbody = document.getElementById('modal-search-results-tbody');
+            if (!tbody) return;
 
-            wrapper.style.display = 'block';
-            if (titleEl) titleEl.innerText = querySummary;
-            if (countEl) countEl.innerText = `${matches.length} ${currentLang === 'ar' ? 'نتيجة مطابقة' : (matches.length === 1 ? 'Match Found' : 'Matches Found')}`;
+            if (countEl) {
+                countEl.innerText = `${matches.length} ${currentLang === 'ar' ? 'نتيجة مطابقة' : (matches.length === 1 ? 'Match Found' : 'Matches Found')}`;
+            }
 
             if (matches.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="py-8 text-center text-gray-400 space-y-1">
-                            <div class="text-sm font-bold text-gray-300">${currentLang === 'ar' ? 'لم يتم العثور على قطع مطابقة في مخزون الشركات حالياً' : 'No matching spare parts found in company inventories'}</div>
-                            <div class="text-[11px]">${currentLang === 'ar' ? 'جرب البحث برقم هيكل آخر أو اختيار صانع وطراز مختلف.' : 'Try searching a different VIN, OEM part number, or vehicle make/model.'}</div>
+                        <td colspan="7" class="py-12 px-4 text-center text-gray-400 space-y-1.5">
+                            <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 text-blue-400 flex items-center justify-center mx-auto mb-2">
+                                <i class="fa-solid fa-box-open"></i>
+                            </div>
+                            <div class="text-sm font-bold text-gray-200">${currentLang === 'ar' ? 'لم يتم العثور على قطع مطابقة في مخزون الشركات حالياً' : 'No matching spare parts found in supplier inventories'}</div>
+                            <div class="text-[11px] max-w-md mx-auto">${currentLang === 'ar' ? 'جرب تعديل كلمات البحث أو الفئة أو تواصل مع فريق الدعم المباشر عبر واتساب لتوفير القطعة.' : 'Try adjusting your search keywords or grade filter, or message our WhatsApp parts desk for manual sourcing.'}</div>
                         </td>
                     </tr>
                 `;
@@ -2297,9 +2364,10 @@
                 const catLabel = currentLang === 'ar' ? escapeHtmlAttr(p.categoryAr || p.categoryEn || p.category || '') : escapeHtmlAttr(p.categoryEn || p.category || '');
                 const oem = escapeHtmlAttr(p.partNumber || '—');
                 const grade = escapeHtmlAttr(p.grade || 'Standard');
-                const gradeBadge = grade.toLowerCase() === 'genuine'
+                const gradeLower = grade.toLowerCase();
+                const gradeBadge = gradeLower === 'genuine'
                     ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                    : (grade.toLowerCase() === 'oem'
+                    : (gradeLower === 'oem'
                         ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
                         : 'bg-amber-500/15 text-amber-400 border-amber-500/30');
                 const vehicle = `${escapeHtmlAttr(p.carMaker || p.make || '')} ${escapeHtmlAttr(p.carModel || p.model || '')} ${escapeHtmlAttr(p.makeYear || '')}`.trim() || 'Universal';
@@ -2312,23 +2380,23 @@
 
                 return `
                     <tr class="hover:bg-blue-600/10 transition">
-                        <td class="py-2.5 px-3">
+                        <td class="py-3 px-3">
                             <div class="font-bold text-white">${partName}</div>
                             <div class="text-[10px] text-gray-400">${catLabel} ${p.partId ? `• <span class="font-mono text-cyan-400">${escapeHtmlAttr(p.partId)}</span>` : ''}</div>
                         </td>
-                        <td class="py-2.5 px-2 font-mono text-amber-400 font-bold whitespace-nowrap">${oem}</td>
-                        <td class="py-2.5 px-2 whitespace-nowrap"><span class="px-2 py-0.5 rounded border text-[10px] font-bold ${gradeBadge}">${grade}</span></td>
-                        <td class="py-2.5 px-2 whitespace-nowrap">
+                        <td class="py-3 px-2.5 font-mono text-amber-400 font-bold whitespace-nowrap">${oem}</td>
+                        <td class="py-3 px-2.5 whitespace-nowrap"><span class="px-2 py-0.5 rounded border text-[10px] font-bold ${gradeBadge}">${grade}</span></td>
+                        <td class="py-3 px-2.5 whitespace-nowrap">
                             <div class="font-semibold text-gray-200">${vehicle}</div>
                             ${vinStr ? `<div class="text-[10px] font-mono text-gray-400">VIN: ${vinStr}</div>` : ''}
                         </td>
-                        <td class="py-2.5 px-2 whitespace-nowrap font-semibold text-blue-300">${supplier}</td>
-                        <td class="py-2.5 px-2 text-end whitespace-nowrap">
+                        <td class="py-3 px-2.5 whitespace-nowrap font-semibold text-blue-300">${supplier}</td>
+                        <td class="py-3 px-2.5 text-end whitespace-nowrap">
                             <div class="font-mono font-black text-emerald-400 text-xs">${price} JOD</div>
                             <div class="text-[10px] ${stock > 0 ? 'text-gray-400' : 'text-red-400'}">${stock > 0 ? `${stock} in stock` : 'Out of stock'}</div>
                         </td>
-                        <td class="py-2.5 px-3 text-end whitespace-nowrap">
-                            <a href="https://wa.me/${rawPhone || '962795115122'}?text=${waText}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-[10px] font-bold inline-flex items-center space-x-1 rtl:space-x-reverse transition">
+                        <td class="py-3 px-3 text-end whitespace-nowrap">
+                            <a href="https://wa.me/${rawPhone || '962795115122'}?text=${waText}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-[11px] font-bold inline-flex items-center space-x-1.5 rtl:space-x-reverse transition shadow-sm">
                                 <i class="fa-brands fa-whatsapp"></i>
                                 <span>${currentLang === 'ar' ? 'اطلب الآن' : 'Inquire'}</span>
                             </a>
@@ -2338,9 +2406,44 @@
             }).join('');
         }
 
-        function closeCustomerSearchResults() {
-            const wrapper = document.getElementById('home-search-results-wrapper');
-            if (wrapper) wrapper.style.display = 'none';
+        function filterModalSearchResults() {
+            const gradeVal = (document.getElementById('modal-search-grade-filter')?.value || 'all').toLowerCase();
+            const refineTerm = (document.getElementById('modal-search-refine-input')?.value || '').toLowerCase().trim();
+
+            const filtered = currentCustomerSearchMatches.filter(p => {
+                if (gradeVal !== 'all') {
+                    const partGrade = String(p.grade || '').toLowerCase();
+                    if (!partGrade.includes(gradeVal)) return false;
+                }
+                if (refineTerm) {
+                    const haystack = `${p.partNameEn || p.name || ''} ${p.categoryEn || ''} ${p.categoryAr || ''} ${p.partNumber || ''} ${p.partId || ''} ${p.carMaker || p.make || ''} ${p.carModel || p.model || ''} ${p.vinNumber || ''} ${p.companyName || p.supplier || ''}`.toLowerCase();
+                    if (!haystack.includes(refineTerm)) return false;
+                }
+                return true;
+            });
+
+            renderSearchResultsRowsInModal(filtered);
+        }
+
+        function openCustomerSearchResultsModal(matches, querySummary) {
+            currentCustomerSearchMatches = Array.isArray(matches) ? matches : [];
+            const modal = document.getElementById('customer-search-results-modal');
+            const titleEl = document.getElementById('modal-search-results-title');
+            const gradeFilterEl = document.getElementById('modal-search-grade-filter');
+            const refineInputEl = document.getElementById('modal-search-refine-input');
+
+            if (titleEl) titleEl.innerText = querySummary;
+            if (gradeFilterEl) gradeFilterEl.value = 'all';
+            if (refineInputEl) refineInputEl.value = '';
+
+            renderSearchResultsRowsInModal(currentCustomerSearchMatches);
+            applyTranslations();
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeCustomerSearchResultsModal() {
+            const modal = document.getElementById('customer-search-results-modal');
+            if (modal) modal.style.display = 'none';
         }
 
         async function searchByCategory(catEn, catAr) {
@@ -2351,7 +2454,7 @@
                 String(p.categoryEn || p.category || '').toLowerCase().includes(q) ||
                 String(p.partNameEn || p.name || '').toLowerCase().includes(q)
             );
-            renderCustomerSearchResults(matches, currentLang === 'ar' ? `نتائج القسم: ${catAr}` : `Category: ${catEn}`);
+            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج القسم: ${catAr}` : `Category: ${catEn}`);
         }
 
         function getHomeViewHTML() {
@@ -2392,36 +2495,6 @@
                     <span id="tab-serial-btn" onclick="switchSearchTab('serial')" class="${activeSearchTab === 'serial' ? activeTabClass : inactiveTabClass}" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
                 </div>
                 <div id="search-pane-container" class="pt-0.5"></div>
-            </div>
-
-            <!-- Live Customer Search Results Container -->
-            <div id="home-search-results-wrapper" style="display: none;" class="animate-modal-pop custom-card border border-blue-500/40 rounded-xl shadow-2xl max-w-5xl mx-auto w-full overflow-hidden">
-                <div class="px-4 py-2.5 bg-blue-950/40 border-b border-blue-900/50 flex items-center justify-between gap-2">
-                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                        <i class="fa-solid fa-magnifying-glass text-blue-400 text-xs"></i>
-                        <span id="home-search-results-title" class="text-xs font-extrabold text-white">Search Results</span>
-                        <span id="home-search-results-count" class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">0 Matches</span>
-                    </div>
-                    <button type="button" onclick="closeCustomerSearchResults()" class="text-gray-400 hover:text-white text-xs cursor-pointer px-2 py-0.5 rounded hover:bg-white/5">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div class="max-h-56 overflow-auto">
-                    <table class="w-full text-start text-xs">
-                        <thead class="text-[10px] text-gray-400 uppercase border-b border-blue-900/40 bg-[#0d162c] sticky top-0 z-10">
-                            <tr>
-                                <th class="py-2 px-3 text-start" data-en="Spare Part" data-ar="قطعة الغيار">Spare Part</th>
-                                <th class="py-2 px-2 text-start" data-en="OEM #" data-ar="الرقم التسلسلي">OEM #</th>
-                                <th class="py-2 px-2 text-start" data-en="Grade" data-ar="الفئة">Grade</th>
-                                <th class="py-2 px-2 text-start" data-en="Vehicle / VIN" data-ar="المركبة / الهيكل">Vehicle / VIN</th>
-                                <th class="py-2 px-2 text-start" data-en="Supplier" data-ar="المورد">Supplier</th>
-                                <th class="py-2 px-2 text-end" data-en="Price & Stock" data-ar="السعر والمخزون">Price & Stock</th>
-                                <th class="py-2 px-3 text-end" data-en="Order" data-ar="طلب">Order</th>
-                            </tr>
-                        </thead>
-                        <tbody id="home-search-results-tbody" class="divide-y divide-blue-900/25"></tbody>
-                    </table>
-                </div>
             </div>
 
             <div class="max-w-5xl mx-auto w-full space-y-1 pb-2 md:pb-0">
@@ -2521,7 +2594,7 @@
             ['search-input', 'select-make', 'select-model', 'select-year', 'search-serial-input'].forEach(id => {
                 const el = document.getElementById(id); if (el) el.value = '';
             });
-            closeCustomerSearchResults();
+            closeCustomerSearchResultsModal();
         }
 
         async function handleSearchAction() {
@@ -2534,7 +2607,7 @@
                 String(p.vinNumber || '').toUpperCase().includes(q) ||
                 String(p.partNumber || '').toUpperCase().includes(q)
             );
-            renderCustomerSearchResults(matches, `VIN Search: "${val.toUpperCase()}"`);
+            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج رقم الهيكل: "${val.toUpperCase()}"` : `VIN Search: "${val.toUpperCase()}"`);
         }
 
         async function handleMakeModelSearch() {
@@ -2554,7 +2627,7 @@
                 return true;
             });
             const label = [mk, md, yr].filter(Boolean).join(' • ');
-            renderCustomerSearchResults(matches, `Vehicle Search: ${label}`);
+            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج المركبة: ${label}` : `Vehicle Search: ${label}`);
         }
 
         async function handleSerialSearch() {
@@ -2569,7 +2642,7 @@
                 String(p.partNameEn || p.name || '').toLowerCase().includes(q) ||
                 String(p.categoryEn || p.category || '').toLowerCase().includes(q)
             );
-            renderCustomerSearchResults(matches, `Part / OEM Search: "${serial}"`);
+            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج الرقم التسلسلي: "${serial}"` : `Part / OEM Search: "${serial}"`);
         }
 
         function openVinSourceModal() { trackSectionVisit('VIN OCR Scanner'); document.getElementById('vin-source-modal').style.display = 'flex'; }
@@ -3111,6 +3184,17 @@
             if (!document.getElementById('admin-alerts-menu-container')?.contains(e.target)) closeAdminAlertsDropdown();
         });
 
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCustomerSearchResultsModal();
+                closeCompanyInventoryModal();
+                closeCrCertificatesModal();
+                closeAdminEditUserModal();
+                closeAdminLoginModal();
+                closeVinSourceModal();
+            }
+        });
+
         function toggleCategoryGrid() {
             const container = document.getElementById('categories-grid-container');
             const icon = document.getElementById('grid-toggle-icon');
@@ -3158,6 +3242,9 @@
             currentLang = currentLang === 'en' ? 'ar' : 'en';
             localStorage.setItem('spare_lang', currentLang);
             if (currentView === 'home') renderSearchPane();
+            if (document.getElementById('customer-search-results-modal')?.style.display === 'flex') {
+                filterModalSearchResults();
+            }
             applyTranslations();
             updateLiveClock();
         }
