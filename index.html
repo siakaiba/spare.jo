@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.6.0</title>
+    <title>Spare.jo - Find & Compare V6.7.0</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -178,7 +178,7 @@
             </button>
 
             <!-- Modal Header -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-blue-900/40 pb-3 pe-10 shrink-0">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-blue-900/40 pb-3 pe-10 shrink-0">
                 <div class="flex items-center space-x-3 rtl:space-x-reverse">
                     <div class="w-11 h-11 rounded-xl bg-blue-600/15 border border-blue-500/40 flex items-center justify-center text-blue-400 text-lg shrink-0">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -192,29 +192,55 @@
                     </div>
                 </div>
 
-                <!-- In-Modal Quick Filters -->
+                <!-- In-Modal Quick Filters, Price Sort & Compare Button -->
                 <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" id="compare-now-btn" onclick="openCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold cursor-pointer transition shadow-md inline-flex items-center space-x-1.5 rtl:space-x-reverse">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span id="compare-now-btn-label">Compare Now!</span>
+                    </button>
+
+                    <button type="button" id="back-to-results-btn" onclick="exitCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/40 text-xs font-bold cursor-pointer transition inline-flex items-center space-x-1.5 rtl:space-x-reverse">
+                        <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                        <span data-en="Back to All Results" data-ar="العودة لجميع النتائج">Back to All Results</span>
+                    </button>
+
+                    <select id="modal-search-price-sort" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
+                        <option value="default" data-en="Sort by Price: Default" data-ar="ترتيب حسب السعر: الافتراضي">Sort by Price: Default</option>
+                        <option value="asc" data-en="Price: Low to High" data-ar="السعر: من الأقل إلى الأعلى">Price: Low to High</option>
+                        <option value="desc" data-en="Price: High to Low" data-ar="السعر: من الأعلى إلى الأقل">Price: High to Low</option>
+                    </select>
+
                     <select id="modal-search-grade-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
                         <option value="all" data-en="Grade: All" data-ar="الفئة: الكل">Grade: All</option>
                         <option value="genuine">Genuine</option>
                         <option value="oem">OEM</option>
                         <option value="aftermarket">Aftermarket</option>
                     </select>
-                    <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter results by OEM, maker, supplier..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-52">
+
+                    <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter results by OEM, maker, supplier..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-48">
                 </div>
             </div>
 
-            <!-- Results Table Container -->
-            <div class="flex-1 overflow-auto border border-blue-900/40 rounded-xl">
+            <!-- Results Table View -->
+            <div id="modal-search-table-wrapper" class="flex-1 overflow-auto border border-blue-900/40 rounded-xl">
                 <table class="w-full text-start text-xs border-collapse">
                     <thead class="text-[10px] text-gray-300 uppercase border-b border-blue-900/50 bg-[#0d162c] sticky top-0 z-10">
                         <tr>
+                            <th class="py-2.5 px-3 text-center whitespace-nowrap">
+                                <div class="inline-flex items-center justify-center space-x-1.5 rtl:space-x-reverse">
+                                    <input type="checkbox" id="select-all-compare-checkbox" onchange="toggleSelectAllCompare(this.checked)" title="Select / Deselect All" class="w-3.5 h-3.5 rounded accent-amber-500 cursor-pointer">
+                                    <span data-en="Select to Compare" data-ar="اختر للمقارنة">Select to Compare</span>
+                                </div>
+                            </th>
                             <th class="py-2.5 px-3 text-start whitespace-nowrap" data-en="Spare Part" data-ar="قطعة الغيار">Spare Part</th>
                             <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Part Number / OEM #" data-ar="الرقم التسلسلي">Part Number / OEM #</th>
                             <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Grade" data-ar="الفئة">Grade</th>
                             <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Vehicle / VIN Fitment" data-ar="المركبة / رقم الهيكل">Vehicle / VIN Fitment</th>
                             <th class="py-2.5 px-2.5 text-start whitespace-nowrap" data-en="Supplier" data-ar="المورد">Supplier</th>
-                            <th class="py-2.5 px-2.5 text-end whitespace-nowrap" data-en="Unit Price & Stock" data-ar="السعر والمخزون">Unit Price & Stock</th>
+                            <th onclick="cyclePriceSortFromHeader()" title="Click to sort by price" class="py-2.5 px-2.5 text-end whitespace-nowrap cursor-pointer hover:text-amber-400 transition select-none">
+                                <span data-en="Unit Price & Stock" data-ar="السعر والمخزون">Unit Price & Stock</span>
+                                <i id="price-sort-header-icon" class="fa-solid fa-sort ms-1 text-[10px] text-blue-400"></i>
+                            </th>
                             <th class="py-2.5 px-3 text-end whitespace-nowrap" data-en="Action" data-ar="طلب">Action</th>
                         </tr>
                     </thead>
@@ -222,15 +248,23 @@
                 </table>
             </div>
 
+            <!-- Side-by-Side Comparison View (Inside Same Window) -->
+            <div id="modal-search-compare-wrapper" style="display: none;" class="flex-1 overflow-auto border border-amber-500/40 rounded-xl p-3 md:p-4 bg-blue-950/15 space-y-3"></div>
+
             <!-- Modal Footer -->
             <div class="pt-2 border-t border-blue-900/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-gray-400 shrink-0">
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
                     <i class="fa-solid fa-shield-check text-emerald-400"></i>
-                    <span data-en="Prices are quoted in Jordanian Dinars (JOD). Confirm chassis fitment directly with the supplier." data-ar="الأسعار معروضة بالدينار الأردني (JOD). يرجى تأكيد المطابقة مع المورد مباشرة.">Prices are quoted in Jordanian Dinars (JOD). Confirm chassis fitment directly with the supplier.</span>
+                    <span data-en="Prices are quoted in Jordanian Dinars (JOD). Select 2 or more parts to compare prices side-by-side." data-ar="الأسعار معروضة بالدينار الأردني (JOD). اختر قطعتين أو أكثر لمقارنة الأسعار جنباً إلى جنب.">Prices are quoted in Jordanian Dinars (JOD). Select 2 or more parts to compare prices side-by-side.</span>
                 </div>
-                <button type="button" onclick="closeCustomerSearchResultsModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md">
-                    <span data-en="Close Results" data-ar="إغلاق النتائج">Close Results</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="clear-compare-selection-btn" onclick="clearCompareSelection()" style="display: none;" class="px-3 py-1.5 rounded-xl border border-amber-500/40 text-amber-400 hover:bg-amber-500/15 text-xs font-bold cursor-pointer transition">
+                        <span data-en="Clear Selection" data-ar="إلغاء التحديد">Clear Selection</span>
+                    </button>
+                    <button type="button" onclick="closeCustomerSearchResultsModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md">
+                        <span data-en="Close Results" data-ar="إغلاق النتائج">Close Results</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -543,6 +577,10 @@
         let adminPartsCache = [];
         let activeInventoryCompanyId = null;
         let currentCustomerSearchMatches = [];
+        let currentFilteredSearchMatches = [];
+        let selectedCompareKeys = new Set();
+        let isCompareModeActive = false;
+        let baseModalSearchTitle = 'Search Results';
         let adminSortColumn = 'name';
         let adminSortDirection = 'asc';
         let adminFilterType = 'all';
@@ -656,7 +694,9 @@
             { companyName: 'Al-Markaziah Parts', companyPhone: '+962795115122', partId: 'PRT-1003', partNumber: '54651-D3000', partNameEn: 'Front Left Shock Absorber', categoryEn: 'Shock Absorbers', categoryAr: 'مساعدين (الممتصات)', carMaker: 'Hyundai', carModel: 'Tucson', makeYear: '2022', vinNumber: 'KM8J33A46NU654321', grade: 'Genuine', unitPriceJOD: 62.50, stockQty: 15 },
             { companyName: 'Zarqa Lighting Hub', companyPhone: '+962795115122', partId: 'PRT-1004', partNumber: '92101-2T100', partNameEn: 'LED Projector Headlight LH', categoryEn: 'Headlights', categoryAr: 'الأضواء الأمامية', carMaker: 'Kia', carModel: 'K5 (Optima)', makeYear: '2023', vinNumber: '5XXG64J21PG987654', grade: 'Aftermarket', unitPriceJOD: 115.00, stockQty: 9 },
             { companyName: 'EuroParts Amman', companyPhone: '+962795115122', partId: 'PRT-1005', partNumber: '17117-54720', partNameEn: 'Aluminum Core Radiator', categoryEn: 'Radiator & Cooling', categoryAr: 'الراديتر والتبريد', carMaker: 'BMW', carModel: '3 Series', makeYear: '2020', vinNumber: 'WBA5R1C50LFH11223', grade: 'OEM', unitPriceJOD: 145.00, stockQty: 7 },
-            { companyName: 'Amman Auto Parts Co.', companyPhone: '+962795115122', partId: 'PRT-1006', partNumber: '90915-YZZD2', partNameEn: 'Spin-On Engine Oil Filter', categoryEn: 'Oil Filters', categoryAr: 'فلتر الزيت', carMaker: 'Toyota', carModel: 'Land Cruiser', makeYear: '2024', vinNumber: 'JTMHY7AJ5R4009876', grade: 'Genuine', unitPriceJOD: 8.50, stockQty: 140 }
+            { companyName: 'Amman Auto Parts Co.', companyPhone: '+962795115122', partId: 'PRT-1006', partNumber: '90915-YZZD2', partNameEn: 'Spin-On Engine Oil Filter', categoryEn: 'Oil Filters', categoryAr: 'فلتر الزيت', carMaker: 'Toyota', carModel: 'Land Cruiser', makeYear: '2024', vinNumber: 'JTMHY7AJ5R4009876', grade: 'Genuine', unitPriceJOD: 8.50, stockQty: 140 },
+            { companyName: 'Bayader Brake Specialists', companyPhone: '+962795115122', partId: 'PRT-1007', partNumber: '04465-33471-OEM', partNameEn: 'Front Ceramic Brake Pads (Advics)', categoryEn: 'Brake Pads', categoryAr: 'بطانات الفرامل', carMaker: 'Toyota', carModel: 'Camry', makeYear: '2023', vinNumber: '1HGCR2F83HA001234', grade: 'OEM', unitPriceJOD: 34.00, stockQty: 18 },
+            { companyName: 'Marka Auto Supply', companyPhone: '+962795115122', partId: 'PRT-1008', partNumber: '04465-33471-AM', partNameEn: 'Front Semi-Metallic Brake Pads', categoryEn: 'Brake Pads', categoryAr: 'بطانات الفرامل', carMaker: 'Toyota', carModel: 'Camry', makeYear: '2023', vinNumber: '1HGCR2F83HA001234', grade: 'Aftermarket', unitPriceJOD: 21.50, stockQty: 32 }
         ];
 
         const vehicleDatabase = {
@@ -2310,8 +2350,13 @@
         }
 
         // ==========================================
-        // HOME SEARCH & POP-UP RESULTS MODAL ENGINE
+        // HOME SEARCH, PRICE SORT & COMPARE ENGINE
         // ==========================================
+        function getPartUniqueKey(part, fallbackIndex = 0) {
+            if (part?.id) return String(part.id);
+            return `${part?.companyName || ''}_${part?.partId || ''}_${part?.partNumber || ''}_${part?.partNameEn || part?.name || ''}_${fallbackIndex}`;
+        }
+
         async function getSearchablePartsPool() {
             if (db && adminPartsCache.length === 0) {
                 await loadAllSparePartsFromFirestore();
@@ -2335,6 +2380,102 @@
             return fromUsers.length > 0 ? fromUsers : fallbackSparePartsCatalog;
         }
 
+        function updateCompareControlsUI() {
+            const count = selectedCompareKeys.size;
+            const compareBtn = document.getElementById('compare-now-btn');
+            const compareBtnLabel = document.getElementById('compare-now-btn-label');
+            const clearBtn = document.getElementById('clear-compare-selection-btn');
+            const backBtn = document.getElementById('back-to-results-btn');
+            const sortSelect = document.getElementById('modal-search-price-sort');
+            const gradeSelect = document.getElementById('modal-search-grade-filter');
+            const refineInput = document.getElementById('modal-search-refine-input');
+            const selectAllCb = document.getElementById('select-all-compare-checkbox');
+
+            if (isCompareModeActive) {
+                if (compareBtn) compareBtn.style.display = 'none';
+                if (backBtn) backBtn.style.display = 'inline-flex';
+                if (clearBtn) clearBtn.style.display = 'none';
+                if (sortSelect) sortSelect.style.display = 'none';
+                if (gradeSelect) gradeSelect.style.display = 'none';
+                if (refineInput) refineInput.style.display = 'none';
+            } else {
+                if (backBtn) backBtn.style.display = 'none';
+                if (sortSelect) sortSelect.style.display = 'inline-block';
+                if (gradeSelect) gradeSelect.style.display = 'inline-block';
+                if (refineInput) refineInput.style.display = 'inline-block';
+
+                if (compareBtn && compareBtnLabel) {
+                    if (count >= 2) {
+                        compareBtn.style.display = 'inline-flex';
+                        compareBtnLabel.innerText = currentLang === 'ar'
+                            ? `قارن الآن! (${count})`
+                            : `Compare Now! (${count})`;
+                    } else {
+                        compareBtn.style.display = 'none';
+                    }
+                }
+                if (clearBtn) {
+                    clearBtn.style.display = count > 0 ? 'inline-block' : 'none';
+                }
+            }
+
+            if (selectAllCb) {
+                if (currentFilteredSearchMatches.length > 0) {
+                    const allVisibleSelected = currentFilteredSearchMatches.every(p => selectedCompareKeys.has(p._compareKey));
+                    const someVisibleSelected = currentFilteredSearchMatches.some(p => selectedCompareKeys.has(p._compareKey));
+                    selectAllCb.checked = allVisibleSelected;
+                    selectAllCb.indeterminate = !allVisibleSelected && someVisibleSelected;
+                } else {
+                    selectAllCb.checked = false;
+                    selectAllCb.indeterminate = false;
+                }
+            }
+        }
+
+        function toggleCompareSelection(compareKey, isChecked) {
+            if (isChecked) {
+                selectedCompareKeys.add(compareKey);
+            } else {
+                selectedCompareKeys.delete(compareKey);
+            }
+            updateCompareControlsUI();
+        }
+
+        function toggleSelectAllCompare(isChecked) {
+            currentFilteredSearchMatches.forEach(p => {
+                if (isChecked) selectedCompareKeys.add(p._compareKey);
+                else selectedCompareKeys.delete(p._compareKey);
+            });
+            renderSearchResultsRowsInModal(currentFilteredSearchMatches);
+        }
+
+        function clearCompareSelection() {
+            selectedCompareKeys.clear();
+            if (isCompareModeActive) {
+                exitCompareViewInModal();
+            } else {
+                renderSearchResultsRowsInModal(currentFilteredSearchMatches);
+            }
+        }
+
+        function cyclePriceSortFromHeader() {
+            const sortSelect = document.getElementById('modal-search-price-sort');
+            if (!sortSelect) return;
+            const nextVal = sortSelect.value === 'default' ? 'asc' : (sortSelect.value === 'asc' ? 'desc' : 'default');
+            sortSelect.value = nextVal;
+            filterModalSearchResults();
+        }
+
+        function updatePriceSortHeaderIcon(sortOrder) {
+            const icon = document.getElementById('price-sort-header-icon');
+            if (!icon) return;
+            icon.className = sortOrder === 'asc'
+                ? 'fa-solid fa-arrow-up-short-wide ms-1 text-[10px] text-amber-400'
+                : (sortOrder === 'desc'
+                    ? 'fa-solid fa-arrow-down-wide-short ms-1 text-[10px] text-amber-400'
+                    : 'fa-solid fa-sort ms-1 text-[10px] text-blue-400');
+        }
+
         function renderSearchResultsRowsInModal(matches) {
             const countEl = document.getElementById('modal-search-results-count');
             const tbody = document.getElementById('modal-search-results-tbody');
@@ -2347,7 +2488,7 @@
             if (matches.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="py-12 px-4 text-center text-gray-400 space-y-1.5">
+                        <td colspan="8" class="py-12 px-4 text-center text-gray-400 space-y-1.5">
                             <div class="w-10 h-10 rounded-full bg-blue-600/10 border border-blue-500/30 text-blue-400 flex items-center justify-center mx-auto mb-2">
                                 <i class="fa-solid fa-box-open"></i>
                             </div>
@@ -2356,10 +2497,13 @@
                         </td>
                     </tr>
                 `;
+                updateCompareControlsUI();
                 return;
             }
 
             tbody.innerHTML = matches.map(p => {
+                const cKey = p._compareKey;
+                const isChecked = selectedCompareKeys.has(cKey);
                 const partName = escapeHtmlAttr(p.partNameEn || p.name || 'Spare Part');
                 const catLabel = currentLang === 'ar' ? escapeHtmlAttr(p.categoryAr || p.categoryEn || p.category || '') : escapeHtmlAttr(p.categoryEn || p.category || '');
                 const oem = escapeHtmlAttr(p.partNumber || '—');
@@ -2379,7 +2523,12 @@
                 const waText = encodeURIComponent(`Hello ${p.companyName || ''}, I found "${p.partNameEn || p.name}" (OEM: ${p.partNumber}) on Spare.jo. Is it available?`);
 
                 return `
-                    <tr class="hover:bg-blue-600/10 transition">
+                    <tr class="hover:bg-blue-600/10 transition ${isChecked ? 'bg-amber-500/10' : ''}">
+                        <td class="py-3 px-3 text-center whitespace-nowrap">
+                            <label class="inline-flex items-center justify-center cursor-pointer p-1">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCompareSelection('${escapeHtmlAttr(cKey)}', this.checked)" aria-label="Select to Compare" class="w-4 h-4 rounded accent-amber-500 cursor-pointer">
+                            </label>
+                        </td>
                         <td class="py-3 px-3">
                             <div class="font-bold text-white">${partName}</div>
                             <div class="text-[10px] text-gray-400">${catLabel} ${p.partId ? `• <span class="font-mono text-cyan-400">${escapeHtmlAttr(p.partId)}</span>` : ''}</div>
@@ -2404,13 +2553,169 @@
                     </tr>
                 `;
             }).join('');
+
+            updateCompareControlsUI();
+        }
+
+        function openCompareViewInModal() {
+            const selectedParts = currentCustomerSearchMatches.filter(p => selectedCompareKeys.has(p._compareKey));
+            if (selectedParts.length < 2) {
+                return showToast('Please select at least 2 spare parts to compare.', 'يرجى اختيار قطعتين على الأقل للمقارنة.', 'warning');
+            }
+
+            isCompareModeActive = true;
+            const tableWrapper = document.getElementById('modal-search-table-wrapper');
+            const compareWrapper = document.getElementById('modal-search-compare-wrapper');
+            const titleEl = document.getElementById('modal-search-results-title');
+            const countEl = document.getElementById('modal-search-results-count');
+
+            if (tableWrapper) tableWrapper.style.display = 'none';
+            if (compareWrapper) compareWrapper.style.display = 'block';
+            if (titleEl) {
+                titleEl.innerText = currentLang === 'ar'
+                    ? `مقارنة الأسعار (${selectedParts.length} قطع مختارة)`
+                    : `Price & Spec Comparison (${selectedParts.length} Parts Selected)`;
+            }
+            if (countEl) {
+                countEl.innerText = currentLang === 'ar'
+                    ? `مقارنة ${selectedParts.length} خيارات`
+                    : `Comparing ${selectedParts.length} Options`;
+            }
+
+            // Sort compared items from lowest price to highest price so the best deal appears first
+            const sortedSelected = [...selectedParts].sort((a, b) =>
+                parseNumericValue(a.unitPriceJOD ?? a.priceJOD) - parseNumericValue(b.unitPriceJOD ?? b.priceJOD)
+            );
+
+            const prices = sortedSelected.map(p => parseNumericValue(p.unitPriceJOD ?? p.priceJOD));
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const maxSavings = (maxPrice - minPrice).toFixed(2);
+
+            const cardsHTML = sortedSelected.map(p => {
+                const priceVal = parseNumericValue(p.unitPriceJOD ?? p.priceJOD);
+                const isBestPrice = priceVal === minPrice && minPrice < maxPrice;
+                const diffFromLowest = (priceVal - minPrice).toFixed(2);
+                const partName = escapeHtmlAttr(p.partNameEn || p.name || 'Spare Part');
+                const catLabel = currentLang === 'ar' ? escapeHtmlAttr(p.categoryAr || p.categoryEn || p.category || '—') : escapeHtmlAttr(p.categoryEn || p.category || '—');
+                const oem = escapeHtmlAttr(p.partNumber || '—');
+                const partId = escapeHtmlAttr(p.partId || '—');
+                const grade = escapeHtmlAttr(p.grade || 'Standard');
+                const gradeLower = grade.toLowerCase();
+                const gradeBadge = gradeLower === 'genuine'
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    : (gradeLower === 'oem'
+                        ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                        : 'bg-amber-500/15 text-amber-400 border-amber-500/30');
+                const vehicle = `${escapeHtmlAttr(p.carMaker || p.make || '')} ${escapeHtmlAttr(p.carModel || p.model || '')} ${escapeHtmlAttr(p.makeYear || '')}`.trim() || 'Universal';
+                const vinStr = escapeHtmlAttr(p.vinNumber || '—');
+                const supplier = escapeHtmlAttr(p.companyName || p.supplier || 'Verified Supplier');
+                const stock = parseNumericValue(p.stockQty ?? p.stock);
+                const rawPhone = String(p.companyPhone || '+962795115122').replace(/[^0-9]/g, '');
+                const waText = encodeURIComponent(`Hello ${p.companyName || ''}, I compared "${p.partNameEn || p.name}" (OEM: ${p.partNumber}) at ${priceVal.toFixed(2)} JOD on Spare.jo. Is it available?`);
+
+                return `
+                    <div class="custom-card border ${isBestPrice ? 'border-emerald-500/70 ring-1 ring-emerald-500/30' : 'border-blue-900/50'} rounded-2xl p-4 flex flex-col justify-between space-y-3 relative">
+                        <div class="space-y-2.5">
+                            <div class="flex items-start justify-between gap-2">
+                                <span class="px-2 py-0.5 rounded border text-[10px] font-bold ${gradeBadge}">${grade}</span>
+                                ${isBestPrice
+                                    ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-wide"><i class="fa-solid fa-trophy me-1"></i>${currentLang === 'ar' ? 'أفضل سعر' : 'Best Price'}</span>`
+                                    : (minPrice < maxPrice
+                                        ? `<span class="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-bold font-mono">+${diffFromLowest} JOD</span>`
+                                        : '')
+                                }
+                            </div>
+
+                            <div>
+                                <div class="font-extrabold text-sm text-white leading-snug">${partName}</div>
+                                <div class="text-[11px] text-gray-400 mt-0.5">${catLabel}</div>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-center">
+                                <div class="text-[10px] uppercase text-gray-400 font-semibold">${currentLang === 'ar' ? 'سعر الوحدة' : 'Unit Price'}</div>
+                                <div class="text-xl font-black font-mono text-emerald-400">${priceVal.toFixed(2)} JOD</div>
+                            </div>
+
+                            <div class="divide-y divide-blue-900/30 text-[11px]">
+                                <div class="py-1.5 flex items-center justify-between gap-2">
+                                    <span class="text-gray-400">${currentLang === 'ar' ? 'المورد:' : 'Supplier:'}</span>
+                                    <span class="font-bold text-blue-300 text-end">${supplier}</span>
+                                </div>
+                                <div class="py-1.5 flex items-center justify-between gap-2">
+                                    <span class="text-gray-400">${currentLang === 'ar' ? 'رقم OEM:' : 'OEM #:'}</span>
+                                    <span class="font-mono font-bold text-amber-400">${oem}</span>
+                                </div>
+                                <div class="py-1.5 flex items-center justify-between gap-2">
+                                    <span class="text-gray-400">${currentLang === 'ar' ? 'رمز القطعة:' : 'Part ID:'}</span>
+                                    <span class="font-mono text-cyan-400">${partId}</span>
+                                </div>
+                                <div class="py-1.5 flex items-center justify-between gap-2">
+                                    <span class="text-gray-400">${currentLang === 'ar' ? 'المركبة:' : 'Vehicle:'}</span>
+                                    <span class="font-semibold text-gray-200 text-end">${vehicle}</span>
+                                </div>
+                                <div class="py-1.5 flex items-center justify-between gap-2">
+                                    <span class="text-gray-400">VIN:</span>
+                                    <span class="font-mono text-[10px] text-gray-300">${vinStr}</span>
+                                </div>
+                                <div class="py-1.5 flex items-center justify-between gap-2">
+                                    <span class="text-gray-400">${currentLang === 'ar' ? 'المخزون:' : 'Availability:'}</span>
+                                    <span class="font-bold ${stock > 0 ? 'text-emerald-400' : 'text-red-400'}">${stock > 0 ? `${stock} in stock` : 'Out of stock'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="https://wa.me/${rawPhone || '962795115122'}?text=${waText}" target="_blank" rel="noopener noreferrer" class="w-full py-2 px-3 rounded-xl ${isBestPrice ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40'} text-xs font-bold flex items-center justify-center space-x-1.5 rtl:space-x-reverse transition shadow-sm">
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                            <span>${currentLang === 'ar' ? 'اطلب من هذا المورد' : 'Inquire With Supplier'}</span>
+                        </a>
+                    </div>
+                `;
+            }).join('');
+
+            if (compareWrapper) {
+                compareWrapper.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs">
+                        <div class="flex items-center space-x-2 rtl:space-x-reverse text-amber-300 font-bold">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                            <span>${currentLang === 'ar'
+                                ? `فرق السعر بين الأقل والأعلى: ${maxSavings} دينار أردني`
+                                : `Price Spread (Lowest vs. Highest): ${maxSavings} JOD (Lowest: ${minPrice.toFixed(2)} JOD)`}</span>
+                        </div>
+                        <button type="button" onclick="exitCompareViewInModal()" class="text-[11px] text-blue-400 hover:underline font-semibold cursor-pointer">
+                            ${currentLang === 'ar' ? 'تعديل القطع المختارة' : 'Modify Selection'}
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(sortedSelected.length, 4)} gap-3">
+                        ${cardsHTML}
+                    </div>
+                `;
+            }
+
+            updateCompareControlsUI();
+        }
+
+        function exitCompareViewInModal() {
+            isCompareModeActive = false;
+            const tableWrapper = document.getElementById('modal-search-table-wrapper');
+            const compareWrapper = document.getElementById('modal-search-compare-wrapper');
+            const titleEl = document.getElementById('modal-search-results-title');
+
+            if (compareWrapper) compareWrapper.style.display = 'none';
+            if (tableWrapper) tableWrapper.style.display = 'block';
+            if (titleEl) titleEl.innerText = baseModalSearchTitle;
+
+            filterModalSearchResults();
         }
 
         function filterModalSearchResults() {
+            const sortOrder = document.getElementById('modal-search-price-sort')?.value || 'default';
             const gradeVal = (document.getElementById('modal-search-grade-filter')?.value || 'all').toLowerCase();
             const refineTerm = (document.getElementById('modal-search-refine-input')?.value || '').toLowerCase().trim();
 
-            const filtered = currentCustomerSearchMatches.filter(p => {
+            updatePriceSortHeaderIcon(sortOrder);
+
+            let filtered = currentCustomerSearchMatches.filter(p => {
                 if (gradeVal !== 'all') {
                     const partGrade = String(p.grade || '').toLowerCase();
                     if (!partGrade.includes(gradeVal)) return false;
@@ -2422,21 +2727,48 @@
                 return true;
             });
 
+            if (sortOrder === 'asc') {
+                filtered = [...filtered].sort((a, b) =>
+                    parseNumericValue(a.unitPriceJOD ?? a.priceJOD) - parseNumericValue(b.unitPriceJOD ?? b.priceJOD)
+                );
+            } else if (sortOrder === 'desc') {
+                filtered = [...filtered].sort((a, b) =>
+                    parseNumericValue(b.unitPriceJOD ?? b.priceJOD) - parseNumericValue(a.unitPriceJOD ?? a.priceJOD)
+                );
+            }
+
+            currentFilteredSearchMatches = filtered;
             renderSearchResultsRowsInModal(filtered);
         }
 
         function openCustomerSearchResultsModal(matches, querySummary) {
-            currentCustomerSearchMatches = Array.isArray(matches) ? matches : [];
+            baseModalSearchTitle = querySummary;
+            selectedCompareKeys.clear();
+            isCompareModeActive = false;
+
+            currentCustomerSearchMatches = (Array.isArray(matches) ? matches : []).map((item, idx) => ({
+                ...item,
+                _compareKey: getPartUniqueKey(item, idx)
+            }));
+            currentFilteredSearchMatches = [...currentCustomerSearchMatches];
+
             const modal = document.getElementById('customer-search-results-modal');
             const titleEl = document.getElementById('modal-search-results-title');
+            const sortSelectEl = document.getElementById('modal-search-price-sort');
             const gradeFilterEl = document.getElementById('modal-search-grade-filter');
             const refineInputEl = document.getElementById('modal-search-refine-input');
+            const tableWrapper = document.getElementById('modal-search-table-wrapper');
+            const compareWrapper = document.getElementById('modal-search-compare-wrapper');
 
             if (titleEl) titleEl.innerText = querySummary;
+            if (sortSelectEl) sortSelectEl.value = 'default';
             if (gradeFilterEl) gradeFilterEl.value = 'all';
             if (refineInputEl) refineInputEl.value = '';
+            if (compareWrapper) compareWrapper.style.display = 'none';
+            if (tableWrapper) tableWrapper.style.display = 'block';
 
-            renderSearchResultsRowsInModal(currentCustomerSearchMatches);
+            updatePriceSortHeaderIcon('default');
+            renderSearchResultsRowsInModal(currentFilteredSearchMatches);
             applyTranslations();
             if (modal) modal.style.display = 'flex';
         }
@@ -2444,6 +2776,7 @@
         function closeCustomerSearchResultsModal() {
             const modal = document.getElementById('customer-search-results-modal');
             if (modal) modal.style.display = 'none';
+            isCompareModeActive = false;
         }
 
         async function searchByCategory(catEn, catAr) {
@@ -3015,7 +3348,7 @@
                             <li><a href="#" onclick="showAboutView(); return false;" class="hover:text-amber-400 transition">• <span data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</span></a></li>
                             <li><a href="#" onclick="showPrivacyView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</span></a></li>
                             <li><a href="#" onclick="showTermsView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</span></a></li>
-                            <li><a href="#" onclick="showSupportView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Support & FAQs" data-ar="الدعم والأسئلة الشائعة">Support & FAQs</span></a></li>
+                            <li><a href="#" onclick="showSupportView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Support & Help Center" data-ar="الدعم والمساعدة">Support & Help Center</span></a></li>
                             <li><a href="#" onclick="showContactView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Contact Us" data-ar="اتصل بنا">Contact Us</span></a></li>
                         </ul>
                     </div>
@@ -3027,234 +3360,215 @@
         function handleContactFormSubmit(event) {
             event.preventDefault();
             const name = document.getElementById('contact-name')?.value.trim() || '';
-            event.target.reset();
+            const email = document.getElementById('contact-email')?.value.trim() || '';
+            const subject = document.getElementById('contact-subject')?.value || 'General Inquiry';
+            const message = document.getElementById('contact-message')?.value.trim() || '';
             showToast(
-                `Thank you${name ? ', ' + name : ''}! Your message has been sent to Spare.jo support.`,
-                `شكراً لك${name ? ' يا ' + name : ''}! تم إرسال رسالتك إلى فريق Spare.jo بنجاح.`,
+                `Thank you ${name}! Your message regarding "${subject}" has been received.`,
+                `شكراً لك ${name}! تم استلام رسالتك بخصوص "${subject}".`,
                 'success'
             );
+            event.target.reset();
         }
 
         function showContactView() {
             const html = `
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 text-xs">
                     <div class="md:col-span-5 space-y-3">
-                        <h3 class="font-extrabold text-blue-400 text-sm" data-en="Get in Touch" data-ar="تواصل معنا">Get in Touch</h3>
-                        <p class="text-gray-300 leading-relaxed" data-en="Have questions about supplier onboarding, API catalog integration, or locating a specific part in Jordan? Reach out to our Amman headquarters." data-ar="هل لديك استفسار حول تسجيل الموردين أو ربط كتالوجات القطع أو البحث عن قطعة معينة في الأردن؟ تواصل مع مكتبنا الرئيسي في عمّان.">
-                            Have questions about supplier onboarding, API catalog integration, or locating a specific part in Jordan? Reach out to our Amman headquarters.
-                        </p>
-
-                        <div class="space-y-2.5 pt-1">
-                            <div class="flex items-start space-x-3 rtl:space-x-reverse p-3 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                                <i class="fa-solid fa-location-dot text-blue-400 mt-0.5"></i>
+                        <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-3">
+                            <h3 class="font-extrabold text-blue-400 text-sm" data-en="Direct Channels" data-ar="قنوات التواصل المباشر">Direct Channels</h3>
+                            
+                            <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0"><i class="fa-brands fa-whatsapp"></i></div>
                                 <div>
-                                    <div class="font-bold text-white" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</div>
-                                    <div class="text-gray-400" data-en="Amman, Hashemite Kingdom of Jordan" data-ar="عمّان، المملكة الأردنية الهاشمية">Amman, Hashemite Kingdom of Jordan</div>
+                                    <div class="text-[10px] text-gray-400 uppercase font-semibold" data-en="WhatsApp & Phone" data-ar="واتساب والهاتف">WhatsApp & Phone</div>
+                                    <a href="https://wa.me/962795115122" target="_blank" class="font-mono font-bold text-emerald-400 hover:underline" dir="ltr">+962 7 9511 5122</a>
                                 </div>
                             </div>
 
-                            <div class="flex items-start space-x-3 rtl:space-x-reverse p-3 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                                <i class="fa-brands fa-whatsapp text-emerald-400 mt-0.5"></i>
+                            <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0"><i class="fa-regular fa-envelope"></i></div>
                                 <div>
-                                    <div class="font-bold text-white" data-en="Phone & WhatsApp" data-ar="الهاتف والواتساب">Phone & WhatsApp</div>
-                                    <a href="https://wa.me/962795115122" target="_blank" class="text-emerald-400 font-mono hover:underline" dir="ltr">+962 7 9511 5122</a>
+                                    <div class="text-[10px] text-gray-400 uppercase font-semibold" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
+                                    <a href="mailto:Spare.jo@outlook.com" class="font-mono font-bold text-blue-400 hover:underline">Spare.jo@outlook.com</a>
                                 </div>
                             </div>
 
-                            <div class="flex items-start space-x-3 rtl:space-x-reverse p-3 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                                <i class="fa-solid fa-envelope text-amber-400 mt-0.5"></i>
+                            <div class="flex items-start space-x-3 rtl:space-x-reverse">
+                                <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-location-dot"></i></div>
                                 <div>
-                                    <div class="font-bold text-white" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
-                                    <a href="mailto:Spare.jo@outlook.com" class="text-blue-400 font-mono hover:underline">Spare.jo@outlook.com</a>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start space-x-3 rtl:space-x-reverse p-3 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                                <i class="fa-solid fa-clock text-cyan-400 mt-0.5"></i>
-                                <div>
-                                    <div class="font-bold text-white" data-en="Business Hours" data-ar="ساعات العمل">Business Hours</div>
-                                    <div class="text-gray-400" data-en="Saturday – Thursday: 8:30 AM – 6:30 PM (Amman Time)" data-ar="السبت – الخميس: 8:30 صباحاً – 6:30 مساءً (بتوقيت عمّان)">Saturday – Thursday: 8:30 AM – 6:30 PM (Amman Time)</div>
-                                </div>
-                            </div>
-
-                            <!-- Social Media Shortcuts -->
-                            <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2">
-                                <div class="font-bold text-white text-[11px] uppercase tracking-wider" data-en="Follow Spare.jo" data-ar="تابع Spare.jo">Follow Spare.jo</div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg border border-blue-500/30 bg-blue-600/10 hover:bg-blue-600 hover:text-white text-blue-400 transition font-semibold">
-                                        <i class="fa-brands fa-facebook-f w-4 text-center"></i>
-                                        <span>Facebook</span>
-                                    </a>
-                                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500 hover:text-white text-sky-400 transition font-semibold">
-                                        <i class="fa-brands fa-x-twitter w-4 text-center"></i>
-                                        <span>Twitter (X)</span>
-                                    </a>
-                                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg border border-pink-500/30 bg-pink-500/10 hover:bg-pink-600 hover:text-white text-pink-400 transition font-semibold">
-                                        <i class="fa-brands fa-instagram w-4 text-center"></i>
-                                        <span>Instagram</span>
-                                    </a>
-                                    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 rtl:space-x-reverse px-3 py-2 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-600 hover:text-white text-indigo-400 transition font-semibold">
-                                        <i class="fa-brands fa-linkedin-in w-4 text-center"></i>
-                                        <span>LinkedIn</span>
-                                    </a>
+                                    <div class="text-[10px] text-gray-400 uppercase font-semibold" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</div>
+                                    <div class="font-semibold text-gray-200" data-en="Amman, Hashemite Kingdom of Jordan" data-ar="عمّان، المملكة الأردنية الهاشمية">Amman, Hashemite Kingdom of Jordan</div>
+                                    <div class="text-[10px] text-gray-400" data-en="Serving all 12 Governorates (Sat–Thu, 9:00 AM – 6:00 PM)" data-ar="نخدم جميع المحافظات الـ 12 (السبت–الخميس، 9 صباحاً – 6 مساءً)">Serving all 12 Governorates (Sat–Thu, 9:00 AM – 6:00 PM)</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-7 p-4 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                        <h3 class="font-extrabold text-white text-sm mb-3" data-en="Send Us a Direct Message" data-ar="أرسل لنا رسالة مباشرة">Send Us a Direct Message</h3>
-                        <form onsubmit="handleContactFormSubmit(event)" class="space-y-3">
+                    <div class="md:col-span-7">
+                        <form onsubmit="handleContactFormSubmit(event)" class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-3">
+                            <h3 class="font-extrabold text-white text-sm" data-en="Send Us a Message" data-ar="أرسل لنا رسالة">Send Us a Message</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 <div>
-                                    <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Full Name / Workshop" data-ar="الاسم الكامل / اسم الورشة">Full Name / Workshop</label>
-                                    <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Ahmad Al-Khatib">
+                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Full Name" data-ar="الاسم الكامل">Full Name</label>
+                                    <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Ahmad Al-Masri">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Phone / WhatsApp" data-ar="رقم الهاتف / واتساب">Phone / WhatsApp</label>
-                                    <input type="text" id="contact-phone" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="+962 7X XXX XXXX">
+                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
+                                    <input type="email" id="contact-email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
-                                <input type="email" id="contact-email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Topic" data-ar="الموضوع">Topic</label>
-                                <select id="contact-topic" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
-                                    <option value="part-inquiry" data-en="Spare Part Availability / VIN Help" data-ar="الاستفسار عن توفر قطعة / مساعدة رقم الهيكل">Spare Part Availability / VIN Help</option>
-                                    <option value="b2b-onboarding" data-en="B2B Supplier / Importer Registration" data-ar="تسجيل مورد أو مستورد تجاري (B2B)">B2B Supplier / Importer Registration</option>
-                                    <option value="technical" data-en="Technical Support" data-ar="الدعم الفني">Technical Support</option>
-                                    <option value="partnership" data-en="Business Partnership" data-ar="شراكة تجارية">Business Partnership</option>
+                                <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Topic" data-ar="الموضوع">Topic</label>
+                                <select id="contact-subject" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                                    <option value="Spare Part Sourcing">Spare Part Sourcing / VIN Help</option>
+                                    <option value="B2B Company Onboarding">B2B Company / Importer Onboarding</option>
+                                    <option value="Technical Support">Technical Support</option>
+                                    <option value="Partnership & Media">Partnership & Media</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Message" data-ar="الرسالة">Message</label>
-                                <textarea id="contact-message" rows="4" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Write your message here..."></textarea>
+                                <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Message" data-ar="الرسالة">Message</label>
+                                <textarea id="contact-message" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="How can our team assist you?"></textarea>
                             </div>
-                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-lg transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
                                 <i class="fa-solid fa-paper-plane"></i>
-                                <span data-en="Send Message" data-ar="إرسال الرسالة">Send Message</span>
+                                <span data-en="Submit Inquiry" data-ar="إرسال الرسالة">Submit Inquiry</span>
                             </button>
                         </form>
                     </div>
                 </div>
             `;
-            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Amman Headquarters & Inquiries', 'المقر الرئيسي والاستفسارات', 'fa-solid fa-envelope-open-text', html);
+            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get in Touch', 'تواصل معنا', 'fa-solid fa-envelope-open-text', html);
         }
 
+        function handleProfileButtonAction(event) {
+            if (event) event.stopPropagation();
+            if (loggedInUser) toggleProfileDropdown();
+            else showAccountSelectionView();
+        }
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'block' : 'none';
+        }
+        function closeProfileDropdown() { document.getElementById('profile-dropdown').style.display = 'none'; }
+
         function updateProfileButtonUI() {
-            const icon = document.getElementById('profile-icon-i');
+            const iconI = document.getElementById('profile-icon-i');
             const initialsSpan = document.getElementById('profile-initials');
-            if (!icon || !initialsSpan) return;
+            const dropdownName = document.getElementById('dropdown-user-name');
+            const dropdownEmail = document.getElementById('dropdown-user-email');
+            if (!iconI || !initialsSpan) return;
             if (loggedInUser) {
-                const name = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim() || 'U';
-                icon.style.display = 'none';
+                iconI.style.display = 'none';
                 initialsSpan.style.display = 'inline';
-                initialsSpan.innerText = name[0].toUpperCase();
-                if (document.getElementById('dropdown-user-name')) document.getElementById('dropdown-user-name').innerText = name;
-                if (document.getElementById('dropdown-user-email')) document.getElementById('dropdown-user-email').innerText = loggedInUser.email || '';
+                const f = (loggedInUser.firstName || 'U').trim();
+                const l = (loggedInUser.lastName || '').trim();
+                initialsSpan.innerText = l ? `${f[0]}${l[0]}`.toUpperCase() : f.substring(0, 2).toUpperCase();
+                if (dropdownName) dropdownName.innerText = `${f} ${l}`.trim();
+                if (dropdownEmail) dropdownEmail.innerText = loggedInUser.email || '';
             } else {
-                icon.style.display = 'inline';
+                iconI.style.display = 'inline';
                 initialsSpan.style.display = 'none';
             }
         }
 
-        function handleProfileButtonAction(e) {
-            if (e) e.stopPropagation();
-            if (loggedInUser) {
-                const dd = document.getElementById('profile-dropdown');
-                dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
-            } else showAccountSelectionView();
-        }
-        function closeProfileDropdown() { const dd = document.getElementById('profile-dropdown'); if (dd) dd.style.display = 'none'; }
-        function selectDropdownOption(action) {
+        async function selectDropdownOption(action) {
             closeProfileDropdown();
-            if (action === 'signout' && auth) auth.signOut();
-            else if (action === 'profile') showToast(`Signed in as ${loggedInUser?.email}`, '', 'info');
-            else if (action === 'delete' && auth?.currentUser && confirm('Permanently delete your account?')) {
-                const uid = auth.currentUser.uid;
-                auth.currentUser.delete().then(() => { if (db) db.collection('users').doc(uid).delete(); showHomeView(); }).catch(e => showToast(e.message, '', 'error'));
+            if (action === 'signout') {
+                if (auth) await auth.signOut();
+                loggedInUser = null; updateProfileButtonUI(); showHomeView();
+            } else if (action === 'profile') {
+                showToast(`Signed in as ${loggedInUser?.firstName || 'User'} (${loggedInUser?.email || ''})`, '', 'info');
+            } else if (action === 'delete') {
+                if (auth?.currentUser && confirm('Permanently delete your account?')) {
+                    const uid = auth.currentUser.uid;
+                    if (db) await db.collection('users').doc(uid).delete();
+                    await auth.currentUser.delete();
+                    loggedInUser = null; updateProfileButtonUI(); showHomeView();
+                }
             }
         }
-
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('profile-menu-container')?.contains(e.target)) closeProfileDropdown();
-            if (!document.getElementById('admin-actions-menu-container')?.contains(e.target)) closeAdminActionsDropdown();
-            if (!document.getElementById('admin-alerts-menu-container')?.contains(e.target)) closeAdminAlertsDropdown();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeCustomerSearchResultsModal();
-                closeCompanyInventoryModal();
-                closeCrCertificatesModal();
-                closeAdminEditUserModal();
-                closeAdminLoginModal();
-                closeVinSourceModal();
-            }
-        });
 
         function toggleCategoryGrid() {
-            const container = document.getElementById('categories-grid-container');
-            const icon = document.getElementById('grid-toggle-icon');
             isGridVisible = !isGridVisible;
-            if (isGridVisible) {
-                trackSectionVisit('Popular Categories Grid');
-                container.classList.remove('hidden'); container.classList.add('grid'); icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-            } else {
-                container.classList.add('hidden'); container.classList.remove('grid'); icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-            }
-        }
-
-        function updateLiveClock() {
-            const now = new Date();
-            const dateEl = document.getElementById('header-date');
-            const timeEl = document.getElementById('header-time');
-            if (dateEl) dateEl.innerText = now.toLocaleDateString(currentLang === 'ar' ? 'ar-JO' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-            if (timeEl) timeEl.innerText = now.toLocaleTimeString(currentLang === 'ar' ? 'ar-JO' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        }
-
-        function applyThemeState(theme) {
-            const body = document.getElementById('app-body');
-            const icon = document.getElementById('theme-icon');
-            if (theme === 'light') { body.classList.replace('dark', 'light'); icon.classList.replace('fa-moon', 'fa-sun'); }
-            else { body.classList.replace('light', 'dark'); icon.classList.replace('fa-sun', 'fa-moon'); }
-        }
-
-        function toggleTheme() {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('spare_theme', currentTheme);
-            applyThemeState(currentTheme);
+            const grid = document.getElementById('categories-grid-container');
+            const icon = document.getElementById('grid-toggle-icon');
+            if (grid) { grid.classList.toggle('hidden', !isGridVisible); grid.classList.toggle('grid', isGridVisible); }
+            if (icon) icon.className = isGridVisible ? 'fa-solid fa-chevron-up text-blue-400 text-[10px]' : 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
         }
 
         function applyTranslations() {
-            document.querySelectorAll('[data-en][data-ar]').forEach(el => {
-                if (el.tagName !== 'INPUT') el.innerText = el.getAttribute('data-' + currentLang);
+            const htmlEl = document.documentElement;
+            const langBtn = document.getElementById('lang-btn');
+            htmlEl.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            htmlEl.lang = currentLang;
+            if (langBtn) langBtn.innerText = currentLang === 'ar' ? 'English' : 'العربية';
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`) || el.getAttribute('data-en');
             });
-            document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
-            document.documentElement.setAttribute('lang', currentLang);
-            const btn = document.getElementById('lang-btn');
-            if (btn) btn.innerText = currentLang === 'ar' ? 'English' : 'العربية';
+            const refineInput = document.getElementById('modal-search-refine-input');
+            if (refineInput) {
+                refineInput.placeholder = currentLang === 'ar'
+                    ? 'تصفية النتائج حسب الرقم أو الصانع أو المورد...'
+                    : 'Filter results by OEM, maker, supplier...';
+            }
+            if (isCompareModeActive) {
+                openCompareViewInModal();
+            } else {
+                updateCompareControlsUI();
+            }
         }
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ar' : 'en';
             localStorage.setItem('spare_lang', currentLang);
-            if (currentView === 'home') renderSearchPane();
-            if (document.getElementById('customer-search-results-modal')?.style.display === 'flex') {
-                filterModalSearchResults();
-            }
             applyTranslations();
-            updateLiveClock();
+            if (currentView === 'home') renderSearchPane();
+            if (document.getElementById('customer-search-results-modal')?.style.display === 'flex' && !isCompareModeActive) {
+                renderSearchResultsRowsInModal(currentFilteredSearchMatches);
+            }
+            updateDateTime();
         }
 
-        // Immediate initialization
-        applyThemeState(currentTheme);
-        showHomeView();
-        updateLiveClock();
-        setInterval(updateLiveClock, 1000);
-        initFirebaseServices();
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('spare_theme', currentTheme);
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const bodyEl = document.getElementById('app-body');
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            bodyEl.classList.toggle('light', currentTheme === 'light');
+            bodyEl.classList.toggle('dark', currentTheme !== 'light');
+            htmlEl.classList.toggle('dark', currentTheme !== 'light');
+            if (themeIcon) themeIcon.className = currentTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const locale = currentLang === 'ar' ? 'ar-JO' : 'en-GB';
+            const dEl = document.getElementById('header-date');
+            const tEl = document.getElementById('header-time');
+            if (dEl) dEl.innerText = now.toLocaleDateString(locale, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Amman' });
+            if (tEl) tEl.innerText = `• ${now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Amman' })} (Amman)`;
+        }
+
+        document.addEventListener('click', (event) => {
+            if (!document.getElementById('profile-menu-container')?.contains(event.target)) closeProfileDropdown();
+            if (!document.getElementById('admin-actions-menu-container')?.contains(event.target)) closeAdminActionsDropdown();
+            if (!document.getElementById('admin-alerts-menu-container')?.contains(event.target)) closeAdminAlertsDropdown();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+            showHomeView();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            initFirebaseServices();
+        });
     </script>
 </body>
 </html>
