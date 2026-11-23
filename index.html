@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spare.jo - Find & Compare V6.3.1</title>
+    <title>Spare.jo - Find & Compare V6.5.0</title>
     <link rel="icon" type="image/jpeg" href="Spare.jo_4.jpg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -144,7 +144,7 @@
     </header>
 
     <!-- Main Dynamic View Container -->
-    <main id="main-content" class="flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0 overflow-hidden"></main>
+    <main id="main-content" class="flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0 overflow-y-auto"></main>
 
     <!-- Footer -->
     <footer id="main-footer" class="border-t py-2 px-4 md:px-6 text-[10px] md:text-[11px] text-gray-400 shrink-0 flex flex-col md:flex-row justify-between items-center gap-2">
@@ -291,6 +291,10 @@
                         <i class="fa-solid fa-file-export"></i>
                         <span>Export Inventory (CSV)</span>
                     </button>
+                    <button type="button" onclick="clearCompanyInventory()" class="px-3.5 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/40 text-xs font-bold rounded-xl cursor-pointer inline-flex items-center space-x-1.5 rtl:space-x-reverse shadow-md transition">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Clear Inventory</span>
+                    </button>
                 </div>
             </div>
 
@@ -300,7 +304,7 @@
             <!-- Table Filter & Add Row Bar -->
             <div class="flex flex-wrap items-center justify-between gap-2 shrink-0">
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-blue-400"><i class="fa-solid fa-boxes-stacked me-1.5"></i>Spare Parts Inventory</span>
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-blue-400"><i class="fa-solid fa-boxes-stacked me-1.5"></i>Spare Parts Inventory (Synced to Firestore <code class="text-emerald-400">spare_parts</code>)</span>
                     <span id="comp-inv-item-count" class="px-2 py-0.5 rounded-full bg-blue-600/15 border border-blue-500/30 text-blue-400 text-[10px] font-bold">0 items</span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -340,7 +344,7 @@
             <!-- Footer with Total Inventory Value -->
             <div class="pt-2.5 border-t border-blue-900/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
                 <div class="text-[11px] text-gray-400">
-                    <i class="fa-solid fa-pen-to-square text-blue-400 me-1"></i>Click any cell to edit values directly. Total Value updates automatically.
+                    <i class="fa-solid fa-cloud-arrow-up text-emerald-400 me-1"></i>Every edit, CSV upload, or clear action syncs automatically to Firestore's <code class="text-emerald-400">spare_parts</code> collection.
                 </div>
                 <div class="flex items-center space-x-4 rtl:space-x-reverse">
                     <div class="px-4 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/40 flex items-center space-x-2 rtl:space-x-reverse">
@@ -581,12 +585,12 @@
         ];
 
         const fallbackSparePartsCatalog = [
-            { partNumber: '04465-33471', name: 'Front Ceramic Brake Pads', category: 'Brake Pads', make: 'Toyota', model: 'Camry', grade: 'Genuine', priceJOD: 48.00, stock: 24, supplier: 'Amman Auto Parts Co.' },
-            { partNumber: 'G9510-47060', name: 'Hybrid HV Battery Assembly', category: 'Hybrid Battery', make: 'Toyota', model: 'Prius', grade: 'OEM', priceJOD: 920.00, stock: 4, supplier: 'Jordan Hybrid Center' },
-            { partNumber: '54651-D3000', name: 'Front Left Shock Absorber', category: 'Shock Absorbers', make: 'Hyundai', model: 'Tucson', grade: 'Genuine', priceJOD: 62.50, stock: 15, supplier: 'Al-Markaziah Parts' },
-            { partNumber: '92101-2T100', name: 'LED Projector Headlight LH', category: 'Headlights', make: 'Kia', model: 'K5 (Optima)', grade: 'Aftermarket', priceJOD: 115.00, stock: 9, supplier: 'Zarqa Lighting Hub' },
-            { partNumber: '17117-54720', name: 'Aluminum Core Radiator', category: 'Radiator & Cooling', make: 'BMW', model: '3 Series', grade: 'OEM', priceJOD: 145.00, stock: 7, supplier: 'EuroParts Amman' },
-            { partNumber: '90915-YZZD2', name: 'Spin-On Engine Oil Filter', category: 'Oil Filters', make: 'Toyota', model: 'Land Cruiser', grade: 'Genuine', priceJOD: 8.50, stock: 140, supplier: 'Amman Auto Parts Co.' }
+            { companyName: 'Amman Auto Parts Co.', companyPhone: '+962795115122', partId: 'PRT-1001', partNumber: '04465-33471', partNameEn: 'Front Ceramic Brake Pads', categoryEn: 'Brake Pads', categoryAr: 'بطانات الفرامل', carMaker: 'Toyota', carModel: 'Camry', makeYear: '2023', vinNumber: '1HGCR2F83HA001234', grade: 'Genuine', unitPriceJOD: 48.00, stockQty: 24 },
+            { companyName: 'Jordan Hybrid Center', companyPhone: '+962795115122', partId: 'PRT-1002', partNumber: 'G9510-47060', partNameEn: 'Hybrid HV Battery Assembly', categoryEn: 'Hybrid Battery', categoryAr: 'بطارية هجينة', carMaker: 'Toyota', carModel: 'Prius', makeYear: '2021', vinNumber: 'JTDKARFU9M3123456', grade: 'OEM', unitPriceJOD: 920.00, stockQty: 4 },
+            { companyName: 'Al-Markaziah Parts', companyPhone: '+962795115122', partId: 'PRT-1003', partNumber: '54651-D3000', partNameEn: 'Front Left Shock Absorber', categoryEn: 'Shock Absorbers', categoryAr: 'مساعدين (الممتصات)', carMaker: 'Hyundai', carModel: 'Tucson', makeYear: '2022', vinNumber: 'KM8J33A46NU654321', grade: 'Genuine', unitPriceJOD: 62.50, stockQty: 15 },
+            { companyName: 'Zarqa Lighting Hub', companyPhone: '+962795115122', partId: 'PRT-1004', partNumber: '92101-2T100', partNameEn: 'LED Projector Headlight LH', categoryEn: 'Headlights', categoryAr: 'الأضواء الأمامية', carMaker: 'Kia', carModel: 'K5 (Optima)', makeYear: '2023', vinNumber: '5XXG64J21PG987654', grade: 'Aftermarket', unitPriceJOD: 115.00, stockQty: 9 },
+            { companyName: 'EuroParts Amman', companyPhone: '+962795115122', partId: 'PRT-1005', partNumber: '17117-54720', partNameEn: 'Aluminum Core Radiator', categoryEn: 'Radiator & Cooling', categoryAr: 'الراديتر والتبريد', carMaker: 'BMW', carModel: '3 Series', makeYear: '2020', vinNumber: 'WBA5R1C50LFH11223', grade: 'OEM', unitPriceJOD: 145.00, stockQty: 7 },
+            { companyName: 'Amman Auto Parts Co.', companyPhone: '+962795115122', partId: 'PRT-1006', partNumber: '90915-YZZD2', partNameEn: 'Spin-On Engine Oil Filter', categoryEn: 'Oil Filters', categoryAr: 'فلتر الزيت', carMaker: 'Toyota', carModel: 'Land Cruiser', makeYear: '2024', vinNumber: 'JTMHY7AJ5R4009876', grade: 'Genuine', unitPriceJOD: 8.50, stockQty: 140 }
         ];
 
         const vehicleDatabase = {
@@ -597,6 +601,19 @@
             "Mercedes": ["C-Class", "E-Class", "S-Class", "GLA", "GLC", "GLE", "A-Class"],
             "Nissan": ["Sunny", "Altima", "Patrol", "Qashqai", "X-Trail", "Kicks"]
         };
+
+        async function loadAllSparePartsFromFirestore() {
+            if (!db) return;
+            try {
+                const snap = await db.collection('spare_parts').get();
+                const parts = [];
+                snap.forEach(doc => parts.push({ id: doc.id, ...doc.data() }));
+                adminPartsCache = parts;
+                if (currentView === 'admin-dashboard') updateAdminPartsKPIs();
+            } catch (e) {
+                console.warn('Could not load spare_parts collection:', e);
+            }
+        }
 
         function initFirebaseServices() {
             if (typeof firebase === 'undefined') {
@@ -617,6 +634,8 @@
                 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
                 auth = firebase.auth();
                 db = firebase.firestore();
+
+                loadAllSparePartsFromFirestore();
 
                 auth.onAuthStateChanged(async (user) => {
                     if (user) {
@@ -679,7 +698,7 @@
             if (!main) return;
             main.className = mode === 'admin'
                 ? "flex-1 flex flex-col justify-start px-4 md:px-6 py-3 w-full h-full overflow-y-auto"
-                : "flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0 overflow-hidden";
+                : "flex-1 flex flex-col justify-center px-4 md:px-10 max-w-7xl mx-auto w-full space-y-2 md:space-y-1.5 py-4 md:py-0 overflow-y-auto";
         }
 
         function getCrValidityState(dateStr) {
@@ -1127,18 +1146,92 @@
 
         async function persistCompanyInventory(companyObj) {
             if (!companyObj) return;
+            const companyName = `${companyObj.firstName || ''} ${companyObj.lastName || ''}`.trim() || 'Unnamed Company';
+            const items = Array.isArray(companyObj.inventory) ? companyObj.inventory : [];
+            const nowIso = new Date().toISOString();
+
+            adminPartsCache = adminPartsCache.filter(p => p.companyId !== companyObj.id);
+            const normalizedDocs = items.map((item, idx) => {
+                const safePartId = (item.partId || `PRT-${String(idx + 1).padStart(4, '0')}`).replace(/[^a-zA-Z0-9_-]/g, '_');
+                const docId = `${companyObj.id}_${safePartId}_${idx}`;
+                const unitPriceJOD = parseNumericValue(item.unitPriceJOD);
+                const stockQty = parseNumericValue(item.stockQty);
+                return {
+                    id: docId,
+                    companyId: companyObj.id,
+                    companyName: item.companyName || companyName,
+                    companyEmail: companyObj.email || '',
+                    companyPhone: companyObj.phone || '',
+                    partId: item.partId || `PRT-${String(idx + 1).padStart(4, '0')}`,
+                    categoryEn: item.categoryEn || '',
+                    categoryAr: item.categoryAr || '',
+                    partNumber: item.partNumber || '',
+                    partNameEn: item.partNameEn || '',
+                    grade: item.grade || '',
+                    carMaker: item.carMaker || '',
+                    carModel: item.carModel || '',
+                    makeYear: item.makeYear || '',
+                    vinNumber: (item.vinNumber || '').toUpperCase().slice(0, 17),
+                    unitPriceJOD,
+                    stockQty,
+                    totalValueJOD: Number((unitPriceJOD * stockQty).toFixed(2)),
+                    updatedAt: nowIso
+                };
+            });
+            adminPartsCache.push(...normalizedDocs);
+
             updateAdminPartsKPIs();
             if (isAdminChartsVisible) renderAdminPieCharts();
+
             if (db) {
                 try {
                     await db.collection('users').doc(companyObj.id).update({
-                        inventory: companyObj.inventory || [],
-                        updatedAt: new Date().toISOString()
+                        inventory: items,
+                        updatedAt: nowIso
                     });
+
+                    const existingSnap = await db.collection('spare_parts').where('companyId', '==', companyObj.id).get();
+                    const batch = db.batch();
+                    const activeDocIds = new Set(normalizedDocs.map(d => d.id));
+
+                    existingSnap.forEach(doc => {
+                        if (!activeDocIds.has(doc.id)) {
+                            batch.delete(doc.ref);
+                        }
+                    });
+
+                    normalizedDocs.forEach(partDoc => {
+                        const ref = db.collection('spare_parts').doc(partDoc.id);
+                        batch.set(ref, partDoc, { merge: true });
+                    });
+
+                    await batch.commit();
                 } catch (err) {
                     showToast('Saved locally; Firestore sync error: ' + err.message, 'تم الحفظ محلياً فقط.', 'warning');
                 }
             }
+        }
+
+        async function clearCompanyInventory() {
+            if (!activeInventoryCompanyId) return;
+            const companyObj = adminUsersCache.find(u => u.id === activeInventoryCompanyId);
+            if (!companyObj) return;
+
+            const currentItems = getCompanyInventoryArray(companyObj);
+            const companyName = `${companyObj.firstName || ''} ${companyObj.lastName || ''}`.trim() || 'this company';
+
+            if (currentItems.length === 0) {
+                return showToast(`Inventory for ${companyName} is already empty.`, `مخزون ${companyName} فارغ بالفعل.`, 'info');
+            }
+
+            if (!confirm(`Are you sure you want to clear all ${currentItems.length} spare part(s) from ${companyName}'s inventory? This will also remove them from Firestore.`)) {
+                return;
+            }
+
+            companyObj.inventory = [];
+            renderCompanyInventoryTable();
+            await persistCompanyInventory(companyObj);
+            showToast(`Cleared all spare parts from ${companyName}'s inventory.`, `تم مسح جميع قطع الغيار من مخزون ${companyName}.`, 'success');
         }
 
         function renderCompanyInventoryTable() {
@@ -1221,7 +1314,6 @@
                 companyObj.inventory[rowIndex][field] = field === 'vinNumber' ? String(rawValue).trim().toUpperCase() : String(rawValue).trim();
             }
 
-            // Recompute row total & grand total immediately
             const item = companyObj.inventory[rowIndex];
             const rowTotal = parseNumericValue(item.unitPriceJOD) * parseNumericValue(item.stockQty);
             const rowCell = document.getElementById(`comp-inv-row-total-${rowIndex}`);
@@ -1355,7 +1447,6 @@
                     return showToast('CSV file must contain a header row and at least one part row.', 'ملف CSV فارغ أو لا يحتوي على بيانات.', 'warning');
                 }
 
-                // Map columns dynamically by header name (with fallback to standard 14-column indices)
                 const headers = rows[0].map(h => h.toLowerCase().trim());
                 const findCol = (keywords, fallbackIdx) => {
                     const found = headers.findIndex(h => keywords.some(k => h.includes(k)));
@@ -1400,7 +1491,7 @@
                 companyObj.inventory = parsedItems;
                 renderCompanyInventoryTable();
                 await persistCompanyInventory(companyObj);
-                showToast(`Uploaded ${parsedItems.length} spare part(s) from CSV.`, `تم رفع ${parsedItems.length} قطعة غيار من ملف CSV.`, 'success');
+                showToast(`Uploaded ${parsedItems.length} spare part(s) & synced to Firestore spare_parts.`, `تم رفع ${parsedItems.length} قطعة غيار ومزامنتها مع قاعدة البيانات.`, 'success');
             } catch (err) {
                 showToast('Error parsing CSV file: ' + err.message, 'خطأ في قراءة ملف CSV.', 'error');
             }
@@ -1566,9 +1657,27 @@
             }
 
             const partsList = adminPartsCache.length > 0 ? adminPartsCache : fallbackSparePartsCatalog;
-            const headers = ['Part Number', 'Part Name', 'Category', 'Make', 'Model', 'Grade', 'Price (JOD)', 'Stock'];
-            const rows = partsList.map(p => [p.partNumber || '', p.name || '', p.category || '', p.make || '', p.model || '', p.grade || '', p.priceJOD || '', p.stock || '']);
-            downloadCSVFile(`Spare_jo_Spare_Parts_${new Date().toISOString().split('T')[0]}.csv`, headers, rows);
+            const rows = partsList.map(p => {
+                const price = parseNumericValue(p.unitPriceJOD ?? p.priceJOD);
+                const qty = parseNumericValue(p.stockQty ?? p.stock);
+                return [
+                    p.companyName || p.supplier || '',
+                    p.partId || '',
+                    p.categoryEn || p.category || '',
+                    p.categoryAr || '',
+                    p.partNumber || '',
+                    p.partNameEn || p.name || '',
+                    p.grade || '',
+                    p.carMaker || p.make || '',
+                    p.carModel || p.model || '',
+                    p.makeYear || '',
+                    p.vinNumber || '',
+                    price.toFixed(2),
+                    qty,
+                    (price * qty).toFixed(2)
+                ];
+            });
+            downloadCSVFile(`Spare_jo_Spare_Parts_${new Date().toISOString().split('T')[0]}.csv`, COMPANY_INVENTORY_CSV_HEADERS, rows);
         }
 
         function getSortedAdminUsers(list) {
@@ -1821,10 +1930,11 @@
                 }
             });
 
-            const hasCompanyInventory = companyParts.length > 0;
-            const activeParts = hasCompanyInventory
+            const activeParts = companyParts.length > 0
                 ? companyParts
-                : (adminPartsCache.length > 0 ? adminPartsCache : fallbackSparePartsCatalog);
+                : (adminPartsCache.length > 0
+                    ? adminPartsCache.map(p => ({ priceJOD: parseNumericValue(p.unitPriceJOD ?? p.priceJOD), stock: parseNumericValue(p.stockQty ?? p.stock), grade: p.grade, vinNumber: p.vinNumber, partNumber: p.partNumber }))
+                    : fallbackSparePartsCatalog.map(p => ({ priceJOD: parseNumericValue(p.unitPriceJOD ?? p.priceJOD), stock: parseNumericValue(p.stockQty ?? p.stock), grade: p.grade, vinNumber: p.vinNumber, partNumber: p.partNumber })));
 
             let totalValue = 0;
             let totalUnits = 0;
@@ -1835,13 +1945,13 @@
                 const qty = parseNumericValue(p.stock);
                 totalValue += unitPrice * qty;
                 totalUnits += qty;
-                if (!hasCompanyInventory) {
+                if (companyParts.length === 0) {
                     if (p.grade) distinctGrades.add(String(p.grade).trim());
+                    if (p.vinNumber) distinctVins.add(String(p.vinNumber).trim().toUpperCase());
                     if (p.partNumber) distinctPartNumbers.add(String(p.partNumber).trim().toUpperCase());
                 }
             });
 
-            // 1. Total Spare Parts Card (shows total uploaded part rows / SKUs)
             const partsCountEl = document.getElementById('kpi-parts-count');
             const partsSubEl = document.getElementById('kpi-parts-sub');
             if (partsCountEl) partsCountEl.innerText = totalSkus.toLocaleString();
@@ -1852,13 +1962,11 @@
                     : 'Genuine, OEM & Aftermarket';
             }
 
-            // 2. Total Parts Value Card (sum of Unit Price × Stock Qty across all uploaded parts)
             const partsValueEl = document.getElementById('kpi-parts-value');
             const partsValueSubEl = document.getElementById('kpi-parts-value-sub');
             if (partsValueEl) partsValueEl.innerText = `${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} JOD`;
             if (partsValueSubEl) partsValueSubEl.innerText = `${totalUnits.toLocaleString()} total stock units`;
 
-            // 3. VIN / Part Queries Card
             const queriesCountEl = document.getElementById('kpi-queries-count');
             const queriesSubEl = document.getElementById('kpi-queries-sub');
             const searchableCount = distinctVins.size + distinctPartNumbers.size;
@@ -1877,6 +1985,7 @@
                 const snapshot = await db.collection('users').get();
                 adminUsersCache = [];
                 snapshot.forEach(doc => adminUsersCache.push({ id: doc.id, ...doc.data() }));
+                await loadAllSparePartsFromFirestore();
                 updateAdminKPIs();
                 updateAdminPartsKPIs();
                 updateAdminAlertsUI();
@@ -2016,8 +2125,15 @@
             const userId = document.getElementById('edit-user-id').value;
             if (!userId || !confirm('Delete this user permanently?')) return;
             try {
-                if (db) await db.collection('users').doc(userId).delete();
+                if (db) {
+                    await db.collection('users').doc(userId).delete();
+                    const partsSnap = await db.collection('spare_parts').where('companyId', '==', userId).get();
+                    const batch = db.batch();
+                    partsSnap.forEach(doc => batch.delete(doc.ref));
+                    await batch.commit();
+                }
                 adminUsersCache = adminUsersCache.filter(u => u.id !== userId);
+                adminPartsCache = adminPartsCache.filter(p => p.companyId !== userId);
                 updateAdminKPIs();
                 updateAdminPartsKPIs();
                 updateAdminAlertsUI();
@@ -2127,22 +2243,133 @@
             }).join('');
         }
 
+        // ==========================================
+        // HOME SEARCH & LIVE RESULTS ENGINE
+        // ==========================================
+        async function getSearchablePartsPool() {
+            if (db && adminPartsCache.length === 0) {
+                await loadAllSparePartsFromFirestore();
+            }
+            if (adminPartsCache.length > 0) return adminPartsCache;
+
+            const fromUsers = [];
+            adminUsersCache.forEach(u => {
+                if (Array.isArray(u.inventory) && u.inventory.length > 0) {
+                    const compName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Supplier';
+                    u.inventory.forEach(item => {
+                        fromUsers.push({
+                            ...item,
+                            companyName: item.companyName || compName,
+                            companyPhone: u.phone || '+962795115122',
+                            companyEmail: u.email || ''
+                        });
+                    });
+                }
+            });
+            return fromUsers.length > 0 ? fromUsers : fallbackSparePartsCatalog;
+        }
+
+        function renderCustomerSearchResults(matches, querySummary) {
+            const wrapper = document.getElementById('home-search-results-wrapper');
+            const titleEl = document.getElementById('home-search-results-title');
+            const countEl = document.getElementById('home-search-results-count');
+            const tbody = document.getElementById('home-search-results-tbody');
+            if (!wrapper || !tbody) return;
+
+            wrapper.style.display = 'block';
+            if (titleEl) titleEl.innerText = querySummary;
+            if (countEl) countEl.innerText = `${matches.length} ${currentLang === 'ar' ? 'نتيجة مطابقة' : (matches.length === 1 ? 'Match Found' : 'Matches Found')}`;
+
+            if (matches.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-gray-400 space-y-1">
+                            <div class="text-sm font-bold text-gray-300">${currentLang === 'ar' ? 'لم يتم العثور على قطع مطابقة في مخزون الشركات حالياً' : 'No matching spare parts found in company inventories'}</div>
+                            <div class="text-[11px]">${currentLang === 'ar' ? 'جرب البحث برقم هيكل آخر أو اختيار صانع وطراز مختلف.' : 'Try searching a different VIN, OEM part number, or vehicle make/model.'}</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = matches.map(p => {
+                const partName = escapeHtmlAttr(p.partNameEn || p.name || 'Spare Part');
+                const catLabel = currentLang === 'ar' ? escapeHtmlAttr(p.categoryAr || p.categoryEn || p.category || '') : escapeHtmlAttr(p.categoryEn || p.category || '');
+                const oem = escapeHtmlAttr(p.partNumber || '—');
+                const grade = escapeHtmlAttr(p.grade || 'Standard');
+                const gradeBadge = grade.toLowerCase() === 'genuine'
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    : (grade.toLowerCase() === 'oem'
+                        ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                        : 'bg-amber-500/15 text-amber-400 border-amber-500/30');
+                const vehicle = `${escapeHtmlAttr(p.carMaker || p.make || '')} ${escapeHtmlAttr(p.carModel || p.model || '')} ${escapeHtmlAttr(p.makeYear || '')}`.trim() || 'Universal';
+                const vinStr = escapeHtmlAttr(p.vinNumber || '');
+                const supplier = escapeHtmlAttr(p.companyName || p.supplier || 'Verified Supplier');
+                const price = parseNumericValue(p.unitPriceJOD ?? p.priceJOD).toFixed(2);
+                const stock = parseNumericValue(p.stockQty ?? p.stock);
+                const rawPhone = String(p.companyPhone || '+962795115122').replace(/[^0-9]/g, '');
+                const waText = encodeURIComponent(`Hello ${p.companyName || ''}, I found "${p.partNameEn || p.name}" (OEM: ${p.partNumber}) on Spare.jo. Is it available?`);
+
+                return `
+                    <tr class="hover:bg-blue-600/10 transition">
+                        <td class="py-2.5 px-3">
+                            <div class="font-bold text-white">${partName}</div>
+                            <div class="text-[10px] text-gray-400">${catLabel} ${p.partId ? `• <span class="font-mono text-cyan-400">${escapeHtmlAttr(p.partId)}</span>` : ''}</div>
+                        </td>
+                        <td class="py-2.5 px-2 font-mono text-amber-400 font-bold whitespace-nowrap">${oem}</td>
+                        <td class="py-2.5 px-2 whitespace-nowrap"><span class="px-2 py-0.5 rounded border text-[10px] font-bold ${gradeBadge}">${grade}</span></td>
+                        <td class="py-2.5 px-2 whitespace-nowrap">
+                            <div class="font-semibold text-gray-200">${vehicle}</div>
+                            ${vinStr ? `<div class="text-[10px] font-mono text-gray-400">VIN: ${vinStr}</div>` : ''}
+                        </td>
+                        <td class="py-2.5 px-2 whitespace-nowrap font-semibold text-blue-300">${supplier}</td>
+                        <td class="py-2.5 px-2 text-end whitespace-nowrap">
+                            <div class="font-mono font-black text-emerald-400 text-xs">${price} JOD</div>
+                            <div class="text-[10px] ${stock > 0 ? 'text-gray-400' : 'text-red-400'}">${stock > 0 ? `${stock} in stock` : 'Out of stock'}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-end whitespace-nowrap">
+                            <a href="https://wa.me/${rawPhone || '962795115122'}?text=${waText}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-[10px] font-bold inline-flex items-center space-x-1 rtl:space-x-reverse transition">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                <span>${currentLang === 'ar' ? 'اطلب الآن' : 'Inquire'}</span>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function closeCustomerSearchResults() {
+            const wrapper = document.getElementById('home-search-results-wrapper');
+            if (wrapper) wrapper.style.display = 'none';
+        }
+
+        async function searchByCategory(catEn, catAr) {
+            trackSectionVisit(`Category: ${catEn}`);
+            const pool = await getSearchablePartsPool();
+            const q = catEn.toLowerCase();
+            const matches = pool.filter(p =>
+                String(p.categoryEn || p.category || '').toLowerCase().includes(q) ||
+                String(p.partNameEn || p.name || '').toLowerCase().includes(q)
+            );
+            renderCustomerSearchResults(matches, currentLang === 'ar' ? `نتائج القسم: ${catAr}` : `Category: ${catEn}`);
+        }
+
         function getHomeViewHTML() {
             const activeTabClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-blue-400 border-b-2 border-blue-500 font-bold";
             const inactiveTabClass = "cursor-pointer transition pb-1.5 -mb-1.5 text-gray-400 hover:text-white border-b-2 border-transparent";
             const categoriesHTML = popularCategoriesData.map(cat => `
-                <div onclick="trackSectionVisit('Category: ${cat.en}'); showToast('Browsing category: ${cat.en}', 'تصفح قسم: ${cat.ar}', 'info')" class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
+                <div onclick="searchByCategory('${cat.en.replace(/'/g, "\\'")}', '${cat.ar.replace(/'/g, "\\'")}')" class="custom-card border hover:border-blue-500 p-2 rounded-xl cursor-pointer transition flex flex-col items-center justify-center">
                     <span class="text-base mb-0.5">${cat.icon}</span>
                     <div class="text-[10px] font-semibold leading-tight truncate w-full" data-en="${cat.en}" data-ar="${cat.ar}">${cat.en}</div>
                 </div>
             `).join('');
 
             return `
-            <div class="flex flex-col items-center justify-center text-center -mt-2 md:-mt-6 mb-1 md:-mb-1">
-                <div class="w-32 h-32 md:w-48 md:h-48 rounded-2xl shadow-2xl border-2 border-blue-500/40 bg-[#111b33] flex flex-col items-center justify-center p-3 text-blue-400 relative overflow-hidden">
+            <div class="flex flex-col items-center justify-center text-center -mt-2 md:-mt-4 mb-1 md:-mb-1">
+                <div class="w-28 h-28 md:w-40 md:h-40 rounded-2xl shadow-2xl border-2 border-blue-500/40 bg-[#111b33] flex flex-col items-center justify-center p-3 text-blue-400 relative overflow-hidden">
                     <img src="Spare.jo_4.jpg" alt="Spare.jo Logo" class="w-full h-full object-contain rounded-xl" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
                     <div id="fallback-logo" class="absolute inset-0 flex-col items-center justify-center bg-[#111b33] text-center p-2" style="display:none;">
-                        <i class="fa-solid fa-gears text-5xl md:text-6xl text-blue-500 mb-1"></i>
+                        <i class="fa-solid fa-gears text-4xl md:text-5xl text-blue-500 mb-1"></i>
                         <span class="text-sm md:text-base font-black tracking-tight text-white">Spare<span class="text-blue-500">.jo</span></span>
                     </div>
                 </div>
@@ -2165,6 +2392,36 @@
                     <span id="tab-serial-btn" onclick="switchSearchTab('serial')" class="${activeSearchTab === 'serial' ? activeTabClass : inactiveTabClass}" data-en="Search by Part Serial Number" data-ar="البحث برقم تسلسلي للقطعة">Search by Part Serial Number</span>
                 </div>
                 <div id="search-pane-container" class="pt-0.5"></div>
+            </div>
+
+            <!-- Live Customer Search Results Container -->
+            <div id="home-search-results-wrapper" style="display: none;" class="animate-modal-pop custom-card border border-blue-500/40 rounded-xl shadow-2xl max-w-5xl mx-auto w-full overflow-hidden">
+                <div class="px-4 py-2.5 bg-blue-950/40 border-b border-blue-900/50 flex items-center justify-between gap-2">
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                        <i class="fa-solid fa-magnifying-glass text-blue-400 text-xs"></i>
+                        <span id="home-search-results-title" class="text-xs font-extrabold text-white">Search Results</span>
+                        <span id="home-search-results-count" class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">0 Matches</span>
+                    </div>
+                    <button type="button" onclick="closeCustomerSearchResults()" class="text-gray-400 hover:text-white text-xs cursor-pointer px-2 py-0.5 rounded hover:bg-white/5">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="max-h-56 overflow-auto">
+                    <table class="w-full text-start text-xs">
+                        <thead class="text-[10px] text-gray-400 uppercase border-b border-blue-900/40 bg-[#0d162c] sticky top-0 z-10">
+                            <tr>
+                                <th class="py-2 px-3 text-start" data-en="Spare Part" data-ar="قطعة الغيار">Spare Part</th>
+                                <th class="py-2 px-2 text-start" data-en="OEM #" data-ar="الرقم التسلسلي">OEM #</th>
+                                <th class="py-2 px-2 text-start" data-en="Grade" data-ar="الفئة">Grade</th>
+                                <th class="py-2 px-2 text-start" data-en="Vehicle / VIN" data-ar="المركبة / الهيكل">Vehicle / VIN</th>
+                                <th class="py-2 px-2 text-start" data-en="Supplier" data-ar="المورد">Supplier</th>
+                                <th class="py-2 px-2 text-end" data-en="Price & Stock" data-ar="السعر والمخزون">Price & Stock</th>
+                                <th class="py-2 px-3 text-end" data-en="Order" data-ar="طلب">Order</th>
+                            </tr>
+                        </thead>
+                        <tbody id="home-search-results-tbody" class="divide-y divide-blue-900/25"></tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="max-w-5xl mx-auto w-full space-y-1 pb-2 md:pb-0">
@@ -2209,7 +2466,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
                         <div class="sm:col-span-8 relative w-full">
                             <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-barcode text-xs"></i></span>
-                            <input id="search-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-10 py-2 border rounded-lg text-xs">
+                            <input id="search-input" onkeydown="if(event.key==='Enter') handleSearchAction()" type="text" placeholder="${currentLang === 'ar' ? 'أدخل رقم الهيكل (17 خانة)...' : 'Enter 17-digit VIN (Chassis Number)'}" class="custom-input w-full ps-9 pe-10 py-2 border rounded-lg text-xs">
                             <button type="button" onclick="openVinSourceModal()" title="${currentLang === 'ar' ? 'رفع / التقاط صورة لرقم الهيكل' : 'Upload / Take Photo of Chassis Number'}" aria-label="Capture VIN Photo" class="absolute inset-y-0 end-0 pe-3 flex items-center text-blue-400 hover:text-blue-300 transition cursor-pointer">
                                 <i class="fa-solid fa-camera text-sm"></i>
                             </button>
@@ -2226,7 +2483,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
                         <div class="sm:col-span-3"><select id="select-make" onchange="updateModelDropdown()" class="custom-input w-full px-2.5 py-2 border rounded-lg text-xs">${makeOptions}</select></div>
                         <div class="sm:col-span-3"><select id="select-model" class="custom-input w-full px-2.5 py-2 border rounded-lg text-xs"><option value="">${currentLang === 'ar' ? 'اختر الصانع أولاً' : 'Select Make First'}</option></select></div>
-                        <div class="sm:col-span-2"><select id="select-year" class="custom-input w-full px-2.5 py-2 border rounded-lg text-xs"><option value="">${currentLang === 'ar' ? 'السنة' : 'Year'}</option><option value="2026">2026</option><option value="2025">2025</option><option value="2020">2020 & Older</option></select></div>
+                        <div class="sm:col-span-2"><select id="select-year" class="custom-input w-full px-2.5 py-2 border rounded-lg text-xs"><option value="">${currentLang === 'ar' ? 'السنة' : 'Year'}</option><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option></select></div>
                         <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
                             <button onclick="handleMakeModelSearch()" class="${btnClass} bg-blue-600 hover:bg-blue-500 text-white" data-en="Find Parts" data-ar="بحث">Find Parts</button>
                             <button onclick="clearSearchEntry()" class="${btnClass} custom-card border text-gray-300" data-en="Clear" data-ar="مسح">Clear</button>
@@ -2237,7 +2494,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-0.5 items-center">
                         <div class="sm:col-span-8 relative w-full">
                             <span class="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-hashtag text-xs"></i></span>
-                            <input id="search-serial-input" type="text" placeholder="${currentLang === 'ar' ? 'أدخل الرقم التسلسلي للقطعة / رقم OEM...' : 'Enter Part Serial Number / OEM Part #'}" class="custom-input w-full ps-9 pe-4 py-2 border rounded-lg text-xs">
+                            <input id="search-serial-input" onkeydown="if(event.key==='Enter') handleSerialSearch()" type="text" placeholder="${currentLang === 'ar' ? 'أدخل الرقم التسلسلي للقطعة / رقم OEM أو اسم القطعة...' : 'Enter Part Serial Number / OEM Part # or Name'}" class="custom-input w-full ps-9 pe-4 py-2 border rounded-lg text-xs">
                         </div>
                         <div class="sm:col-span-4 w-full flex flex-row gap-1.5">
                             <button onclick="handleSerialSearch()" class="${btnClass} bg-blue-600 hover:bg-blue-500 text-white" data-en="Find Parts" data-ar="بحث">Find Parts</button>
@@ -2264,25 +2521,55 @@
             ['search-input', 'select-make', 'select-model', 'select-year', 'search-serial-input'].forEach(id => {
                 const el = document.getElementById(id); if (el) el.value = '';
             });
+            closeCustomerSearchResults();
         }
 
-        function handleSearchAction() {
+        async function handleSearchAction() {
             const val = document.getElementById('search-input')?.value.trim();
             if (!val) return showToast('Please enter a 17-digit VIN first.', 'يرجى إدخال رقم الهيكل أولاً.', 'warning');
             trackSectionVisit('VIN Search Results');
-            showToast(`Searching parts for VIN: ${val}`, `جاري البحث عن قطع برقم الهيكل: ${val}`, 'info');
+            const pool = await getSearchablePartsPool();
+            const q = val.toUpperCase();
+            const matches = pool.filter(p =>
+                String(p.vinNumber || '').toUpperCase().includes(q) ||
+                String(p.partNumber || '').toUpperCase().includes(q)
+            );
+            renderCustomerSearchResults(matches, `VIN Search: "${val.toUpperCase()}"`);
         }
-        function handleMakeModelSearch() {
+
+        async function handleMakeModelSearch() {
             const mk = document.getElementById('select-make')?.value || '';
+            const md = document.getElementById('select-model')?.value || '';
+            const yr = document.getElementById('select-year')?.value || '';
             if (!mk) return showToast('Please select a vehicle make.', 'يرجى اختيار صانع المركبة.', 'warning');
             trackSectionVisit(`Make/Model: ${mk}`);
-            showToast(`Searching parts for ${mk}`, `جاري البحث عن قطع لمركبة ${mk}`, 'info');
+            const pool = await getSearchablePartsPool();
+            const matches = pool.filter(p => {
+                const partMake = String(p.carMaker || p.make || '').toLowerCase();
+                const partModel = String(p.carModel || p.model || '').toLowerCase();
+                const partYear = String(p.makeYear || '').trim();
+                if (!partMake.includes(mk.toLowerCase())) return false;
+                if (md && !partModel.includes(md.toLowerCase())) return false;
+                if (yr && partYear && partYear !== yr) return false;
+                return true;
+            });
+            const label = [mk, md, yr].filter(Boolean).join(' • ');
+            renderCustomerSearchResults(matches, `Vehicle Search: ${label}`);
         }
-        function handleSerialSearch() {
+
+        async function handleSerialSearch() {
             const serial = document.getElementById('search-serial-input')?.value.trim();
             if (!serial) return showToast('Please enter a Part Serial / OEM number.', 'يرجى إدخال رقم القطعة التسلسلي.', 'warning');
             trackSectionVisit('OEM Serial Search');
-            showToast(`Searching Part #: ${serial}`, `جاري البحث عن رقم القطعة: ${serial}`, 'info');
+            const pool = await getSearchablePartsPool();
+            const q = serial.toLowerCase();
+            const matches = pool.filter(p =>
+                String(p.partNumber || '').toLowerCase().includes(q) ||
+                String(p.partId || '').toLowerCase().includes(q) ||
+                String(p.partNameEn || p.name || '').toLowerCase().includes(q) ||
+                String(p.categoryEn || p.category || '').toLowerCase().includes(q)
+            );
+            renderCustomerSearchResults(matches, `Part / OEM Search: "${serial}"`);
         }
 
         function openVinSourceModal() { trackSectionVisit('VIN OCR Scanner'); document.getElementById('vin-source-modal').style.display = 'flex'; }
@@ -2297,6 +2584,7 @@
                 const searchInput = document.getElementById('search-input');
                 if (searchInput) searchInput.value = "1HGCR2F83HA001234";
                 showToast('Extracted VIN: 1HGCR2F83HA001234', 'تم استخراج رقم الهيكل: 1HGCR2F83HA001234', 'success');
+                handleSearchAction();
                 event.target.value = '';
             }, 900);
         }
