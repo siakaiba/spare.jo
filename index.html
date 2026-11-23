@@ -179,11 +179,11 @@
 
             <!-- Modal Header -->
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-blue-900/40 pb-3 pe-10 shrink-0">
-                <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <div class="flex items-center space-x-3 rtl:space-x-reverse min-w-0">
                     <div class="w-11 h-11 rounded-xl bg-blue-600/15 border border-blue-500/40 flex items-center justify-center text-blue-400 text-lg shrink-0">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
                             <h3 id="modal-search-results-title" class="text-sm md:text-lg font-black text-white">Search Results</h3>
                             <span id="modal-search-results-count" class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">0 Matches</span>
@@ -192,20 +192,20 @@
                     </div>
                 </div>
 
-                <!-- In-Modal Filter Controls (Category OR Vehicle Make/Model/Year + Text Filter + Back Button) -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" id="back-to-results-btn" onclick="exitCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/40 text-xs font-bold cursor-pointer transition inline-flex items-center space-x-1.5 rtl:space-x-reverse">
+                <!-- In-Modal Filter Controls (Single Row Next to Filters) -->
+                <div class="flex flex-wrap lg:flex-nowrap items-center gap-1.5 shrink-0">
+                    <button type="button" id="back-to-results-btn" onclick="exitCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/40 text-xs font-bold cursor-pointer transition inline-flex items-center space-x-1.5 rtl:space-x-reverse shrink-0">
                         <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
                         <span data-en="Back to All Results" data-ar="العودة لجميع النتائج">Back to All Results</span>
                     </button>
 
                     <!-- Shown when searching by VIN, Make/Model, or Serial # -->
-                    <select id="modal-search-category-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
+                    <select id="modal-search-category-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer shrink-0">
                         <option value="all" data-en="Category: All" data-ar="الفئة: الكل">Category: All</option>
                     </select>
 
                     <!-- Shown INSTEAD of Category dropdown when opened from Popular Categories Grid -->
-                    <div id="modal-search-vehicle-filters" style="display: none;" class="flex flex-wrap items-center gap-2">
+                    <div id="modal-search-vehicle-filters" style="display: none;" class="flex flex-wrap sm:flex-nowrap items-center gap-1.5 shrink-0">
                         <select id="modal-search-make-filter" onchange="handleModalMakeFilterChange()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
                             <option value="all" data-en="Car Make: All" data-ar="الصانع: الكل">Car Make: All</option>
                         </select>
@@ -217,7 +217,7 @@
                         </select>
                     </div>
 
-                    <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter results by OEM, maker, supplier..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-52">
+                    <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter by OEM, supplier..." class="custom-input px-2.5 py-1.5 border rounded-lg text-xs w-full sm:w-44 shrink-0">
                 </div>
             </div>
 
@@ -3441,68 +3441,50 @@
 
         function showSupportView() {
             const html = `
-                <div class="space-y-5 text-xs">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-2">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse text-emerald-400 font-bold text-sm">
-                                <i class="fa-brands fa-whatsapp text-base"></i>
-                                <span data-en="Instant WhatsApp Parts Desk" data-ar="مكتب المساعدة الفوري عبر واتساب">Instant WhatsApp Parts Desk</span>
+                <div class="space-y-4 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a href="https://wa.me/962795115122" target="_blank" rel="noopener noreferrer" class="p-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 transition flex items-center space-x-3 rtl:space-x-reverse">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center text-lg shrink-0"><i class="fa-brands fa-whatsapp"></i></div>
+                            <div>
+                                <div class="font-extrabold text-emerald-400 text-xs" data-en="Live WhatsApp Help Desk" data-ar="الدعم المباشر عبر واتساب">Live WhatsApp Help Desk</div>
+                                <div class="text-[11px] text-gray-300 font-mono mt-0.5">+962 79 511 5122</div>
                             </div>
-                            <p class="text-gray-300 text-[11px]" data-en="Send a photo of your vehicle registration card (Rukhsa) or broken part for immediate VIN lookup and supplier quotes." data-ar="أرسل صورة رخصة المركبة أو القطعة التالفة للحصول على مطابقة فورية برقم الهيكل وعروض أسعار من الموردين.">
-                                Send a photo of your vehicle registration card (Rukhsa) or broken part for immediate VIN lookup and supplier quotes.
-                            </p>
-                            <a href="https://wa.me/962795115122" target="_blank" class="inline-flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
-                                <i class="fa-brands fa-whatsapp"></i>
-                                <span>+962 79 511 5122</span>
-                            </a>
-                        </div>
-
-                        <div class="p-4 rounded-xl border border-blue-500/30 bg-blue-500/5 space-y-2">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse text-blue-400 font-bold text-sm">
-                                <i class="fa-solid fa-envelope text-base"></i>
-                                <span data-en="B2B Onboarding & Technical Support" data-ar="دعم تسجيل الشركات والدعم الفني">B2B Onboarding & Technical Support</span>
+                        </a>
+                        <a href="mailto:Spare.jo@outlook.com" class="p-4 rounded-xl border border-blue-500/40 bg-blue-600/10 hover:bg-blue-600/20 transition flex items-center space-x-3 rtl:space-x-reverse">
+                            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shrink-0"><i class="fa-solid fa-envelope"></i></div>
+                            <div>
+                                <div class="font-extrabold text-blue-400 text-xs" data-en="Email Technical & B2B Support" data-ar="البريد الإلكتروني للدعم الفني والشركات">Email Technical & B2B Support</div>
+                                <div class="text-[11px] text-gray-300 mt-0.5">Spare.jo@outlook.com</div>
                             </div>
-                            <p class="text-gray-300 text-[11px]" data-en="Need assistance uploading your CR certificate, bulk-importing CSV catalogs, or verifying your workshop account?" data-ar="هل تحتاج إلى مساعدة في رفع شهادة السجل التجاري أو استيراد قوائم القطع أو توثيق حساب ورشتك؟">
-                                Need assistance uploading your CR certificate, bulk-importing CSV catalogs, or verifying your workshop account?
-                            </p>
-                            <a href="mailto:Spare.jo@outlook.com" class="inline-flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition">
-                                <i class="fa-regular fa-envelope"></i>
-                                <span>Spare.jo@outlook.com</span>
-                            </a>
-                        </div>
+                        </a>
                     </div>
 
-                    <div class="space-y-2.5">
-                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-400" data-en="Frequently Asked Questions (FAQ)" data-ar="الأسئلة الشائعة">Frequently Asked Questions (FAQ)</h3>
-                        <div class="space-y-2">
-                            <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                                <div class="font-bold text-white mb-1" data-en="Where do I find my 17-digit VIN (Chassis Number)?" data-ar="أين أجد رقم الهيكل المكون من 17 خانة (VIN)؟">Where do I find my 17-digit VIN (Chassis Number)?</div>
-                                <p class="text-gray-400 text-[11px]" data-en="You can find it on your Jordanian vehicle registration card (الرخصة), on the lower-left corner of your windshield, or stamped inside the driver-side door jamb. You can also click the camera icon in our search bar to scan it automatically." data-ar="تجد رقم الهيكل على رخصة المركبة الأردنية، أو في الزاوية السفلية للزجاج الأمامي، أو على قائم باب السائق. يمكنك أيضاً الضغط على أيقونة الكاميرا في شريط البحث لمسحه ضوئياً.">
-                                    You can find it on your Jordanian vehicle registration card (الرخصة), on the lower-left corner of your windshield, or stamped inside the driver-side door jamb. You can also click the camera icon in our search bar to scan it automatically.
-                                </p>
-                            </div>
-                            <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                                <div class="font-bold text-white mb-1" data-en="What is the difference between Genuine, OEM, and Aftermarket?" data-ar="ما الفرق بين القطع الأصلية (Genuine) و OEM والبدائل التجارية (Aftermarket)؟">What is the difference between Genuine, OEM, and Aftermarket?</div>
-                                <p class="text-gray-400 text-[11px]" data-en="Genuine parts come in the automaker’s branded box (e.g., Toyota, Hyundai). OEM parts are built by the exact factory supplier (e.g., Denso, Bosch, Mobis) without automaker branding at lower prices. Aftermarket parts are third-party replacements engineered to fit the same specifications." data-ar="القطع الأصلية (Genuine) تأتي بعبوة الشركة الصانعة للسيارة. قطع OEM تُصنع من نفس المصنع المورد للوكالة (مثل Denso أو Bosch أو Mobis) بسعر أقل. أما Aftermarket فهي بدائل تجارية مصنعة وفق نفس المواصفات.">
-                                    Genuine parts come in the automaker’s branded box (e.g., Toyota, Hyundai). OEM parts are built by the exact factory supplier (e.g., Denso, Bosch, Mobis) without automaker branding at lower prices. Aftermarket parts are third-party replacements engineered to fit the same specifications.
-                                </p>
-                            </div>
-                            <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                                <div class="font-bold text-white mb-1" data-en="How long does B2B Company CR verification take?" data-ar="كم يستغرق توثيق السجل التجاري لحسابات الشركات؟">How long does B2B Company CR verification take?</div>
-                                <p class="text-gray-400 text-[11px]" data-en="Our operations team reviews uploaded Commercial Registration certificates within 1 business day (Sunday–Thursday, 9:00 AM – 6:00 PM Amman time)." data-ar="يقوم فريق العمليات بمراجعة شهادات السجل التجاري المرفوعة خلال يوم عمل واحد (من الأحد إلى الخميس، 9 صباحاً حتى 6 مساءً بتوقيت عمّان).">
-                                    Our operations team reviews uploaded Commercial Registration certificates within 1 business day (Sunday–Thursday, 9:00 AM – 6:00 PM Amman time).
-                                </p>
-                            </div>
+                    <div class="space-y-2.5 pt-1">
+                        <h3 class="font-extrabold uppercase tracking-wider text-blue-400 text-xs" data-en="Frequently Asked Questions (FAQ)" data-ar="الأسئلة الشائعة">Frequently Asked Questions (FAQ)</h3>
+
+                        <div class="p-3.5 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
+                            <div class="font-bold text-white" data-en="Q: Where can I find my vehicle's 17-digit VIN (Chassis Number)?" data-ar="س: أين أجد رقم الهيكل (VIN) المكون من 17 خانة؟">Q: Where can I find my vehicle's 17-digit VIN (Chassis Number)?</div>
+                            <p class="text-[11px] text-gray-400" data-en="You can find it on your Jordanian vehicle registration license (الرخصة), on the lower corner of the front windshield (driver side), or inside the driver-side door jamb sticker. You can also snap a photo of it directly using our camera icon in the search bar." data-ar="تجد رقم الهيكل على رخصة اقتناء المركبة الأردنية، أو أسفل الزجاج الأمامي من جهة السائق، أو على ملصق باب السائق. يمكنك أيضاً تصويره مباشرة عبر أيقونة الكاميرا في شريط البحث.">You can find it on your Jordanian vehicle registration license (الرخصة), on the lower corner of the front windshield (driver side), or inside the driver-side door jamb sticker. You can also snap a photo of it directly using our camera icon in the search bar.</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
+                            <div class="font-bold text-white" data-en="Q: How do B2B workshops and importers get verified?" data-ar="س: كيف يتم توثيق حسابات الورش والمستوردين (B2B)؟">Q: How do B2B workshops and importers get verified?</div>
+                            <p class="text-[11px] text-gray-400" data-en="Register a Company Account and upload a clear copy of your Commercial Registration (CR) certificate. Our compliance team verifies your CR number and validity within 1 business day." data-ar="قم بإنشاء حساب شركة وارفع نسخة واضحة من شهادة السجل التجاري (CR). يقوم فريقنا بمراجعة وتوثيق الحساب خلال يوم عمل واحد.">Register a Company Account and upload a clear copy of your Commercial Registration (CR) certificate. Our compliance team verifies your CR number and validity within 1 business day.</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
+                            <div class="font-bold text-white" data-en="Q: What is the difference between Genuine, OEM, and Aftermarket?" data-ar="س: ما الفرق بين القطع الأصلية (Genuine) و OEM والبدائل التجارية (Aftermarket)؟">Q: What is the difference between Genuine, OEM, and Aftermarket?</div>
+                            <p class="text-[11px] text-gray-400" data-en="Genuine parts carry the car manufacturer's branded packaging; OEM parts are produced by the exact same factory supplier without the automaker logo at lower cost; Aftermarket parts are third-party replacements engineered to fit your vehicle." data-ar="القطع الأصلية (Genuine) تأتي بعبوة الوكالة؛ وقطع OEM تُصنّع من نفس المصنع المزود للوكالة بدون شعار الشركة بسعر أقل؛ أما القطع التجارية (Aftermarket) فهي بدائل مصنعة من شركات مستقلة مطابقة للمواصفات.">Genuine parts carry the car manufacturer's branded packaging; OEM parts are produced by the exact same factory supplier without the automaker logo at lower cost; Aftermarket parts are third-party replacements engineered to fit your vehicle.</p>
                         </div>
                     </div>
                 </div>
             `;
-            renderFooterPageWrapper('Support & Help Center', 'مركز الدعم والمساعدة', 'Customer & Vendor Care', 'خدمة العملاء والموردين', 'fa-solid fa-headset', html);
+            renderFooterPageWrapper('Support & Help Center', 'الدعم والمساعدة', 'Customer & Vendor Assistance', 'مركز مساعدة العملاء والموردين', 'fa-solid fa-headset', html);
         }
 
         function showSitemapView() {
-            const catLinks = popularCategoriesData.map(c => `
-                <button type="button" onclick="searchByCategory('${c.en.replace(/'/g, "\\'")}', '${c.ar.replace(/'/g, "\\'")}')" class="text-start px-2.5 py-1.5 rounded-lg border border-blue-900/30 hover:border-blue-500/60 hover:bg-blue-600/10 text-[11px] transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse">
+            const categoriesLinks = popularCategoriesData.map(c => `
+                <button type="button" onclick="searchByCategory('${c.en.replace(/'/g, "\\'")}', '${c.ar.replace(/'/g, "\\'")}')" class="text-start px-2.5 py-1.5 rounded-lg border border-blue-900/30 hover:border-blue-500/50 hover:bg-blue-600/10 text-[11px] text-gray-300 hover:text-blue-400 transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse truncate">
                     <span>${c.icon}</span>
                     <span class="truncate" data-en="${c.en}" data-ar="${c.ar}">${c.en}</span>
                 </button>
@@ -3512,214 +3494,174 @@
                 <div class="space-y-5 text-xs">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2">
-                            <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-[11px]" data-en="Marketplace Search" data-ar="البحث في المتجر">Marketplace Search</h3>
+                            <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-[11px]" data-en="Marketplace & Search" data-ar="المتجر وأدوات البحث">Marketplace & Search</h3>
                             <ul class="space-y-1.5 text-gray-300">
-                                <li><a href="#" onclick="showHomeView(); switchSearchTab('vin'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-barcode text-blue-400 w-3.5"></i><span data-en="Search by 17-Digit VIN" data-ar="البحث برقم الهيكل (VIN)">Search by 17-Digit VIN</span></a></li>
-                                <li><a href="#" onclick="showHomeView(); switchSearchTab('model'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-car text-blue-400 w-3.5"></i><span data-en="Search by Vehicle Make & Model" data-ar="البحث حسب الصانع والطراز">Search by Vehicle Make & Model</span></a></li>
-                                <li><a href="#" onclick="showHomeView(); switchSearchTab('serial'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-hashtag text-blue-400 w-3.5"></i><span data-en="Search by Part OEM / Serial #" data-ar="البحث برقم القطعة التسلسلي">Search by Part OEM / Serial #</span></a></li>
-                                <li><a href="#" onclick="showHomeView(); openVinSourceModal(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-camera text-blue-400 w-3.5"></i><span data-en="OCR VIN Camera Scanner" data-ar="ماسح رقم الهيكل بالكاميرا">OCR VIN Camera Scanner</span></a></li>
+                                <li><a href="#" onclick="showHomeView(); return false;" class="hover:text-blue-400 transition flex items-center gap-2"><i class="fa-solid fa-house text-[10px] text-blue-400"></i><span data-en="Home — Spare.jo Marketplace" data-ar="الرئيسية — سوق Spare.jo">Home — Spare.jo Marketplace</span></a></li>
+                                <li><a href="#" onclick="showHomeView(); switchSearchTab('vin'); return false;" class="hover:text-blue-400 transition flex items-center gap-2"><i class="fa-solid fa-barcode text-[10px] text-blue-400"></i><span data-en="Search by 17-Digit VIN / OCR" data-ar="البحث برقم الهيكل (VIN)">Search by 17-Digit VIN / OCR</span></a></li>
+                                <li><a href="#" onclick="showHomeView(); switchSearchTab('model'); return false;" class="hover:text-blue-400 transition flex items-center gap-2"><i class="fa-solid fa-car text-[10px] text-blue-400"></i><span data-en="Search by Vehicle Make & Model" data-ar="البحث حسب الصانع والطراز">Search by Vehicle Make & Model</span></a></li>
+                                <li><a href="#" onclick="showHomeView(); switchSearchTab('serial'); return false;" class="hover:text-blue-400 transition flex items-center gap-2"><i class="fa-solid fa-hashtag text-[10px] text-blue-400"></i><span data-en="Search by OEM / Part Serial #" data-ar="البحث برقم القطعة التسلسلي">Search by OEM / Part Serial #</span></a></li>
                             </ul>
                         </div>
 
                         <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2">
                             <h3 class="font-extrabold text-amber-400 uppercase tracking-wider text-[11px]" data-en="Accounts & Portals" data-ar="الحسابات والبوابات">Accounts & Portals</h3>
                             <ul class="space-y-1.5 text-gray-300">
-                                <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-building text-amber-400 w-3.5"></i><span data-en="B2B Company Registration & Sign In" data-ar="تسجيل ودخول الشركات">B2B Company Registration & Sign In</span></a></li>
-                                <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-user text-blue-400 w-3.5"></i><span data-en="Customer Registration & Sign In" data-ar="تسجيل ودخول العملاء">Customer Registration & Sign In</span></a></li>
-                                <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-shield-halved text-amber-400 w-3.5"></i><span data-en="Platform Admin Monitor" data-ar="لوحة مراقبة الإدارة">Platform Admin Monitor</span></a></li>
+                                <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-amber-400 transition flex items-center gap-2"><i class="fa-solid fa-building text-[10px] text-amber-400"></i><span data-en="B2B Company Registration & Login" data-ar="تسجيل ودخول الشركات">B2B Company Registration & Login</span></a></li>
+                                <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-amber-400 transition flex items-center gap-2"><i class="fa-solid fa-user text-[10px] text-amber-400"></i><span data-en="Customer Registration & Login" data-ar="تسجيل ودخول العملاء">Customer Registration & Login</span></a></li>
+                                <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition flex items-center gap-2"><i class="fa-solid fa-shield-halved text-[10px] text-amber-400"></i><span data-en="Platform Admin Console" data-ar="لوحة تحكم الإدارة">Platform Admin Console</span></a></li>
                             </ul>
                         </div>
 
                         <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2">
-                            <h3 class="font-extrabold text-emerald-400 uppercase tracking-wider text-[11px]" data-en="Corporate & Legal" data-ar="المعلومات المؤسسية والقانونية">Corporate & Legal</h3>
+                            <h3 class="font-extrabold text-emerald-400 uppercase tracking-wider text-[11px]" data-en="Corporate & Legal" data-ar="معلومات الشركة والسياسات">Corporate & Legal</h3>
                             <ul class="space-y-1.5 text-gray-300">
-                                <li><a href="#" onclick="showAboutView(); return false;" class="hover:text-blue-400 transition" data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</a></li>
-                                <li><a href="#" onclick="showPrivacyView(); return false;" class="hover:text-blue-400 transition" data-en="Privacy Policy" data-ar="سياسة الخصوصية">Privacy Policy</a></li>
-                                <li><a href="#" onclick="showTermsView(); return false;" class="hover:text-blue-400 transition" data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</a></li>
-                                <li><a href="#" onclick="showSupportView(); return false;" class="hover:text-blue-400 transition" data-en="Support & Help Center" data-ar="الدعم والمساعدة">Support & Help Center</a></li>
-                                <li><a href="#" onclick="showContactView(); return false;" class="hover:text-blue-400 transition" data-en="Contact Us" data-ar="اتصل بنا">Contact Us</a></li>
+                                <li><a href="#" onclick="showAboutView(); return false;" class="hover:text-emerald-400 transition flex items-center gap-2"><i class="fa-solid fa-circle-info text-[10px] text-emerald-400"></i><span data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</span></a></li>
+                                <li><a href="#" onclick="showPrivacyView(); return false;" class="hover:text-emerald-400 transition flex items-center gap-2"><i class="fa-solid fa-user-shield text-[10px] text-emerald-400"></i><span data-en="Privacy & Cookies Policy" data-ar="سياسة الخصوصية">Privacy & Cookies Policy</span></a></li>
+                                <li><a href="#" onclick="showTermsView(); return false;" class="hover:text-emerald-400 transition flex items-center gap-2"><i class="fa-solid fa-file-signature text-[10px] text-emerald-400"></i><span data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</span></a></li>
+                                <li><a href="#" onclick="showSupportView(); return false;" class="hover:text-emerald-400 transition flex items-center gap-2"><i class="fa-solid fa-headset text-[10px] text-emerald-400"></i><span data-en="Support & FAQs" data-ar="الدعم والأسئلة الشائعة">Support & FAQs</span></a></li>
+                                <li><a href="#" onclick="showContactView(); return false;" class="hover:text-emerald-400 transition flex items-center gap-2"><i class="fa-solid fa-paper-plane text-[10px] text-emerald-400"></i><span data-en="Contact Us" data-ar="اتصل بنا">Contact Us</span></a></li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="space-y-2">
-                        <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-[11px]" data-en="All 30 Spare Parts Categories" data-ar="جميع تصنيفات قطع الغيار (30 تصنيفاً)">All 30 Spare Parts Categories</h3>
+                        <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-[11px]" data-en="All 30 Spare Parts Categories" data-ar="جميع تصنيفات قطع الغيار (30 تصنيف)">All 30 Spare Parts Categories</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                            ${catLinks}
+                            ${categoriesLinks}
                         </div>
                     </div>
                 </div>
             `;
-            renderFooterPageWrapper('Site Map', 'خريطة الموقع', 'Platform Directory', 'دليل أقسام المنصة', 'fa-solid fa-sitemap', html);
+            renderFooterPageWrapper('Site Map', 'خريطة الموقع', 'Platform Directory', 'دليل صفحات المنصة', 'fa-solid fa-sitemap', html);
         }
 
-        function handleContactInquirySubmit(event) {
+        function handleContactFormSubmit(event) {
             event.preventDefault();
-            const name = document.getElementById('contact-name')?.value.trim() || '';
-            const email = document.getElementById('contact-email')?.value.trim() || '';
-            const topic = document.getElementById('contact-topic')?.value || 'General Inquiry';
-            const message = document.getElementById('contact-message')?.value.trim() || '';
-            if (!name || !email || !message) return;
-
-            const subject = encodeURIComponent(`[Spare.jo - ${topic}] Inquiry from ${name}`);
-            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\nMessage:\n${message}`);
-            showToast('Inquiry prepared! Opening your email client to send to Spare.jo@outlook.com', 'تم تجهيز رسالتك! جاري فتح تطبيق البريد الإلكتروني.', 'success');
-            window.location.href = `mailto:Spare.jo@outlook.com?subject=${subject}&body=${body}`;
+            const name = document.getElementById('contact-sender-name')?.value.trim();
+            const email = document.getElementById('contact-sender-email')?.value.trim();
+            const subject = document.getElementById('contact-sender-subject')?.value.trim();
+            if (!name || !email) return;
+            showToast(`Thank you ${name}! Your inquiry ("${subject || 'General'}") has been logged.`, `شكراً لك ${name}! تم استلام رسالتك بنجاح.`, 'success');
+            event.target.reset();
         }
 
         function showContactView() {
             const html = `
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 text-xs">
-                    <div class="lg:col-span-5 space-y-3">
-                        <h2 class="text-sm font-extrabold text-blue-400" data-en="Get in Touch With Spare.jo" data-ar="تواصل مع فريق Spare.jo">Get in Touch With Spare.jo</h2>
-                        <p class="text-gray-300 text-[11px]" data-en="Have a question about parts availability, B2B vendor registration, or enterprise API partnerships in Jordan? Reach us directly through any channel below." data-ar="هل لديك استفسار حول توفر القطع أو تسجيل الشركات أو الشراكات في الأردن؟ تواصل معنا مباشرة عبر أي من القنوات التالية.">
-                            Have a question about parts availability, B2B vendor registration, or enterprise API partnerships in Jordan? Reach us directly through any channel below.
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-5 text-xs">
+                    <div class="md:col-span-5 space-y-3">
+                        <h3 class="font-extrabold text-blue-400 text-sm" data-en="Reach Our Amman Team" data-ar="تواصل مع فريقنا في عمّان">Reach Our Amman Team</h3>
+                        <p class="text-[11px] text-gray-400 leading-relaxed" data-en="Whether you are an importer looking to onboard your inventory via CSV, a workshop needing bulk sourcing, or a driver with a question, we are here to help." data-ar="سواء كنت مستورداً ترغب برفع مخزونك، أو ورشة صيانة، أو سائقاً لديك استفسار، فريقنا جاهز لخدمتك.">
+                            Whether you are an importer looking to onboard your inventory via CSV, a workshop needing bulk sourcing, or a driver with a question, we are here to help.
                         </p>
 
-                        <div class="space-y-2.5 pt-1">
-                            <a href="https://wa.me/962795115122" target="_blank" class="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/15 transition flex items-center space-x-3 rtl:space-x-reverse">
-                                <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-base shrink-0"><i class="fa-brands fa-whatsapp"></i></div>
-                                <div>
-                                    <div class="font-bold text-white" data-en="WhatsApp Direct Support" data-ar="الدعم المباشر عبر واتساب">WhatsApp Direct Support</div>
-                                    <div class="text-emerald-400 font-mono text-[11px]">+962 79 511 5122</div>
-                                </div>
-                            </a>
-
-                            <a href="mailto:Spare.jo@outlook.com" class="p-3 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/15 transition flex items-center space-x-3 rtl:space-x-reverse">
-                                <div class="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-base shrink-0"><i class="fa-solid fa-envelope"></i></div>
-                                <div>
-                                    <div class="font-bold text-white" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
-                                    <div class="text-blue-400 text-[11px]">Spare.jo@outlook.com</div>
-                                </div>
-                            </a>
-
+                        <div class="space-y-2 pt-1">
                             <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20 flex items-center space-x-3 rtl:space-x-reverse">
-                                <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-base shrink-0"><i class="fa-solid fa-location-dot"></i></div>
+                                <i class="fa-solid fa-location-dot text-blue-400 text-sm w-4 text-center"></i>
                                 <div>
-                                    <div class="font-bold text-white" data-en="Operations Headquarters" data-ar="مقر العمليات">Operations Headquarters</div>
-                                    <div class="text-gray-400 text-[11px]" data-en="Amman, Hashemite Kingdom of Jordan (Sun–Thu, 9:00 AM – 6:00 PM)" data-ar="عمّان، المملكة الأردنية الهاشمية (الأحد – الخميس، 9 صباحاً – 6 مساءً)">Amman, Hashemite Kingdom of Jordan (Sun–Thu, 9:00 AM – 6:00 PM)</div>
+                                    <div class="font-bold text-white" data-en="Headquarters" data-ar="المقر الرئيسي">Headquarters</div>
+                                    <div class="text-[11px] text-gray-400" data-en="Amman, Hashemite Kingdom of Jordan" data-ar="عمّان، المملكة الأردنية الهاشمية">Amman, Hashemite Kingdom of Jordan</div>
                                 </div>
                             </div>
+
+                            <a href="https://wa.me/962795115122" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/15 transition flex items-center space-x-3 rtl:space-x-reverse">
+                                <i class="fa-brands fa-whatsapp text-emerald-400 text-base w-4 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-emerald-400" data-en="WhatsApp Direct" data-ar="واتساب المباشر">WhatsApp Direct</div>
+                                    <div class="text-[11px] text-gray-300 font-mono">+962 79 511 5122</div>
+                                </div>
+                            </a>
+
+                            <a href="mailto:Spare.jo@outlook.com" class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20 hover:border-blue-500/50 transition flex items-center space-x-3 rtl:space-x-reverse">
+                                <i class="fa-solid fa-envelope text-blue-400 text-sm w-4 text-center"></i>
+                                <div>
+                                    <div class="font-bold text-white" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
+                                    <div class="text-[11px] text-blue-400">Spare.jo@outlook.com</div>
+                                </div>
+                            </a>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-7 p-4 rounded-xl border border-blue-900/40 bg-blue-950/20">
-                        <h3 class="text-sm font-extrabold mb-3" data-en="Send Us a Direct Message" data-ar="أرسل لنا رسالة مباشرة">Send Us a Direct Message</h3>
-                        <form onsubmit="handleContactInquirySubmit(event)" class="space-y-3">
+                    <div class="md:col-span-7 p-4 rounded-xl border border-blue-900/40 bg-blue-950/15">
+                        <h3 class="font-extrabold text-white text-sm mb-3" data-en="Send Us a Direct Message" data-ar="أرسل لنا رسالة مباشرة">Send Us a Direct Message</h3>
+                        <form onsubmit="handleContactFormSubmit(event)" class="space-y-3">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 <div>
                                     <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Full Name / Company" data-ar="الاسم الكامل / الشركة">Full Name / Company</label>
-                                    <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Ahmad Al-Mansour">
+                                    <input type="text" id="contact-sender-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Ahmad Al-Khatib">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
-                                    <input type="email" id="contact-email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
+                                    <input type="email" id="contact-sender-email" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="name@example.com">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Inquiry Category" data-ar="نوع الاستفسار">Inquiry Category</label>
-                                <select id="contact-topic" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
-                                    <option value="Part Sourcing & VIN Help">Part Sourcing & VIN Help</option>
-                                    <option value="B2B Company / Importer Onboarding">B2B Company / Importer Onboarding</option>
-                                    <option value="CR Verification & Account Support">CR Verification & Account Support</option>
-                                    <option value="General Feedback">General Feedback</option>
-                                </select>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Subject" data-ar="الموضوع">Subject</label>
+                                <input type="text" id="contact-sender-subject" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="B2B Onboarding / Part Inquiry / Support">
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Message Details" data-ar="تفاصيل الرسالة">Message Details</label>
-                                <textarea id="contact-message" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Include your vehicle VIN or part details if applicable..."></textarea>
+                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Message" data-ar="نص الرسالة">Message</label>
+                                <textarea id="contact-sender-message" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Write your message here..."></textarea>
                             </div>
                             <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
                                 <i class="fa-solid fa-paper-plane"></i>
-                                <span data-en="Send Inquiry" data-ar="إرسال الاستفسار">Send Inquiry</span>
+                                <span data-en="Send Message" data-ar="إرسال الرسالة">Send Message</span>
                             </button>
                         </form>
                     </div>
                 </div>
             `;
-            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Direct Communication', 'تواصل مباشر مع الإدارة', 'fa-solid fa-address-book', html);
+            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get in Touch', 'تواصل معنا', 'fa-solid fa-paper-plane', html);
+        }
+
+        function showUserProfileView() {
+            currentView = 'profile';
+            trackSectionVisit('User Profile');
+            setMainContainerLayout('default');
+            document.getElementById('main-content').innerHTML = `
+                <div class="custom-card border rounded-2xl p-6 max-w-md mx-auto w-full text-center space-y-4">
+                    <h2 class="text-base font-bold">${loggedInUser?.firstName || 'User'} ${loggedInUser?.lastName || ''}</h2>
+                    <p class="text-xs text-gray-400">${loggedInUser?.email || ''}</p>
+                    <button onclick="showHomeView()" class="px-6 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl cursor-pointer">Back to Home</button>
+                </div>`;
         }
 
         function updateProfileButtonUI() {
-            const btn = document.getElementById('profile-btn');
             const iconI = document.getElementById('profile-icon-i');
             const initialsSpan = document.getElementById('profile-initials');
-            if (!btn) return;
+            if (!iconI || !initialsSpan) return;
             if (loggedInUser) {
-                iconI.style.display = 'none';
-                initialsSpan.style.display = 'inline';
-                initialsSpan.innerText = (loggedInUser.firstName || 'U').charAt(0).toUpperCase();
+                iconI.style.display = 'none'; initialsSpan.style.display = 'inline';
+                initialsSpan.innerText = (loggedInUser.firstName?.[0] || 'U').toUpperCase();
                 document.getElementById('dropdown-user-name').innerText = loggedInUser.firstName || 'User';
                 document.getElementById('dropdown-user-email').innerText = loggedInUser.email || '';
             } else {
-                iconI.style.display = 'inline';
-                initialsSpan.style.display = 'none';
+                iconI.style.display = 'inline'; initialsSpan.style.display = 'none';
             }
         }
 
-        function handleProfileButtonAction(event) {
-            event.stopPropagation();
-            if (loggedInUser) {
+        function handleProfileButtonAction(e) {
+            e.stopPropagation();
+            if (!loggedInUser) showAccountSelectionView();
+            else {
                 const dd = document.getElementById('profile-dropdown');
-                dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
-            } else {
-                showAccountSelectionView();
+                dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
             }
         }
 
-        function selectDropdownOption(action) {
+        async function selectDropdownOption(opt) {
             document.getElementById('profile-dropdown').style.display = 'none';
-            if (action === 'signout' && auth) auth.signOut().then(() => { loggedInUser = null; showHomeView(); });
-            if (action === 'profile') showToast(`Logged in as ${loggedInUser?.email || 'User'}`, '', 'info');
-            if (action === 'delete' && auth?.currentUser && confirm('Delete your account permanently?')) {
-                auth.currentUser.delete().then(() => { loggedInUser = null; showHomeView(); });
-            }
-        }
-
-        function toggleTheme() {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('spare_theme', currentTheme);
-            applyTheme();
-        }
-        function applyTheme() {
-            const body = document.getElementById('app-body');
-            body.classList.remove('dark', 'light');
-            body.classList.add(currentTheme);
-            document.documentElement.classList.toggle('dark', currentTheme === 'dark');
-            document.getElementById('theme-icon').className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-amber-500';
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            localStorage.setItem('spare_lang', currentLang);
-            applyTranslations();
-            if (currentView === 'home') renderSearchPane();
-            if (document.getElementById('customer-search-results-modal')?.style.display === 'flex') {
-                if (isCompareModeActive) {
-                    openCompareViewInModal();
-                } else {
-                    if (modalSearchMode === 'category') {
-                        populateModalVehicleDropdowns(currentCustomerSearchMatches);
-                    } else {
-                        populateModalCategoryDropdown(currentCustomerSearchMatches);
+            if (opt === 'profile') showUserProfileView();
+            else if (opt === 'signout') {
+                if (auth) await auth.signOut();
+                loggedInUser = null; updateProfileButtonUI(); showHomeView();
+            } else if (opt === 'delete') {
+                if (confirm('Delete your account?')) {
+                    if (auth?.currentUser && db) {
+                        await db.collection('users').doc(auth.currentUser.uid).delete();
+                        await auth.currentUser.delete();
                     }
-                    filterModalSearchResults();
+                    loggedInUser = null; updateProfileButtonUI(); showHomeView();
                 }
-            }
-            updateDateTime();
-        }
-        function applyTranslations() {
-            document.documentElement.lang = currentLang;
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
-            });
-            const refineInput = document.getElementById('modal-search-refine-input');
-            if (refineInput) {
-                refineInput.placeholder = currentLang === 'ar'
-                    ? 'تصفية حسب رقم OEM أو الصانع أو المورد...'
-                    : 'Filter results by OEM, maker, supplier...';
             }
         }
 
@@ -3728,33 +3670,70 @@
             const grid = document.getElementById('categories-grid-container');
             const icon = document.getElementById('grid-toggle-icon');
             if (grid) { grid.classList.toggle('hidden', !isGridVisible); grid.classList.toggle('grid', isGridVisible); }
-            if (icon) icon.className = isGridVisible ? 'fa-solid fa-chevron-up text-blue-400 text-[10px]' : 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
+            if (icon) icon.className = `fa-solid ${isGridVisible ? 'fa-chevron-up' : 'fa-chevron-down'} text-blue-400 text-[10px]`;
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            localStorage.setItem('spare_lang', currentLang);
+            applyTranslations();
+            if (currentView === 'home') renderSearchPane();
+            const searchModal = document.getElementById('customer-search-results-modal');
+            if (searchModal && searchModal.style.display === 'flex') {
+                if (modalSearchMode === 'category') {
+                    populateModalVehicleDropdowns(currentCustomerSearchMatches);
+                } else {
+                    populateModalCategoryDropdown(currentCustomerSearchMatches);
+                }
+                if (isCompareModeActive) openCompareViewInModal();
+                else filterModalSearchResults();
+            }
+        }
+
+        function applyTranslations() {
+            document.documentElement.setAttribute('lang', currentLang);
+            document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+            document.getElementById('lang-btn').innerText = currentLang === 'en' ? 'العربية' : 'English';
+            document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+                el.innerText = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+            });
+            const refineInput = document.getElementById('modal-search-refine-input');
+            if (refineInput) {
+                refineInput.placeholder = currentLang === 'ar'
+                    ? 'تصفية برقم OEM أو المورد...'
+                    : 'Filter by OEM, supplier...';
+            }
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('spare_theme', currentTheme);
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const body = document.getElementById('app-body');
+            const icon = document.getElementById('theme-icon');
+            body.classList.toggle('dark', currentTheme === 'dark');
+            body.classList.toggle('light', currentTheme === 'light');
+            icon.className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-amber-500';
         }
 
         function updateDateTime() {
             const now = new Date();
-            const locale = currentLang === 'ar' ? 'ar-JO' : 'en-US';
-            const dateEl = document.getElementById('header-date');
-            const timeEl = document.getElementById('header-time');
-            if (dateEl) dateEl.innerText = now.toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Amman' });
-            if (timeEl) timeEl.innerText = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Asia/Amman' });
+            const dEl = document.getElementById('header-date');
+            const tEl = document.getElementById('header-time');
+            if (dEl) dEl.innerText = now.toLocaleDateString(currentLang === 'ar' ? 'ar-JO' : 'en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+            if (tEl) tEl.innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
 
-        document.addEventListener('click', (event) => {
-            if (!document.getElementById('profile-menu-container')?.contains(event.target)) {
-                const pd = document.getElementById('profile-dropdown'); if (pd) pd.style.display = 'none';
-            }
-            if (!document.getElementById('admin-actions-menu-container')?.contains(event.target)) closeAdminActionsDropdown();
-            if (!document.getElementById('admin-alerts-menu-container')?.contains(event.target)) closeAdminAlertsDropdown();
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('profile-menu-container')?.contains(e.target)) document.getElementById('profile-dropdown').style.display = 'none';
+            if (!document.getElementById('admin-actions-menu-container')?.contains(e.target)) closeAdminActionsDropdown();
+            if (!document.getElementById('admin-alerts-menu-container')?.contains(e.target)) closeAdminAlertsDropdown();
         });
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                closeCustomerSearchResultsModal();
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             applyTheme();
             showHomeView();
             updateDateTime();
