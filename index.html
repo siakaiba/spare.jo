@@ -488,6 +488,14 @@
         let auth = null;
         let db = null;
 
+        function parseNumericValue(val) {
+            if (typeof val === 'number') return isNaN(val) || val < 0 ? 0 : val;
+            if (!val) return 0;
+            const cleaned = String(val).replace(/JOD/gi, '').replace(/,/g, '').trim();
+            const num = parseFloat(cleaned);
+            return isNaN(num) || num < 0 ? 0 : num;
+        }
+
         function showToast(messageEn, messageAr = '', type = 'info') {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -698,7 +706,7 @@
 
         function getAdminAlertStats() {
             const unverifiedCount = adminUsersCache.filter(u => !isUserVerified(u)).length;
-            const companies = adminUsersCache.filter(u => u.type === 'company');
+            const companies = adminUsersCache.filter(u => String(u.type || '').toLowerCase() === 'company');
             const missingCrCount = companies.filter(c => !c.crDocumentData).length;
             const expiredCrCount = companies.filter(c => getCrValidityState(c.crValidity) === 'expired').length;
             return { unverifiedCount, missingCrCount, expiredCrCount, totalAlerts: unverifiedCount + missingCrCount + expiredCrCount };
@@ -913,7 +921,7 @@
         }
 
         async function downloadAllCrsAsZip() {
-            const companiesWithCr = adminUsersCache.filter(u => u.type === 'company' && Boolean(u.crDocumentData));
+            const companiesWithCr = adminUsersCache.filter(u => String(u.type || '').toLowerCase() === 'company' && Boolean(u.crDocumentData));
             if (!companiesWithCr.length) {
                 showToast('No uploaded CR certificates found to download.', 'لا توجد شهادات سجل تجاري مرفوعة للتحميل.', 'warning');
                 return;
@@ -973,7 +981,7 @@
             const statusFilter = document.getElementById('cr-cert-status-filter')?.value || 'all';
             const validityFilter = document.getElementById('cr-cert-validity-filter')?.value || 'all';
             const fileFilter = document.getElementById('cr-cert-file-filter')?.value || 'all';
-            const companies = adminUsersCache.filter(u => u.type === 'company');
+            const companies = adminUsersCache.filter(u => String(u.type || '').toLowerCase() === 'company');
 
             const filtered = companies.filter(c => {
                 const verified = isUserVerified(c);
@@ -1091,7 +1099,7 @@
         }
 
         function openCompanyInventoryModal(userId) {
-            const companyObj = adminUsersCache.find(u => u.id === userId && u.type === 'company');
+            const companyObj = adminUsersCache.find(u => u.id === userId && String(u.type || '').toLowerCase() === 'company');
             if (!companyObj) return;
             activeInventoryCompanyId = userId;
 
@@ -1147,8 +1155,8 @@
             const term = (document.getElementById('comp-inv-search-input')?.value || '').toLowerCase().trim();
             let grandTotal = 0;
             items.forEach(item => {
-                const price = parseFloat(item.unitPriceJOD) || 0;
-                const qty = parseFloat(item.stockQty) || 0;
+                const price = parseNumericValue(item.unitPriceJOD);
+                const qty = parseNumericValue(item.stockQty);
                 grandTotal += price * qty;
             });
 
@@ -1171,8 +1179,8 @@
             const cellInputCls = "w-full bg-transparent hover:bg-blue-950/40 focus:bg-[#0b1329] border border-transparent focus:border-blue-500 rounded px-1.5 py-1 text-[11px] outline-none transition";
 
             tbody.innerHTML = indexedItems.map(({ item, idx }) => {
-                const unitPrice = parseFloat(item.unitPriceJOD) || 0;
-                const stockQty = parseFloat(item.stockQty) || 0;
+                const unitPrice = parseNumericValue(item.unitPriceJOD);
+                const stockQty = parseNumericValue(item.stockQty);
                 const rowTotal = unitPrice * stockQty;
                 const rowCompName = item.companyName || defaultCompanyName;
 
@@ -1208,21 +1216,20 @@
             if (!companyObj || !Array.isArray(companyObj.inventory) || !companyObj.inventory[rowIndex]) return;
 
             if (field === 'unitPriceJOD' || field === 'stockQty') {
-                const num = parseFloat(rawValue);
-                companyObj.inventory[rowIndex][field] = isNaN(num) || num < 0 ? 0 : num;
+                companyObj.inventory[rowIndex][field] = parseNumericValue(rawValue);
             } else {
                 companyObj.inventory[rowIndex][field] = field === 'vinNumber' ? String(rawValue).trim().toUpperCase() : String(rawValue).trim();
             }
 
             // Recompute row total & grand total immediately
             const item = companyObj.inventory[rowIndex];
-            const rowTotal = (parseFloat(item.unitPriceJOD) || 0) * (parseFloat(item.stockQty) || 0);
+            const rowTotal = parseNumericValue(item.unitPriceJOD) * parseNumericValue(item.stockQty);
             const rowCell = document.getElementById(`comp-inv-row-total-${rowIndex}`);
             if (rowCell) rowCell.innerText = rowTotal.toFixed(2);
 
             let grandTotal = 0;
             companyObj.inventory.forEach(it => {
-                grandTotal += (parseFloat(it.unitPriceJOD) || 0) * (parseFloat(it.stockQty) || 0);
+                grandTotal += parseNumericValue(it.unitPriceJOD) * parseNumericValue(it.stockQty);
             });
             const grandTotalEl = document.getElementById('comp-inv-grand-total');
             if (grandTotalEl) grandTotalEl.innerText = `${grandTotal.toFixed(2)} JOD`;
@@ -1348,22 +1355,43 @@
                     return showToast('CSV file must contain a header row and at least one part row.', 'ملف CSV فارغ أو لا يحتوي على بيانات.', 'warning');
                 }
 
+                // Map columns dynamically by header name (with fallback to standard 14-column indices)
+                const headers = rows[0].map(h => h.toLowerCase().trim());
+                const findCol = (keywords, fallbackIdx) => {
+                    const found = headers.findIndex(h => keywords.some(k => h.includes(k)));
+                    return found !== -1 ? found : fallbackIdx;
+                };
+
+                const idxCompName  = findCol(['company'], 0);
+                const idxPartId    = findCol(['part id', 'id'], 1);
+                const idxCatEn     = findCol(['category (en)', 'category en'], 2);
+                const idxCatAr     = findCol(['category (ar)', 'category ar'], 3);
+                const idxPartNum   = findCol(['part number', 'oem'], 4);
+                const idxPartName  = findCol(['part name', 'description'], 5);
+                const idxGrade     = findCol(['grade', 'condition'], 6);
+                const idxMaker     = findCol(['maker', 'make'], 7);
+                const idxModel     = findCol(['model'], 8);
+                const idxYear      = findCol(['year'], 9);
+                const idxVin       = findCol(['vin', 'chassis'], 10);
+                const idxUnitPrice = findCol(['unit price', 'price'], 11);
+                const idxStockQty  = findCol(['stock', 'qty', 'quantity'], 12);
+
                 const dataRows = rows.slice(1);
                 const parsedItems = dataRows.map((cols, idx) => {
-                    const unitPrice = parseFloat(cols[11]) || 0;
-                    const stockQty = parseFloat(cols[12]) || 0;
+                    const unitPrice = parseNumericValue(cols[idxUnitPrice]);
+                    const stockQty = parseNumericValue(cols[idxStockQty]);
                     return {
-                        companyName: cols[0] || defaultCompanyName,
-                        partId: cols[1] || `PRT-${String(idx + 1).padStart(4, '0')}`,
-                        categoryEn: cols[2] || '',
-                        categoryAr: cols[3] || '',
-                        partNumber: cols[4] || '',
-                        partNameEn: cols[5] || '',
-                        grade: cols[6] || '',
-                        carMaker: cols[7] || '',
-                        carModel: cols[8] || '',
-                        makeYear: cols[9] || '',
-                        vinNumber: (cols[10] || '').toUpperCase().slice(0, 17),
+                        companyName: cols[idxCompName] || defaultCompanyName,
+                        partId: cols[idxPartId] || `PRT-${String(idx + 1).padStart(4, '0')}`,
+                        categoryEn: cols[idxCatEn] || '',
+                        categoryAr: cols[idxCatAr] || '',
+                        partNumber: cols[idxPartNum] || '',
+                        partNameEn: cols[idxPartName] || '',
+                        grade: cols[idxGrade] || '',
+                        carMaker: cols[idxMaker] || '',
+                        carModel: cols[idxModel] || '',
+                        makeYear: cols[idxYear] || '',
+                        vinNumber: (cols[idxVin] || '').toUpperCase().slice(0, 17),
                         unitPriceJOD: unitPrice,
                         stockQty: stockQty
                     };
@@ -1390,8 +1418,8 @@
             }
 
             const rows = items.map(item => {
-                const unitPrice = parseFloat(item.unitPriceJOD) || 0;
-                const stockQty = parseFloat(item.stockQty) || 0;
+                const unitPrice = parseNumericValue(item.unitPriceJOD);
+                const stockQty = parseNumericValue(item.stockQty);
                 const totalValue = (unitPrice * stockQty).toFixed(2);
                 return [
                     item.companyName || companyName,
@@ -1447,7 +1475,7 @@
         function renderAdminPieCharts() {
             if (!isAdminChartsVisible || typeof Chart === 'undefined') return;
             const totalUsers = adminUsersCache.length;
-            const companyCount = adminUsersCache.filter(u => u.type === 'company').length;
+            const companyCount = adminUsersCache.filter(u => String(u.type || '').toLowerCase() === 'company').length;
             buildSinglePieChart('chart-account-types', ['Customers', 'Companies'], totalUsers > 0 ? [totalUsers - companyCount, companyCount] : [1, 0], ['#3b82f6', '#f59e0b']);
             const verifiedCount = adminUsersCache.filter(u => isUserVerified(u)).length;
             buildSinglePieChart('chart-verification-status', ['Verified', 'Pending'], totalUsers > 0 ? [verifiedCount, totalUsers - verifiedCount] : [0, 1], ['#10b981', '#f97316']);
@@ -1507,11 +1535,11 @@
             closeAdminActionsDropdown();
             const companyRows = [];
             adminUsersCache.forEach(u => {
-                if (u.type === 'company' && Array.isArray(u.inventory)) {
+                if ((String(u.type || '').toLowerCase() === 'company' || Array.isArray(u.inventory)) && Array.isArray(u.inventory)) {
                     const compName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Company';
                     u.inventory.forEach(item => {
-                        const price = parseFloat(item.unitPriceJOD) || 0;
-                        const qty = parseFloat(item.stockQty) || 0;
+                        const price = parseNumericValue(item.unitPriceJOD);
+                        const qty = parseNumericValue(item.stockQty);
                         companyRows.push([
                             item.companyName || compName,
                             item.partId || '',
@@ -1563,7 +1591,7 @@
         }
 
         function getAdminDashboardHTML() {
-            const companyCount = adminUsersCache.filter(u => u.type === 'company').length;
+            const companyCount = adminUsersCache.filter(u => String(u.type || '').toLowerCase() === 'company').length;
             const { totalAlerts } = getAdminAlertStats();
             return `
                 <div class="w-full flex flex-col gap-3 min-h-0">
@@ -1657,7 +1685,7 @@
                                 </span>
                             </div>
                             <div class="text-2xl font-black text-emerald-400" id="kpi-parts-value">0.00 JOD</div>
-                            <div class="text-[11px] text-gray-400" id="kpi-parts-value-sub">0 units in catalog</div>
+                            <div class="text-[11px] text-gray-400" id="kpi-parts-value-sub">0 total stock units</div>
                         </div>
 
                         <div class="custom-card border rounded-2xl p-4 space-y-1.5">
@@ -1766,7 +1794,7 @@
 
         function updateAdminKPIs() {
             const total = adminUsersCache.length;
-            const companies = adminUsersCache.filter(u => u.type === 'company').length;
+            const companies = adminUsersCache.filter(u => String(u.type || '').toLowerCase() === 'company').length;
             if (document.getElementById('kpi-total-users')) document.getElementById('kpi-total-users').innerText = total;
             if (document.getElementById('kpi-company-count')) document.getElementById('kpi-company-count').innerText = companies;
             if (document.getElementById('kpi-user-split')) document.getElementById('kpi-user-split').innerText = `${total - companies} Customers • ${companies} Companies`;
@@ -1780,10 +1808,11 @@
             const distinctPartNumbers = new Set();
 
             adminUsersCache.forEach(u => {
-                if (u.type === 'company' && Array.isArray(u.inventory)) {
+                const isCompany = String(u.type || '').toLowerCase() === 'company';
+                if ((isCompany || Array.isArray(u.inventory)) && Array.isArray(u.inventory)) {
                     u.inventory.forEach(item => {
-                        const priceJOD = parseFloat(item.unitPriceJOD) || 0;
-                        const stock = parseFloat(item.stockQty) || 0;
+                        const priceJOD = parseNumericValue(item.unitPriceJOD ?? item.priceJOD);
+                        const stock = parseNumericValue(item.stockQty ?? item.stock);
                         companyParts.push({ priceJOD, stock });
                         if (item.grade) distinctGrades.add(String(item.grade).trim());
                         if (item.vinNumber) distinctVins.add(String(item.vinNumber).trim().toUpperCase());
@@ -1799,11 +1828,11 @@
 
             let totalValue = 0;
             let totalUnits = 0;
-            let totalSkus = activeParts.length;
+            const totalSkus = activeParts.length;
 
             activeParts.forEach(p => {
-                const unitPrice = Number(p.priceJOD || 0) || 0;
-                const qty = Number(p.stock || 0) || 0;
+                const unitPrice = parseNumericValue(p.priceJOD);
+                const qty = parseNumericValue(p.stock);
                 totalValue += unitPrice * qty;
                 totalUnits += qty;
                 if (!hasCompanyInventory) {
@@ -1812,24 +1841,24 @@
                 }
             });
 
-            // 1. Update Total Spare Parts Card
+            // 1. Total Spare Parts Card (shows total uploaded part rows / SKUs)
             const partsCountEl = document.getElementById('kpi-parts-count');
             const partsSubEl = document.getElementById('kpi-parts-sub');
-            if (partsCountEl) partsCountEl.innerText = totalUnits.toLocaleString();
+            if (partsCountEl) partsCountEl.innerText = totalSkus.toLocaleString();
             if (partsSubEl) {
                 const gradesList = Array.from(distinctGrades).filter(Boolean);
                 partsSubEl.innerText = gradesList.length > 0
-                    ? `${totalSkus.toLocaleString()} SKUs • ${gradesList.join(', ')}`
+                    ? `${gradesList.join(', ')}`
                     : 'Genuine, OEM & Aftermarket';
             }
 
-            // 2. Update Total Parts Value Card
+            // 2. Total Parts Value Card (sum of Unit Price × Stock Qty across all uploaded parts)
             const partsValueEl = document.getElementById('kpi-parts-value');
             const partsValueSubEl = document.getElementById('kpi-parts-value-sub');
             if (partsValueEl) partsValueEl.innerText = `${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} JOD`;
-            if (partsValueSubEl) partsValueSubEl.innerText = `${totalUnits.toLocaleString()} units in catalog`;
+            if (partsValueSubEl) partsValueSubEl.innerText = `${totalUnits.toLocaleString()} total stock units`;
 
-            // 3. Update VIN / Part Queries Card
+            // 3. VIN / Part Queries Card
             const queriesCountEl = document.getElementById('kpi-queries-count');
             const queriesSubEl = document.getElementById('kpi-queries-sub');
             const searchableCount = distinctVins.size + distinctPartNumbers.size;
@@ -1878,7 +1907,7 @@
             }
             tbody.innerHTML = sortedList.map(u => {
                 const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unnamed User';
-                const isCompany = u.type === 'company';
+                const isCompany = String(u.type || '').toLowerCase() === 'company';
                 const verified = isUserVerified(u);
                 const validityState = getCrValidityState(u.crValidity);
                 const hasDoc = Boolean(u.crDocumentData);
@@ -1968,7 +1997,7 @@
             document.getElementById('edit-user-uid-label').innerText = `UID: ${userObj.id}`;
             document.getElementById('edit-user-firstname').value = userObj.firstName || '';
             document.getElementById('edit-user-lastname').value = userObj.lastName || '';
-            document.getElementById('edit-user-type').value = userObj.type === 'company' ? 'company' : 'customer';
+            document.getElementById('edit-user-type').value = String(userObj.type || '').toLowerCase() === 'company' ? 'company' : 'customer';
             document.getElementById('edit-user-verification').value = isUserVerified(userObj) ? 'verified' : 'pending';
             document.getElementById('edit-user-cr-number').value = userObj.crNumber || '';
             const crValInput = document.getElementById('edit-user-cr-validity');
@@ -2036,7 +2065,7 @@
             adminFilterStatus = statusFilter;
 
             const filtered = adminUsersCache.filter(u => {
-                const userType = u.type === 'company' ? 'company' : 'customer';
+                const userType = String(u.type || '').toLowerCase() === 'company' ? 'company' : 'customer';
                 if (typeFilter !== 'all' && userType !== typeFilter) return false;
 
                 if (crFileFilter !== 'all') {
@@ -2074,7 +2103,7 @@
             }
             feedContainer.innerHTML = activeList.map(u => {
                 const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unnamed User';
-                const isCompany = u.type === 'company';
+                const isCompany = String(u.type || '').toLowerCase() === 'company';
                 const typeBadgeClass = isCompany
                     ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
                     : 'text-blue-400 bg-blue-500/10 border-blue-500/30';
