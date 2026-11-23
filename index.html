@@ -192,16 +192,30 @@
                     </div>
                 </div>
 
-                <!-- In-Modal Category Filter, Text Filter & Back Button -->
+                <!-- In-Modal Filter Controls (Category OR Vehicle Make/Model/Year + Text Filter + Back Button) -->
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" id="back-to-results-btn" onclick="exitCompareViewInModal()" style="display: none;" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/40 text-xs font-bold cursor-pointer transition inline-flex items-center space-x-1.5 rtl:space-x-reverse">
                         <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
                         <span data-en="Back to All Results" data-ar="العودة لجميع النتائج">Back to All Results</span>
                     </button>
 
+                    <!-- Shown when searching by VIN, Make/Model, or Serial # -->
                     <select id="modal-search-category-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
                         <option value="all" data-en="Category: All" data-ar="الفئة: الكل">Category: All</option>
                     </select>
+
+                    <!-- Shown INSTEAD of Category dropdown when opened from Popular Categories Grid -->
+                    <div id="modal-search-vehicle-filters" style="display: none;" class="flex flex-wrap items-center gap-2">
+                        <select id="modal-search-make-filter" onchange="handleModalMakeFilterChange()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
+                            <option value="all" data-en="Car Make: All" data-ar="الصانع: الكل">Car Make: All</option>
+                        </select>
+                        <select id="modal-search-model-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
+                            <option value="all" data-en="Model / Brand: All" data-ar="الطراز: الكل">Model / Brand: All</option>
+                        </select>
+                        <select id="modal-search-year-filter" onchange="filterModalSearchResults()" class="custom-input px-2.5 py-1.5 border rounded-lg text-xs cursor-pointer">
+                            <option value="all" data-en="Year: All" data-ar="السنة: الكل">Year: All</option>
+                        </select>
+                    </div>
 
                     <input type="text" id="modal-search-refine-input" onkeyup="filterModalSearchResults()" placeholder="Filter results by OEM, maker, supplier..." class="custom-input px-3 py-1.5 border rounded-lg text-xs w-full sm:w-52">
                 </div>
@@ -572,6 +586,7 @@
         let currentCustomerSearchMatches = [];
         let currentFilteredSearchMatches = [];
         let modalPriceSortOrder = 'default';
+        let modalSearchMode = 'standard'; // 'standard' (shows Category dropdown) | 'category' (shows Car Make, Model/Brand & Year dropdowns)
         let selectedCompareKeys = new Set();
         let isCompareModeActive = false;
         let baseModalSearchTitle = 'Search Results';
@@ -2344,7 +2359,7 @@
         }
 
         // ==========================================
-        // HOME SEARCH, CATEGORY FILTER & COMPARE ENGINE
+        // HOME SEARCH, CATEGORY/VEHICLE FILTER & COMPARE ENGINE
         // ==========================================
         function getPartUniqueKey(part, fallbackIndex = 0) {
             if (part?.id) return String(part.id);
@@ -2407,6 +2422,86 @@
             }
         }
 
+        function populateModalVehicleDropdowns(matches) {
+            const makeSelect = document.getElementById('modal-search-make-filter');
+            const modelSelect = document.getElementById('modal-search-model-filter');
+            const yearSelect = document.getElementById('modal-search-year-filter');
+            if (!makeSelect || !modelSelect || !yearSelect) return;
+
+            const makeMap = new Map();
+            Object.keys(vehicleDatabase).forEach(mk => makeMap.set(mk.toLowerCase(), mk));
+            (Array.isArray(matches) ? matches : []).forEach(p => {
+                const mk = String(p.carMaker || p.make || '').trim();
+                if (mk && !makeMap.has(mk.toLowerCase())) makeMap.set(mk.toLowerCase(), mk);
+            });
+            const sortedMakes = Array.from(makeMap.values()).sort((a, b) => a.localeCompare(b));
+            const allMakeLabel = currentLang === 'ar' ? 'الصانع: الكل' : 'Car Make: All';
+            makeSelect.innerHTML = `<option value="all">${allMakeLabel}</option>` +
+                sortedMakes.map(mk => `<option value="${escapeHtmlAttr(mk.toLowerCase())}">${escapeHtmlAttr(mk)}</option>`).join('');
+            makeSelect.value = 'all';
+
+            populateModalModelDropdownOptions(matches, 'all');
+
+            const yearSet = new Set(['2026', '2025', '2024', '2023', '2022', '2021', '2020']);
+            (Array.isArray(matches) ? matches : []).forEach(p => {
+                const yr = String(p.makeYear || '').trim();
+                if (yr) yearSet.add(yr);
+            });
+            const sortedYears = Array.from(yearSet).sort((a, b) => b.localeCompare(a));
+            const allYearLabel = currentLang === 'ar' ? 'السنة: الكل' : 'Year: All';
+            yearSelect.innerHTML = `<option value="all">${allYearLabel}</option>` +
+                sortedYears.map(yr => `<option value="${escapeHtmlAttr(yr)}">${escapeHtmlAttr(yr)}</option>`).join('');
+            yearSelect.value = 'all';
+        }
+
+        function populateModalModelDropdownOptions(matches, selectedMakeLower) {
+            const modelSelect = document.getElementById('modal-search-model-filter');
+            if (!modelSelect) return;
+            const prevModel = modelSelect.value || 'all';
+            const modelMap = new Map();
+
+            if (selectedMakeLower && selectedMakeLower !== 'all') {
+                const dbEntryKey = Object.keys(vehicleDatabase).find(k => k.toLowerCase() === selectedMakeLower);
+                if (dbEntryKey) {
+                    vehicleDatabase[dbEntryKey].forEach(md => modelMap.set(md.toLowerCase(), md));
+                }
+                (Array.isArray(matches) ? matches : []).forEach(p => {
+                    const pMake = String(p.carMaker || p.make || '').toLowerCase();
+                    const pModel = String(p.carModel || p.model || '').trim();
+                    if (pMake === selectedMakeLower && pModel && !modelMap.has(pModel.toLowerCase())) {
+                        modelMap.set(pModel.toLowerCase(), pModel);
+                    }
+                });
+            } else {
+                Object.values(vehicleDatabase).forEach(modelsArr => {
+                    modelsArr.forEach(md => modelMap.set(md.toLowerCase(), md));
+                });
+                (Array.isArray(matches) ? matches : []).forEach(p => {
+                    const pModel = String(p.carModel || p.model || '').trim();
+                    if (pModel && !modelMap.has(pModel.toLowerCase())) {
+                        modelMap.set(pModel.toLowerCase(), pModel);
+                    }
+                });
+            }
+
+            const sortedModels = Array.from(modelMap.values()).sort((a, b) => a.localeCompare(b));
+            const allModelLabel = currentLang === 'ar' ? 'الطراز: الكل' : 'Model / Brand: All';
+            modelSelect.innerHTML = `<option value="all">${allModelLabel}</option>` +
+                sortedModels.map(md => `<option value="${escapeHtmlAttr(md.toLowerCase())}">${escapeHtmlAttr(md)}</option>`).join('');
+
+            if (Array.from(modelSelect.options).some(o => o.value === prevModel)) {
+                modelSelect.value = prevModel;
+            } else {
+                modelSelect.value = 'all';
+            }
+        }
+
+        function handleModalMakeFilterChange() {
+            const makeVal = (document.getElementById('modal-search-make-filter')?.value || 'all').toLowerCase();
+            populateModalModelDropdownOptions(currentCustomerSearchMatches, makeVal);
+            filterModalSearchResults();
+        }
+
         function updateCompareControlsUI() {
             const count = selectedCompareKeys.size;
             const compareBtn = document.getElementById('compare-now-btn');
@@ -2415,6 +2510,7 @@
             const clearBtn = document.getElementById('clear-compare-selection-btn');
             const backBtn = document.getElementById('back-to-results-btn');
             const categorySelect = document.getElementById('modal-search-category-filter');
+            const vehicleFiltersBox = document.getElementById('modal-search-vehicle-filters');
             const refineInput = document.getElementById('modal-search-refine-input');
             const selectAllCb = document.getElementById('select-all-compare-checkbox');
 
@@ -2424,10 +2520,17 @@
                 if (backBtn) backBtn.style.display = 'inline-flex';
                 if (clearBtn) clearBtn.style.display = 'none';
                 if (categorySelect) categorySelect.style.display = 'none';
+                if (vehicleFiltersBox) vehicleFiltersBox.style.display = 'none';
                 if (refineInput) refineInput.style.display = 'none';
             } else {
                 if (backBtn) backBtn.style.display = 'none';
-                if (categorySelect) categorySelect.style.display = 'inline-block';
+                if (modalSearchMode === 'category') {
+                    if (categorySelect) categorySelect.style.display = 'none';
+                    if (vehicleFiltersBox) vehicleFiltersBox.style.display = 'flex';
+                } else {
+                    if (categorySelect) categorySelect.style.display = 'inline-block';
+                    if (vehicleFiltersBox) vehicleFiltersBox.style.display = 'none';
+                }
                 if (refineInput) refineInput.style.display = 'inline-block';
 
                 if (count >= 2) {
@@ -2535,7 +2638,7 @@
                                 <i class="fa-solid fa-box-open"></i>
                             </div>
                             <div class="text-sm font-bold text-gray-200">${currentLang === 'ar' ? 'لم يتم العثور على قطع مطابقة في مخزون الشركات حالياً' : 'No matching spare parts found in supplier inventories'}</div>
-                            <div class="text-[11px] max-w-md mx-auto">${currentLang === 'ar' ? 'جرب تعديل كلمات البحث أو الفئة أو تواصل مع فريق الدعم المباشر عبر واتساب لتوفير القطعة.' : 'Try adjusting your search keywords or category filter, or message our WhatsApp parts desk for manual sourcing.'}</div>
+                            <div class="text-[11px] max-w-md mx-auto">${currentLang === 'ar' ? 'جرب تعديل كلمات البحث أو الفلاتر أو تواصل مع فريق الدعم المباشر عبر واتساب لتوفير القطعة.' : 'Try adjusting your search keywords or vehicle filters, or message our WhatsApp parts desk for manual sourcing.'}</div>
                         </td>
                     </tr>
                 `;
@@ -2750,19 +2853,39 @@
         }
 
         function filterModalSearchResults() {
-            const selectedCat = (document.getElementById('modal-search-category-filter')?.value || 'all').toLowerCase();
             const refineTerm = (document.getElementById('modal-search-refine-input')?.value || '').toLowerCase().trim();
 
             updatePriceSortHeaderIcon(modalPriceSortOrder);
 
             let filtered = currentCustomerSearchMatches.filter(p => {
-                if (selectedCat !== 'all') {
-                    const partCatEn = String(p.categoryEn || p.category || '').toLowerCase();
-                    const partCatAr = String(p.categoryAr || '').toLowerCase();
-                    if (partCatEn !== selectedCat && !partCatEn.includes(selectedCat) && !partCatAr.includes(selectedCat)) {
-                        return false;
+                if (modalSearchMode === 'category') {
+                    const selectedMake = (document.getElementById('modal-search-make-filter')?.value || 'all').toLowerCase();
+                    const selectedModel = (document.getElementById('modal-search-model-filter')?.value || 'all').toLowerCase();
+                    const selectedYear = (document.getElementById('modal-search-year-filter')?.value || 'all').trim();
+
+                    if (selectedMake !== 'all') {
+                        const partMake = String(p.carMaker || p.make || '').toLowerCase();
+                        if (!partMake.includes(selectedMake)) return false;
+                    }
+                    if (selectedModel !== 'all') {
+                        const partModel = String(p.carModel || p.model || '').toLowerCase();
+                        if (!partModel.includes(selectedModel)) return false;
+                    }
+                    if (selectedYear !== 'all') {
+                        const partYear = String(p.makeYear || '').trim();
+                        if (partYear !== selectedYear) return false;
+                    }
+                } else {
+                    const selectedCat = (document.getElementById('modal-search-category-filter')?.value || 'all').toLowerCase();
+                    if (selectedCat !== 'all') {
+                        const partCatEn = String(p.categoryEn || p.category || '').toLowerCase();
+                        const partCatAr = String(p.categoryAr || '').toLowerCase();
+                        if (partCatEn !== selectedCat && !partCatEn.includes(selectedCat) && !partCatAr.includes(selectedCat)) {
+                            return false;
+                        }
                     }
                 }
+
                 if (refineTerm) {
                     const haystack = `${p.partNameEn || p.name || ''} ${p.categoryEn || ''} ${p.categoryAr || ''} ${p.grade || ''} ${p.partNumber || ''} ${p.partId || ''} ${p.carMaker || p.make || ''} ${p.carModel || p.model || ''} ${p.vinNumber || ''} ${p.companyName || p.supplier || ''}`.toLowerCase();
                     if (!haystack.includes(refineTerm)) return false;
@@ -2784,8 +2907,9 @@
             renderSearchResultsRowsInModal(filtered);
         }
 
-        function openCustomerSearchResultsModal(matches, querySummary) {
+        function openCustomerSearchResultsModal(matches, querySummary, searchMode = 'standard') {
             baseModalSearchTitle = querySummary;
+            modalSearchMode = searchMode;
             selectedCompareKeys.clear();
             isCompareModeActive = false;
             modalPriceSortOrder = 'default';
@@ -2801,15 +2925,26 @@
             const refineInputEl = document.getElementById('modal-search-refine-input');
             const tableWrapper = document.getElementById('modal-search-table-wrapper');
             const compareWrapper = document.getElementById('modal-search-compare-wrapper');
+            const catSelect = document.getElementById('modal-search-category-filter');
+            const vehicleFiltersBox = document.getElementById('modal-search-vehicle-filters');
 
             if (titleEl) titleEl.innerText = querySummary;
             if (refineInputEl) refineInputEl.value = '';
             if (compareWrapper) compareWrapper.style.display = 'none';
             if (tableWrapper) tableWrapper.style.display = 'block';
 
-            populateModalCategoryDropdown(currentCustomerSearchMatches);
-            const catSelect = document.getElementById('modal-search-category-filter');
-            if (catSelect) catSelect.value = 'all';
+            if (modalSearchMode === 'category') {
+                if (catSelect) catSelect.style.display = 'none';
+                if (vehicleFiltersBox) vehicleFiltersBox.style.display = 'flex';
+                populateModalVehicleDropdowns(currentCustomerSearchMatches);
+            } else {
+                if (vehicleFiltersBox) vehicleFiltersBox.style.display = 'none';
+                if (catSelect) {
+                    catSelect.style.display = 'inline-block';
+                    populateModalCategoryDropdown(currentCustomerSearchMatches);
+                    catSelect.value = 'all';
+                }
+            }
 
             updatePriceSortHeaderIcon('default');
             renderSearchResultsRowsInModal(currentFilteredSearchMatches);
@@ -2831,7 +2966,11 @@
                 String(p.categoryEn || p.category || '').toLowerCase().includes(q) ||
                 String(p.partNameEn || p.name || '').toLowerCase().includes(q)
             );
-            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج القسم: ${catAr}` : `Category: ${catEn}`);
+            openCustomerSearchResultsModal(
+                matches,
+                currentLang === 'ar' ? `نتائج القسم: ${catAr}` : `Category: ${catEn}`,
+                'category'
+            );
         }
 
         function getHomeViewHTML() {
@@ -2984,7 +3123,7 @@
                 String(p.vinNumber || '').toUpperCase().includes(q) ||
                 String(p.partNumber || '').toUpperCase().includes(q)
             );
-            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج رقم الهيكل: "${val.toUpperCase()}"` : `VIN Search: "${val.toUpperCase()}"`);
+            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج رقم الهيكل: "${val.toUpperCase()}"` : `VIN Search: "${val.toUpperCase()}"`, 'standard');
         }
 
         async function handleMakeModelSearch() {
@@ -3004,7 +3143,7 @@
                 return true;
             });
             const label = [mk, md, yr].filter(Boolean).join(' • ');
-            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج المركبة: ${label}` : `Vehicle Search: ${label}`);
+            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج المركبة: ${label}` : `Vehicle Search: ${label}`, 'standard');
         }
 
         async function handleSerialSearch() {
@@ -3019,7 +3158,7 @@
                 String(p.partNameEn || p.name || '').toLowerCase().includes(q) ||
                 String(p.categoryEn || p.category || '').toLowerCase().includes(q)
             );
-            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج الرقم التسلسلي: "${serial}"` : `Part / OEM Search: "${serial}"`);
+            openCustomerSearchResultsModal(matches, currentLang === 'ar' ? `نتائج الرقم التسلسلي: "${serial}"` : `Part / OEM Search: "${serial}"`, 'standard');
         }
 
         function openVinSourceModal() { trackSectionVisit('VIN OCR Scanner'); document.getElementById('vin-source-modal').style.display = 'flex'; }
@@ -3300,290 +3439,363 @@
 
                     <div class="space-y-1.5">
                         <h3 class="font-extrabold text-blue-400 text-sm" data-en="4. Pricing & Governing Law" data-ar="4. التسعير والقانون الواجب التطبيق">4. Pricing & Governing Law</h3>
-                        <p class="text-gray-300" data-en="All listed prices are quoted in Jordanian Dinars (JOD) unless noted otherwise. These Terms & Conditions are governed by and construed in accordance with the laws of the Hashemite Kingdom of Jordan." data-ar="جميع الأسعار المعروضة مقومة بالدينار الأردني (JOD) ما لم يُذكر خلاف ذلك. تخضع هذه الشروط والأحكام لقوانين المملكة الأردنية الهاشمية.">
-                            All listed prices are quoted in Jordanian Dinars (JOD) unless noted otherwise. These Terms & Conditions are governed by and construed in accordance with the laws of the Hashemite Kingdom of Jordan.
+                        <p class="text-gray-300" data-en="All listed prices are denominated in Jordanian Dinars (JOD). These Terms & Conditions are governed by and construed in accordance with the laws of the Hashemite Kingdom of Jordan." data-ar="تُعرض جميع الأسعار بالدينار الأردني (JOD). تخضع هذه الشروط والأحكام وتُفسر وفقاً لقوانين المملكة الأردنية الهاشمية.">
+                            All listed prices are denominated in Jordanian Dinars (JOD). These Terms & Conditions are governed by and construed in accordance with the laws of the Hashemite Kingdom of Jordan.
                         </p>
                     </div>
                 </div>
             `;
-            renderFooterPageWrapper('Terms & Conditions', 'الشروط والأحكام', 'User & Vendor Agreement', 'اتفاقية الاستخدام والتوريد', 'fa-solid fa-file-contract', html);
+            renderFooterPageWrapper('Terms & Conditions', 'الشروط والأحكام', 'Marketplace Agreement', 'اتفاقية استخدام المنصة', 'fa-solid fa-file-signature', html);
         }
 
         function showSupportView() {
             const html = `
-                <div class="space-y-4 text-xs">
+                <div class="space-y-5 text-xs">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1.5">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse text-emerald-400 font-bold">
+                        <div class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-2">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse text-emerald-400 font-bold text-sm">
                                 <i class="fa-brands fa-whatsapp text-base"></i>
-                                <span data-en="Live WhatsApp Parts Desk" data-ar="دعم واتساب المباشر لقطع الغيار">Live WhatsApp Parts Desk</span>
+                                <span data-en="Instant WhatsApp Parts Desk" data-ar="مكتب المساعدة الفوري عبر واتساب">Instant WhatsApp Parts Desk</span>
                             </div>
-                            <p class="text-gray-300" data-en="Need help decoding a chassis number or locating a rare part? Message our technical support team directly." data-ar="هل تحتاج مساعدة في قراءة رقم الهيكل أو إيجاد قطعة نادرة؟ تواصل مع فريق الدعم الفني مباشرة.">Need help decoding a chassis number or locating a rare part? Message our technical support team directly.</p>
-                            <a href="https://wa.me/962795115122" target="_blank" class="inline-block font-mono font-bold text-emerald-400 hover:underline pt-1" dir="ltr">+962 7 9511 5122</a>
+                            <p class="text-gray-300 text-[11px]" data-en="Send a photo of your vehicle registration (Rukhsa) or broken part and our specialists will help you identify the exact OEM part number." data-ar="أرسل صورة رخصة المركبة أو القطعة المطلوبة وسيساعدك فريقنا في تحديد رقم القطعة الأصلي بدقة.">
+                                Send a photo of your vehicle registration (Rukhsa) or broken part and our specialists will help you identify the exact OEM part number.
+                            </p>
+                            <a href="https://wa.me/962795115122" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 rtl:space-x-reverse px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] transition">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                <span dir="ltr">+962 79 511 5122</span>
+                            </a>
                         </div>
 
-                        <div class="p-4 rounded-xl border border-blue-500/30 bg-blue-500/5 space-y-1.5">
-                            <div class="flex items-center space-x-2 rtl:space-x-reverse text-blue-400 font-bold">
-                                <i class="fa-solid fa-envelope text-base"></i>
-                                <span data-en="Account & B2B Verification Support" data-ar="دعم الحسابات وتوثيق الشركات">Account & B2B Verification Support</span>
+                        <div class="p-4 rounded-xl border border-blue-500/30 bg-blue-600/5 space-y-2">
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse text-blue-400 font-bold text-sm">
+                                <i class="fa-solid fa-headset text-base"></i>
+                                <span data-en="B2B Onboarding & Technical Help" data-ar="دعم الشركات والتسجيل التجاري">B2B Onboarding & Technical Help</span>
                             </div>
-                            <p class="text-gray-300" data-en="For CR approval inquiries, bulk catalog onboarding, or account assistance, reach us by email." data-ar="لاستفسارات اعتماد السجل التجاري أو رفع كتالوجات القطع بالجملة أو مساعدة الحسابات، راسلنا عبر البريد.">For CR approval inquiries, bulk catalog onboarding, or account assistance, reach us by email.</p>
-                            <a href="mailto:Spare.jo@outlook.com" class="inline-block font-mono font-bold text-blue-400 hover:underline pt-1">Spare.jo@outlook.com</a>
+                            <p class="text-gray-300 text-[11px]" data-en="Need assistance uploading your Commercial Registration (CR), verifying a workshop account, or bulk-importing spare parts?" data-ar="هل تحتاج إلى مساعدة في رفع السجل التجاري أو توثيق حساب الورشة أو رفع قوائم قطع الغيار؟">
+                                Need assistance uploading your Commercial Registration (CR), verifying a workshop account, or bulk-importing spare parts?
+                            </p>
+                            <a href="mailto:Spare.jo@outlook.com" class="inline-flex items-center space-x-2 rtl:space-x-reverse px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-[11px] transition">
+                                <i class="fa-solid fa-envelope"></i>
+                                <span>Spare.jo@outlook.com</span>
+                            </a>
                         </div>
                     </div>
 
-                    <div class="space-y-2.5 pt-1">
-                        <h3 class="font-extrabold text-blue-400 text-sm" data-en="Frequently Asked Questions" data-ar="الأسئلة الشائعة">Frequently Asked Questions</h3>
+                    <div class="space-y-2.5">
+                        <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-xs" data-en="Frequently Asked Questions" data-ar="الأسئلة الشائعة">Frequently Asked Questions</h3>
                         
-                        <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
-                            <div class="font-bold text-white" data-en="Where do I find my vehicle's 17-digit VIN?" data-ar="أين أجد رقم الهيكل (VIN) المكون من 17 خانة؟">Where do I find my vehicle's 17-digit VIN?</div>
-                            <p class="text-gray-400" data-en="Look at the lower-left corner of your front windshield (driver's side), inside the driver's door jamb sticker, or on your Jordanian vehicle registration card (الرخصة). You can also snap a photo using our VIN Camera Scanner." data-ar="تجد رقم الهيكل أسفل الزجاج الأمامي من جهة السائق، أو على ملصق باب السائق، أو على رخصة اقتناء المركبة الأردنية. يمكنك أيضاً تصويره مباشرة عبر ميزة المسح بالكاميرا.">Look at the lower-left corner of your front windshield (driver's side), inside the driver's door jamb sticker, or on your Jordanian vehicle registration card (الرخصة). You can also snap a photo using our VIN Camera Scanner.</p>
+                        <div class="p-3.5 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
+                            <div class="font-bold text-white" data-en="• Where do I find my 17-digit VIN (Chassis Number)?" data-ar="• أين أجد رقم الهيكل (VIN) المكون من 17 خانة؟">• Where do I find my 17-digit VIN (Chassis Number)?</div>
+                            <p class="text-gray-400 text-[11px]" data-en="You can find it on your Jordanian vehicle license (رخصة المركبة), on the lower-left corner of your windshield, or on the driver-side door jamb sticker—or snap a photo using our camera icon in the search bar." data-ar="يمكنك العثور عليه في رخصة المركبة الأردنية، أو أسفل الزجاج الأمامي من جهة السائق، أو على ملصق باب السائق، أو تصويره مباشرة عبر أيقونة الكاميرا في شريط البحث.">You can find it on your Jordanian vehicle license (رخصة المركبة), on the lower-left corner of your windshield, or on the driver-side door jamb sticker—or snap a photo using our camera icon in the search bar.</p>
                         </div>
 
-                        <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
-                            <div class="font-bold text-white" data-en="How long does B2B Company CR verification take?" data-ar="كم يستغرق توثيق السجل التجاري لحسابات الشركات؟">How long does B2B Company CR verification take?</div>
-                            <p class="text-gray-400" data-en="Once you upload a clear PDF or image copy of your valid Commercial Registration (CR), our operations team reviews and activates your verified badge within 2 to 6 business hours." data-ar="بمجرد رفع نسخة واضحة (PDF أو صورة) من السجل التجاري الساري، يقوم فريق العمليات بمراجعتها وتفعيل شارة التوثيق خلال ساعتين إلى 6 ساعات عمل.">Once you upload a clear PDF or image copy of your valid Commercial Registration (CR), our operations team reviews and activates your verified badge within 2 to 6 business hours.</p>
+                        <div class="p-3.5 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
+                            <div class="font-bold text-white" data-en="• What is the difference between Genuine, OEM, and Aftermarket?" data-ar="• ما الفرق بين القطع الأصلية (Genuine) و OEM والبديلة (Aftermarket)؟">• What is the difference between Genuine, OEM, and Aftermarket?</div>
+                            <p class="text-gray-400 text-[11px]" data-en="Genuine parts come in the automaker's branded box (e.g., Toyota, Hyundai). OEM parts are made by the exact same factory supplier without the automaker logo at a lower cost. Aftermarket parts are produced by certified third-party manufacturers." data-ar="القطع الأصلية (Genuine) تأتي بعلبة الوكالة الرسمية. قطع OEM تُصنع في نفس المصنع المورد للوكالة ولكن بدون شعار الشركة وبسعر أقل. القطع البديلة (Aftermarket) تُنتج من شركات متخصصة معتمدة.">Genuine parts come in the automaker's branded box (e.g., Toyota, Hyundai). OEM parts are made by the exact same factory supplier without the automaker logo at a lower cost. Aftermarket parts are produced by certified third-party manufacturers.</p>
                         </div>
 
-                        <div class="p-3 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
-                            <div class="font-bold text-white" data-en="What is the difference between Genuine, OEM, and Aftermarket?" data-ar="ما الفرق بين القطع الأصلية (Genuine) و OEM والتجارية (Aftermarket)؟">What is the difference between Genuine, OEM, and Aftermarket?</div>
-                            <p class="text-gray-400" data-en="Genuine parts carry the vehicle manufacturer's branded packaging; OEM parts are made by the exact same factory supplier without the automaker logo; Aftermarket parts are compatible replacements produced by third-party brands." data-ar="القطع الأصلية (Genuine) تأتي بعبوة وشعار صانع السيارة؛ قطع OEM مصنعة من نفس المصنع المورد للوكالة ولكن بدون شعار الشركة؛ القطع التجارية (Aftermarket) بدائل متوافقة من شركات مستقلة.">Genuine parts carry the vehicle manufacturer's branded packaging; OEM parts are made by the exact same factory supplier without the automaker logo; Aftermarket parts are compatible replacements produced by third-party brands.</p>
+                        <div class="p-3.5 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-1">
+                            <div class="font-bold text-white" data-en="• How long does B2B Company verification take?" data-ar="• كم يستغرق توثيق حساب الشركات؟">• How long does B2B Company verification take?</div>
+                            <p class="text-gray-400 text-[11px]" data-en="Once you upload a valid Commercial Registration (CR) copy during registration, our operations team reviews and approves your company badge within 24 business hours." data-ar="بمجرد رفع نسخة سارية من السجل التجاري عند التسجيل، يقوم فريق العمليات بمراجعة الطلب وتفعيل شارة التوثيق خلال 24 ساعة عمل.">Once you upload a valid Commercial Registration (CR) copy during registration, our operations team reviews and approves your company badge within 24 business hours.</p>
                         </div>
                     </div>
                 </div>
             `;
-            renderFooterPageWrapper('Support & Help Center', 'الدعم والمساعدة', 'Customer & Workshop Care', 'خدمة العملاء والورش', 'fa-solid fa-headset', html);
+            renderFooterPageWrapper('Support & Help Center', 'الدعم والمساعدة', '24/7 Assistance', 'مساعدة على مدار الساعة', 'fa-solid fa-life-ring', html);
         }
 
         function showSitemapView() {
+            const topCategories = popularCategoriesData.slice(0, 12).map(cat => `
+                <button type="button" onclick="searchByCategory('${cat.en.replace(/'/g, "\\'")}', '${cat.ar.replace(/'/g, "\\'")}')" class="text-start px-2.5 py-1.5 rounded-lg border border-blue-900/40 hover:border-blue-500 text-[11px] text-gray-300 hover:text-blue-400 transition cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse">
+                    <span>${cat.icon}</span>
+                    <span data-en="${cat.en}" data-ar="${cat.ar}">${cat.en}</span>
+                </button>
+            `).join('');
+
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
-                        <h3 class="font-extrabold text-blue-400 uppercase tracking-wider flex items-center space-x-2 rtl:space-x-reverse">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <span data-en="Marketplace & Search" data-ar="المتجر وأدوات البحث">Marketplace & Search</span>
-                        </h3>
-                        <ul class="space-y-1.5 text-gray-300">
-                            <li><a href="#" onclick="showHomeView(); return false;" class="hover:text-blue-400 transition">• <span data-en="Home — VIN Chassis Search" data-ar="الرئيسية — البحث برقم الهيكل">Home — VIN Chassis Search</span></a></li>
-                            <li><a href="#" onclick="showHomeView(); switchSearchTab('model'); return false;" class="hover:text-blue-400 transition">• <span data-en="Search by Vehicle Make & Model" data-ar="البحث حسب صانع وطراز المركبة">Search by Vehicle Make & Model</span></a></li>
-                            <li><a href="#" onclick="showHomeView(); switchSearchTab('serial'); return false;" class="hover:text-blue-400 transition">• <span data-en="Search by OEM / Part Serial #" data-ar="البحث بالرقم التسلسلي للقطعة">Search by OEM / Part Serial #</span></a></li>
-                            <li><a href="#" onclick="showHomeView(); if(!isGridVisible) toggleCategoryGrid(); return false;" class="hover:text-blue-400 transition">• <span data-en="30 Popular Spare Part Categories" data-ar="30 قسماً شائعاً لقطع الغيار">30 Popular Spare Part Categories</span></a></li>
-                        </ul>
+                <div class="space-y-5 text-xs">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
+                            <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-xs flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span data-en="Marketplace & Search" data-ar="السوق وأدوات البحث">Marketplace & Search</span>
+                            </h3>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><a href="#" onclick="showHomeView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-blue-500 rtl:rotate-180"></i><span data-en="Home — Spare.jo Marketplace" data-ar="الرئيسية — سوق Spare.jo">Home — Spare.jo Marketplace</span></a></li>
+                                <li><a href="#" onclick="showHomeView(); switchSearchTab('vin'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-blue-500 rtl:rotate-180"></i><span data-en="Search by 17-Digit VIN / OCR" data-ar="البحث برقم الهيكل (VIN)">Search by 17-Digit VIN / OCR</span></a></li>
+                                <li><a href="#" onclick="showHomeView(); switchSearchTab('model'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-blue-500 rtl:rotate-180"></i><span data-en="Search by Vehicle Make & Model" data-ar="البحث حسب الصانع والطراز">Search by Vehicle Make & Model</span></a></li>
+                                <li><a href="#" onclick="showHomeView(); switchSearchTab('serial'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-blue-500 rtl:rotate-180"></i><span data-en="Search by Part Serial / OEM #" data-ar="البحث بالرقم التسلسلي للقطعة">Search by Part Serial / OEM #</span></a></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
+                            <h3 class="font-extrabold text-amber-400 uppercase tracking-wider text-xs flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fa-solid fa-users-gear"></i>
+                                <span data-en="Accounts & Portals" data-ar="الحسابات والبوابات">Accounts & Portals</span>
+                            </h3>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-amber-500 rtl:rotate-180"></i><span data-en="Account Portal (Sign In / Register)" data-ar="بوابة الحسابات (دخول / تسجيل)">Account Portal (Sign In / Register)</span></a></li>
+                                <li><a href="#" onclick="showAccountSelectionView(); openAuthModal('company', 'signup'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-amber-500 rtl:rotate-180"></i><span data-en="B2B Company Registration" data-ar="تسجيل حساب شركة تجارية">B2B Company Registration</span></a></li>
+                                <li><a href="#" onclick="showAccountSelectionView(); openAuthModal('customer', 'signup'); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-amber-500 rtl:rotate-180"></i><span data-en="Individual Customer Registration" data-ar="تسجيل حساب عميل فردي">Individual Customer Registration</span></a></li>
+                                <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-amber-500 rtl:rotate-180"></i><span data-en="Admin Console & Platform Monitor" data-ar="لوحة تحكم الإدارة">Admin Console & Platform Monitor</span></a></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
+                            <h3 class="font-extrabold text-emerald-400 uppercase tracking-wider text-xs flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fa-solid fa-book-open"></i>
+                                <span data-en="Information & Legal" data-ar="المعلومات والسياسات">Information & Legal</span>
+                            </h3>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><a href="#" onclick="showAboutView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-emerald-500 rtl:rotate-180"></i><span data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</span></a></li>
+                                <li><a href="#" onclick="showPrivacyView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-emerald-500 rtl:rotate-180"></i><span data-en="Privacy & Cookies Policy" data-ar="سياسة الخصوصية وملفات الارتباط">Privacy & Cookies Policy</span></a></li>
+                                <li><a href="#" onclick="showTermsView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-emerald-500 rtl:rotate-180"></i><span data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</span></a></li>
+                                <li><a href="#" onclick="showSupportView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-emerald-500 rtl:rotate-180"></i><span data-en="Support & FAQ" data-ar="الدعم والأسئلة الشائعة">Support & FAQ</span></a></li>
+                                <li><a href="#" onclick="showContactView(); return false;" class="hover:text-blue-400 transition flex items-center space-x-2 rtl:space-x-reverse"><i class="fa-solid fa-angle-right text-[10px] text-emerald-500 rtl:rotate-180"></i><span data-en="Contact Us" data-ar="اتصل بنا">Contact Us</span></a></li>
+                            </ul>
+                        </div>
                     </div>
 
-                    <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
-                        <h3 class="font-extrabold text-emerald-400 uppercase tracking-wider flex items-center space-x-2 rtl:space-x-reverse">
-                            <i class="fa-solid fa-user-check"></i>
-                            <span data-en="Accounts & Portals" data-ar="الحسابات والبوابات">Accounts & Portals</span>
-                        </h3>
-                        <ul class="space-y-1.5 text-gray-300">
-                            <li><a href="#" onclick="showAccountSelectionView(); return false;" class="hover:text-emerald-400 transition">• <span data-en="Account Portal (Sign In / Register)" data-ar="بوابة الحسابات (دخول / تسجيل)">Account Portal (Sign In / Register)</span></a></li>
-                            <li><a href="#" onclick="showAccountSelectionView(); openAuthModal('company', 'signup'); return false;" class="hover:text-emerald-400 transition">• <span data-en="B2B Company & Importer Registration" data-ar="تسجيل الشركات والمستوردين (B2B)">B2B Company & Importer Registration</span></a></li>
-                            <li><a href="#" onclick="showAccountSelectionView(); openAuthModal('customer', 'signup'); return false;" class="hover:text-emerald-400 transition">• <span data-en="Individual Driver Registration" data-ar="تسجيل حسابات الأفراد والسائقين">Individual Driver Registration</span></a></li>
-                            <li><a href="#" onclick="handleAdminButtonAction(); return false;" class="hover:text-amber-400 transition">• <span data-en="Admin Operations Console" data-ar="لوحة تحكم الإدارة والعمليات">Admin Operations Console</span></a></li>
-                        </ul>
-                    </div>
-
-                    <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
-                        <h3 class="font-extrabold text-amber-400 uppercase tracking-wider flex items-center space-x-2 rtl:space-x-reverse">
-                            <i class="fa-solid fa-scale-balanced"></i>
-                            <span data-en="Information & Legal" data-ar="المعلومات والشؤون القانونية">Information & Legal</span>
-                        </h3>
-                        <ul class="space-y-1.5 text-gray-300">
-                            <li><a href="#" onclick="showAboutView(); return false;" class="hover:text-amber-400 transition">• <span data-en="About Spare.jo" data-ar="عن Spare.jo">About Spare.jo</span></a></li>
-                            <li><a href="#" onclick="showPrivacyView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Privacy & Cookies Policy" data-ar="سياسة الخصوصية وملفات الارتباط">Privacy & Cookies Policy</span></a></li>
-                            <li><a href="#" onclick="showTermsView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Terms & Conditions" data-ar="الشروط والأحكام">Terms & Conditions</span></a></li>
-                            <li><a href="#" onclick="showSupportView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Support & Help Center" data-ar="الدعم والمساعدة">Support & Help Center</span></a></li>
-                            <li><a href="#" onclick="showContactView(); return false;" class="hover:text-amber-400 transition">• <span data-en="Contact Us" data-ar="اتصل بنا">Contact Us</span></a></li>
-                        </ul>
+                    <div class="space-y-2 pt-1">
+                        <h3 class="font-extrabold text-gray-400 uppercase tracking-wider text-xs" data-en="Quick Category Directory" data-ar="دليل الأصناف السريع">Quick Category Directory</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            ${topCategories}
+                        </div>
                     </div>
                 </div>
             `;
-            renderFooterPageWrapper('Site Map', 'خريطة الموقع', 'Platform Directory', 'دليل صفحات المنصة', 'fa-solid fa-sitemap', html);
+            renderFooterPageWrapper('Site Map', 'خريطة الموقع', 'Full Navigation Directory', 'دليل التنقل الكامل', 'fa-solid fa-sitemap', html);
+        }
+
+        function handleContactFormSubmit(event) {
+            event.preventDefault();
+            const name = document.getElementById('contact-name')?.value.trim();
+            const email = document.getElementById('contact-email')?.value.trim();
+            const subject = document.getElementById('contact-subject')?.value.trim();
+            if (!name || !email) return;
+            event.target.reset();
+            showToast(
+                `Thank you, ${name}! Your inquiry (${subject || 'General'}) has been received by Spare.jo support.`,
+                `شكراً لك ${name}! تم استلام رسالتك بنجاح وسيتواصل معك فريق Spare.jo قريباً.`,
+                'success'
+            );
         }
 
         function showContactView() {
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-3">
-                        <h3 class="font-extrabold text-blue-400 text-sm" data-en="Direct Channels" data-ar="قنوات التواصل المباشر">Direct Channels</h3>
-                        <div class="space-y-2.5">
-                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-envelope text-blue-400 mt-0.5"></i>
-                                <div>
-                                    <div class="font-bold text-white" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
-                                    <a href="mailto:Spare.jo@outlook.com" class="text-blue-400 hover:underline font-mono">Spare.jo@outlook.com</a>
-                                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 text-xs">
+                    <div class="lg:col-span-5 space-y-3">
+                        <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-xs" data-en="Direct Channels" data-ar="قنوات التواصل المباشر">Direct Channels</h3>
+                        
+                        <a href="https://wa.me/962795115122" target="_blank" rel="noopener noreferrer" class="custom-card border hover:border-emerald-500/60 p-3.5 rounded-xl flex items-center space-x-3 rtl:space-x-reverse transition block">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-brands fa-whatsapp"></i>
                             </div>
-                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
-                                <i class="fa-brands fa-whatsapp text-emerald-400 mt-0.5"></i>
-                                <div>
-                                    <div class="font-bold text-white" data-en="WhatsApp Business & Parts Desk" data-ar="واتساب الأعمال وخدمة القطع">WhatsApp Business & Parts Desk</div>
-                                    <a href="https://wa.me/962795115122" target="_blank" class="text-emerald-400 hover:underline font-mono" dir="ltr">+962 7 9511 5122</a>
-                                </div>
+                            <div>
+                                <div class="text-[10px] text-gray-400 font-semibold uppercase" data-en="WhatsApp Direct" data-ar="واتساب المباشر">WhatsApp Direct</div>
+                                <div class="font-bold text-white text-sm" dir="ltr">+962 79 511 5122</div>
                             </div>
-                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
-                                <i class="fa-solid fa-location-dot text-amber-400 mt-0.5"></i>
-                                <div>
-                                    <div class="font-bold text-white" data-en="Operations Headquarters" data-ar="المقر الرئيسي للعمليات">Operations Headquarters</div>
-                                    <div class="text-gray-400" data-en="Amman — Bayader Wadi Al-Seer Industrial District, Hashemite Kingdom of Jordan" data-ar="عمّان — المنطقة الصناعية، بيادر وادي السير، المملكة الأردنية الهاشمية">Amman — Bayader Wadi Al-Seer Industrial District, Hashemite Kingdom of Jordan</div>
-                                </div>
+                        </a>
+
+                        <a href="mailto:Spare.jo@outlook.com" class="custom-card border hover:border-blue-500/60 p-3.5 rounded-xl flex items-center space-x-3 rtl:space-x-reverse transition block">
+                            <div class="w-10 h-10 rounded-xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center text-base shrink-0">
+                                <i class="fa-solid fa-envelope"></i>
                             </div>
-                            <div class="flex items-start space-x-2.5 rtl:space-x-reverse">
-                                <i class="fa-regular fa-clock text-cyan-400 mt-0.5"></i>
-                                <div>
-                                    <div class="font-bold text-white" data-en="Working Hours" data-ar="ساعات العمل">Working Hours</div>
-                                    <div class="text-gray-400" data-en="Saturday – Thursday: 08:30 AM – 06:30 PM (Amman Time)" data-ar="السبت – الخميس: 08:30 صباحاً – 06:30 مساءً (بتوقيت عمّان)">Saturday – Thursday: 08:30 AM – 06:30 PM (Amman Time)</div>
-                                </div>
+                            <div>
+                                <div class="text-[10px] text-gray-400 font-semibold uppercase" data-en="Official Email" data-ar="البريد الإلكتروني الرسمي">Official Email</div>
+                                <div class="font-bold text-blue-400 text-sm">Spare.jo@outlook.com</div>
+                            </div>
+                        </a>
+
+                        <div class="custom-card border p-3.5 rounded-xl flex items-center space-x-3 rtl:space-x-reverse">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-base shrink-0">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-gray-400 font-semibold uppercase" data-en="Headquarters & Coverage" data-ar="المقر الرئيسي ونطاق التغطية">Headquarters & Coverage</div>
+                                <div class="font-bold text-white" data-en="Amman, Hashemite Kingdom of Jordan" data-ar="عمّان، المملكة الأردنية الهاشمية">Amman, Hashemite Kingdom of Jordan</div>
+                                <div class="text-[10px] text-gray-400" data-en="Sun – Thu: 08:30 AM – 06:00 PM (GMT+3)" data-ar="الأحد – الخميس: 08:30 صباحاً – 06:00 مساءً">Sun – Thu: 08:30 AM – 06:00 PM (GMT+3)</div>
                             </div>
                         </div>
                     </div>
 
-                    <form onsubmit="handleContactMessageSubmit(event)" class="p-4 rounded-xl border border-blue-900/40 bg-blue-950/20 space-y-2.5">
-                        <h3 class="font-extrabold text-blue-400 text-sm" data-en="Send Us a Message" data-ar="أرسل لنا رسالة">Send Us a Message</h3>
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Your Name / Workshop" data-ar="الاسم / اسم الورشة">Your Name / Workshop</label>
-                            <input type="text" id="contact-name" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Ahmad Al-Khatib">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Phone / WhatsApp" data-ar="رقم الهاتف / واتساب">Phone / WhatsApp</label>
-                                <input type="text" id="contact-phone" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="079XXXXXXX">
+                    <div class="lg:col-span-7 space-y-3">
+                        <h3 class="font-extrabold text-blue-400 uppercase tracking-wider text-xs" data-en="Send Us a Message" data-ar="أرسل لنا رسالة">Send Us a Message</h3>
+                        <form onsubmit="handleContactFormSubmit(event)" class="space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Full Name / Company" data-ar="الاسم الكامل / الشركة">Full Name / Company</label>
+                                    <input type="text" id="contact-name" required placeholder="e.g., Ahmad Al-Masri" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Email Address" data-ar="البريد الإلكتروني">Email Address</label>
+                                    <input type="email" id="contact-email" required placeholder="name@example.com" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Phone / WhatsApp" data-ar="رقم الهاتف / واتساب">Phone / WhatsApp</label>
+                                    <input type="text" id="contact-phone" placeholder="+962 7X XXX XXXX" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Inquiry Topic" data-ar="موضوع الرسالة">Inquiry Topic</label>
+                                    <select id="contact-subject" class="custom-input w-full px-3 py-2 border rounded-lg text-xs">
+                                        <option value="Spare Part Sourcing">Spare Part Sourcing / VIN Help</option>
+                                        <option value="B2B Supplier Partnership">B2B Supplier / Importer Partnership</option>
+                                        <option value="Account & CR Verification">Account & CR Verification</option>
+                                        <option value="Technical Feedback">Technical Feedback</option>
+                                    </select>
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Inquiry Type" data-ar="نوع الاستفسار">Inquiry Type</label>
-                                <select id="contact-topic" class="custom-input w-full px-2.5 py-2 border rounded-lg text-xs">
-                                    <option value="part">Part Sourcing</option>
-                                    <option value="b2b">B2B Supplier Onboarding</option>
-                                    <option value="support">Technical Support</option>
-                                </select>
+                                <label class="block text-[10px] text-gray-400 font-semibold mb-1" data-en="Message Details" data-ar="تفاصيل الرسالة">Message Details</label>
+                                <textarea id="contact-message" rows="3" required placeholder="Include VIN, part number, or company details..." class="custom-input w-full px-3 py-2 border rounded-lg text-xs resize-none"></textarea>
                             </div>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-gray-300 font-semibold mb-1" data-en="Message" data-ar="الرسالة">Message</label>
-                            <textarea id="contact-msg" rows="3" required class="custom-input w-full px-3 py-2 border rounded-lg text-xs" placeholder="Write your inquiry or part details..."></textarea>
-                        </div>
-                        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition shadow-md flex items-center justify-center space-x-2 rtl:space-x-reverse">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span data-en="Send Inquiry" data-ar="إرسال الرسالة">Send Inquiry</span>
-                        </button>
-                    </form>
+                            <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs shadow-lg transition cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span data-en="Submit Message" data-ar="إرسال الرسالة">Submit Message</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             `;
-            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get in Touch', 'تواصل مع فريقنا', 'fa-solid fa-envelope-open-text', html);
-        }
-
-        function handleContactMessageSubmit(event) {
-            event.preventDefault();
-            showToast('Your message has been sent to the Spare.jo team. We will reply shortly!', 'تم إرسال رسالتك إلى فريق Spare.jo. سنتواصل معك قريباً!', 'success');
-            event.target.reset();
-        }
-
-        function toggleCategoryGrid() {
-            const container = document.getElementById('categories-grid-container');
-            const icon = document.getElementById('grid-toggle-icon');
-            if (!container) return;
-            isGridVisible = !isGridVisible;
-            if (isGridVisible) trackSectionVisit('Popular Categories Grid');
-            container.classList.toggle('hidden', !isGridVisible);
-            container.classList.toggle('grid', isGridVisible);
-            if (icon) icon.className = isGridVisible ? 'fa-solid fa-chevron-up text-blue-400 text-[10px]' : 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
+            renderFooterPageWrapper('Contact Us', 'اتصل بنا', 'Get In Touch', 'تواصل معنا', 'fa-solid fa-envelope-open-text', html);
         }
 
         function updateProfileButtonUI() {
-            const profileBtn = document.getElementById('profile-btn');
-            const icon = document.getElementById('profile-icon-i');
+            const btn = document.getElementById('profile-btn');
+            const iconI = document.getElementById('profile-icon-i');
             const initialsSpan = document.getElementById('profile-initials');
-            if (!profileBtn) return;
+            if (!btn) return;
             if (loggedInUser) {
-                const name = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim() || loggedInUser.email || 'User';
-                const parts = name.split(/\s+/);
-                const initials = ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase() || 'U';
-                if (icon) icon.style.display = 'none';
-                if (initialsSpan) { initialsSpan.style.display = 'inline'; initialsSpan.innerText = initials; }
-                document.getElementById('dropdown-user-name').innerText = name;
+                if (iconI) iconI.style.display = 'none';
+                if (initialsSpan) { initialsSpan.innerText = (loggedInUser.firstName || 'U').charAt(0).toUpperCase(); initialsSpan.style.display = 'inline'; }
+                document.getElementById('dropdown-user-name').innerText = `${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}`.trim();
                 document.getElementById('dropdown-user-email').innerText = loggedInUser.email || '';
             } else {
-                if (icon) icon.style.display = 'inline';
+                if (iconI) iconI.style.display = 'inline-block';
                 if (initialsSpan) initialsSpan.style.display = 'none';
+                closeProfileDropdown();
             }
         }
 
         function handleProfileButtonAction(event) {
-            event.stopPropagation();
+            if (event) event.stopPropagation();
             if (!loggedInUser) showAccountSelectionView();
             else {
-                const dd = document.getElementById('profile-dropdown');
-                dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+                const dropdown = document.getElementById('profile-dropdown');
+                dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'block' : 'none';
             }
         }
+        function closeProfileDropdown() { const d = document.getElementById('profile-dropdown'); if (d) d.style.display = 'none'; }
 
         async function selectDropdownOption(action) {
-            document.getElementById('profile-dropdown').style.display = 'none';
-            if (action === 'signout') {
-                if (auth) await auth.signOut();
-                loggedInUser = null; updateProfileButtonUI(); showHomeView();
-            } else if (action === 'profile') {
-                trackSectionVisit('User Profile');
-                showToast(`Signed in as ${loggedInUser?.email || 'User'}`, '', 'info');
+            closeProfileDropdown();
+            if (action === 'signout') { if (auth) await auth.signOut(); loggedInUser = null; showHomeView(); }
+            else if (action === 'profile') {
+                currentView = 'profile';
+                trackSectionVisit('My Profile');
+                setMainContainerLayout('default');
+                document.getElementById('main-content').innerHTML = `
+                    <div class="custom-card border rounded-2xl p-6 max-w-md mx-auto w-full text-center space-y-3">
+                        <h2 class="text-base font-extrabold">${loggedInUser.firstName || ''} ${loggedInUser.lastName || ''}</h2>
+                        <p class="text-xs text-gray-400">${loggedInUser.email || ''}</p>
+                        <button onclick="showHomeView()" class="px-6 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl cursor-pointer">Back to Home</button>
+                    </div>`;
+            } else if (action === 'delete') {
+                if (confirm('Delete your account permanently?')) {
+                    if (auth?.currentUser) {
+                        const uid = auth.currentUser.uid;
+                        if (db) await db.collection('users').doc(uid).delete();
+                        await auth.currentUser.delete();
+                    }
+                    loggedInUser = null; showHomeView();
+                }
             }
         }
 
-        function toggleTheme() {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('spare_theme', currentTheme);
-            document.getElementById('app-body').className = `${currentTheme} flex flex-col min-h-screen justify-between select-none`;
-            document.getElementById('theme-icon').className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-yellow-500';
+        document.addEventListener('click', (event) => {
+            if (!document.getElementById('profile-menu-container')?.contains(event.target)) closeProfileDropdown();
+            if (!document.getElementById('admin-actions-menu-container')?.contains(event.target)) closeAdminActionsDropdown();
+            if (!document.getElementById('admin-alerts-menu-container')?.contains(event.target)) closeAdminAlertsDropdown();
+        });
+
+        function toggleCategoryGrid() {
+            const grid = document.getElementById('categories-grid-container');
+            const icon = document.getElementById('grid-toggle-icon');
+            if (!grid) return;
+            isGridVisible = !isGridVisible;
+            if (isGridVisible) trackSectionVisit('Popular Categories Grid');
+            grid.classList.toggle('hidden', !isGridVisible);
+            grid.classList.toggle('grid', isGridVisible);
+            if (icon) icon.className = isGridVisible ? 'fa-solid fa-chevron-up text-blue-400 text-[10px]' : 'fa-solid fa-chevron-down text-blue-400 text-[10px]';
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = currentLang === 'ar' ? (el.getAttribute('data-ar') || el.getAttribute('data-en')) : el.getAttribute('data-en');
+            });
+            const langBtn = document.getElementById('lang-btn');
+            if (langBtn) langBtn.innerText = currentLang === 'ar' ? 'English' : 'العربية';
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
         }
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ar' : 'en';
             localStorage.setItem('spare_lang', currentLang);
-            document.documentElement.lang = currentLang;
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
             if (currentView === 'home') showHomeView();
+            else if (currentView === 'admin-dashboard') showAdminDashboardView();
+            else if (currentView === 'account-selection') showAccountSelectionView();
             else applyTranslations();
-            if (document.getElementById('customer-search-results-modal')?.style.display === 'flex') {
-                populateModalCategoryDropdown(currentCustomerSearchMatches);
-                if (isCompareModeActive) openCompareViewInModal();
-                else filterModalSearchResults();
+
+            const searchModal = document.getElementById('customer-search-results-modal');
+            if (searchModal && searchModal.style.display === 'flex') {
+                if (modalSearchMode === 'category') {
+                    const prevMake = document.getElementById('modal-search-make-filter')?.value || 'all';
+                    const prevModel = document.getElementById('modal-search-model-filter')?.value || 'all';
+                    const prevYear = document.getElementById('modal-search-year-filter')?.value || 'all';
+                    populateModalVehicleDropdowns(currentCustomerSearchMatches);
+                    if (document.getElementById('modal-search-make-filter')) {
+                        document.getElementById('modal-search-make-filter').value = prevMake;
+                        populateModalModelDropdownOptions(currentCustomerSearchMatches, prevMake);
+                    }
+                    if (document.getElementById('modal-search-model-filter')) document.getElementById('modal-search-model-filter').value = prevModel;
+                    if (document.getElementById('modal-search-year-filter')) document.getElementById('modal-search-year-filter').value = prevYear;
+                } else {
+                    populateModalCategoryDropdown(currentCustomerSearchMatches);
+                }
+
+                if (isCompareModeActive) {
+                    openCompareViewInModal();
+                } else {
+                    filterModalSearchResults();
+                }
             }
-            updateDateTime();
         }
 
-        function applyTranslations() {
-            document.querySelectorAll('[data-en][data-ar]').forEach(el => {
-                el.innerText = el.getAttribute(currentLang === 'ar' ? 'data-ar' : 'data-en');
-            });
+        function applyTheme() {
+            const body = document.getElementById('app-body');
+            const icon = document.getElementById('theme-icon');
+            body.classList.toggle('dark', currentTheme === 'dark');
+            body.classList.toggle('light', currentTheme !== 'dark');
+            if (icon) icon.className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-amber-500';
         }
+        function toggleTheme() { currentTheme = currentTheme === 'dark' ? 'light' : 'dark'; localStorage.setItem('spare_theme', currentTheme); applyTheme(); }
 
-        function updateDateTime() {
+        function updateClock() {
             const now = new Date();
-            const locale = currentLang === 'ar' ? 'ar-JO' : 'en-GB';
-            const dateEl = document.getElementById('header-date');
-            const timeEl = document.getElementById('header-time');
-            if (dateEl) dateEl.innerText = now.toLocaleDateString(locale, { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-            if (timeEl) timeEl.innerText = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const dEl = document.getElementById('header-date');
+            const tEl = document.getElementById('header-time');
+            if (dEl) dEl.innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            if (tEl) tEl.innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         }
 
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('admin-actions-menu-container')?.contains(e.target)) closeAdminActionsDropdown();
-            if (!document.getElementById('admin-alerts-menu-container')?.contains(e.target)) closeAdminAlertsDropdown();
-            if (!document.getElementById('profile-menu-container')?.contains(e.target)) {
-                const pd = document.getElementById('profile-dropdown'); if (pd) pd.style.display = 'none';
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.documentElement.lang = currentLang;
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('app-body').className = `${currentTheme} flex flex-col min-h-screen justify-between select-none`;
-            document.getElementById('theme-icon').className = currentTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-yellow-500';
-            document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
             showHomeView();
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
+            updateClock();
+            setInterval(updateClock, 1000);
             initFirebaseServices();
         });
     </script>
